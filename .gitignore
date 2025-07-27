@@ -1,7 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Dependencies
 /node_modules
+/apps/*/node_modules
+/packages/*/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,32 +12,67 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Testing
 /coverage
+/apps/*/coverage
+/packages/*/coverage
 
-# next.js
-/.next/
-/out/
+# Next.js (Frontend)
+/apps/frontend/.next/
+/apps/frontend/out/
 
-# production
+# NestJS (Backend)
+/apps/backend/dist/
+/apps/backend/build/
+
+# Production builds
 /build
+/dist
 
-# misc
-.DS_Store
-*.pem
+# Environment files
+.env*
+/apps/*/.env*
+/packages/*/.env*
 
-# debug
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-# vercel
+# Misc
+.DS_Store
+*.pem
+
+# Vercel (Frontend deployment)
 .vercel
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Database
+*.sqlite
+*.db
+
+# Temporary folders
+tmp/
+temp/
