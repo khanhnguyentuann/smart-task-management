@@ -76,3 +76,10 @@ Thumbs.db
 # Temporary folders
 tmp/
 temp/
+
+# Prisma
+/apps/backend/prisma/migrations/
+/apps/backend/.env
+
+# Docker
+docker-data/
