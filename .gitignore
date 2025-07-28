@@ -30,9 +30,22 @@
 /dist
 
 # Environment files
-.env*
-/apps/*/.env*
-/packages/*/.env*
+# Only ignore .env files, NOT .env.example
+.env
+.env.local
+.env.production
+.env.development
+/apps/*/.env
+/apps/*/.env.local
+/apps/*/.env.production
+/apps/*/.env.development
+/packages/*/.env
+/packages/*/.env.local
+/packages/*/.env.production
+/packages/*/.env.development
+# Explicitly allow .env.example files
+!.env.example
+!/**/.env.example
 
 # Logs
 npm-debug.log*
@@ -79,7 +92,6 @@ temp/
 
 # Prisma
 /apps/backend/prisma/migrations/
-/apps/backend/.env
 
 # Docker
 docker-data/
