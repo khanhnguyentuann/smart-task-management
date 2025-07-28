@@ -12,9 +12,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         JwtModule.registerAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
-                secret: configService.get('JWT_SECRET'),
+                secret: configService.get('jwt.secret'),
                 signOptions: {
-                    expiresIn: configService.get('JWT_EXPIRES_IN') || '15m',
+                    expiresIn: configService.get('jwt.expiresIn') || '15m',
                 },
             }),
             inject: [ConfigService],
@@ -22,6 +22,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy],
-    exports: [AuthService],
+    exports: [AuthService], // Export AuthService nếu cần dùng ở module khác
 })
 export class AuthModule { }

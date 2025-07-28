@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-    getHello(): string {
-        return 'Hello from Smart Task Management API! 🚀';
+    getWelcome() {
+        return {
+            message: 'Welcome to Smart Task Management API! 🚀',
+            version: '1.0.0',
+            documentation: '/api',
+            health: '/health',
+        };
     }
 }

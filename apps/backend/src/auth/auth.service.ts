@@ -18,7 +18,6 @@ export class AuthService {
     async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
         const { email, password, role } = registerDto;
 
-        // Check if user already exists
         const existingUser = await this.prisma.user.findUnique({
             where: { email },
         });
@@ -27,10 +26,8 @@ export class AuthService {
             throw new ConflictException('Email already exists');
         }
 
-        // Hash password using argon2
         const hashedPassword = await argon2.hash(password);
 
-        // Create user
         const user = await this.prisma.user.create({
             data: {
                 email,
@@ -39,7 +36,6 @@ export class AuthService {
             },
         });
 
-        // Generate tokens
         const tokens = await this.generateTokens(user.id, user.email, user.role);
 
         return {
@@ -56,7 +52,6 @@ export class AuthService {
     async login(loginDto: LoginDto): Promise<AuthResponseDto> {
         const { email, password } = loginDto;
 
-        // Find user by email
         const user = await this.prisma.user.findUnique({
             where: { email },
         });
@@ -65,14 +60,12 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Verify password
         const passwordMatches = await argon2.verify(user.passwordHash, password);
 
         if (!passwordMatches) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Generate tokens
         const tokens = await this.generateTokens(user.id, user.email, user.role);
 
         return {
@@ -86,23 +79,51 @@ export class AuthService {
         };
     }
 
+    async refreshToken(refreshToken: string): Promise<Pick<AuthResponseDto, 'accessToken'>> {
+        try {
+            const payload = await this.jwtService.verifyAsync(refreshToken, {
+                secret: this.configService.get('jwt.refreshSecret'),
+            });
+
+            const user = await this.validateUser(payload.sub);
+            if (!user) {
+                throw new UnauthorizedException('User not found');
+            }
+
+            const accessToken = await this.jwtService.signAsync(
+                { sub: user.id, email: user.email, role: user.role },
+                {
+                    expiresIn: this.configService.get('jwt.expiresIn'),
+                    secret: this.configService.get('jwt.secret'),
+                }
+            );
+
+            return { accessToken };
+        } catch (error) {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
+    }
+
+    async logout(userId: string): Promise<void> {
+        // Future: Implement token blacklisting with Redis
+        return;
+    }
+
     private async generateTokens(userId: string, email: string, role: string) {
         const payload = { sub: userId, email, role };
 
-        const accessToken = await this.jwtService.signAsync(payload, {
-            expiresIn: this.configService.get('JWT_EXPIRES_IN') || '15m',
-            secret: this.configService.get('JWT_SECRET'),
-        });
+        const [accessToken, refreshToken] = await Promise.all([
+            this.jwtService.signAsync(payload, {
+                expiresIn: this.configService.get('jwt.expiresIn'),
+                secret: this.configService.get('jwt.secret'),
+            }),
+            this.jwtService.signAsync(payload, {
+                expiresIn: this.configService.get('jwt.refreshExpiresIn'),
+                secret: this.configService.get('jwt.refreshSecret'),
+            }),
+        ]);
 
-        const refreshToken = await this.jwtService.signAsync(payload, {
-            expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN') || '7d',
-            secret: this.configService.get('JWT_REFRESH_SECRET'),
-        });
-
-        return {
-            accessToken,
-            refreshToken,
-        };
+        return { accessToken, refreshToken };
     }
 
     async validateUser(userId: string) {
