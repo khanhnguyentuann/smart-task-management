@@ -22,7 +22,7 @@ export const authService = {
     logout() {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        // Don't redirect here, let the component handle it
     },
 
     saveTokens(data: AuthResponse) {
