@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from '../auth/auth.module';
 import { HealthModule } from '../health/health.module';
+import { ProjectsModule } from '../projects/projects.module';
 import configuration from '../config/configuration';
 import { validationSchema } from '../config/validation.schema';
 
@@ -34,6 +35,7 @@ import { validationSchema } from '../config/validation.schema';
         DatabaseModule,
         AuthModule,
         HealthModule,
+        ProjectsModule, // Thêm ProjectsModule
     ],
     controllers: [AppController],
     providers: [

@@ -19,9 +19,9 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // Relations - sẽ thêm sau
-  // ownedProjects Project[] @relation("ProjectOwner")
-  // projectUsers  ProjectUser[]
+  // Relations
+  ownedProjects Project[]     @relation("ProjectOwner")
+  projectUsers  ProjectUser[]
   // assignedTasks Task[]
 
   @@map("users")
@@ -32,35 +32,47 @@ enum UserRole {
   MEMBER
 }
 
-// Project model - sẽ thêm trong task tiếp theo
-// model Project {
-//   id        String   @id @default(uuid())
-//   name      String
-//   ownerId   String
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+// Project model
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-//   owner        User          @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-//   projectUsers ProjectUser[]
-//   tasks        Task[]
+  // Relations
+  owner        User          @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  projectUsers ProjectUser[]
+  // tasks        Task[]
 
-//   @@map("projects")
-// }
+  @@index([ownerId])
+  @@map("projects")
+}
 
 // ProjectUser model - many-to-many relation
-// model ProjectUser {
-//   userId    String
-//   projectId String
-//   joinedAt  DateTime @default(now())
+model ProjectUser {
+  userId    String
+  projectId String
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime    @default(now())
 
-//   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-//   @@id([userId, projectId])
-//   @@map("project_users")
-// }
+  @@id([userId, projectId])
+  @@index([projectId])
+  @@index([userId])
+  @@map("project_users")
+}
 
-// Task model - sẽ thêm trong task sau
+enum ProjectRole {
+  ADMIN
+  MEMBER
+}
+
+// Task model - sẽ thêm trong milestone sau
 // model Task {
 //   id          String     @id @default(uuid())
 //   projectId   String
@@ -77,6 +89,8 @@ enum UserRole {
 //   project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 //   assignee User?   @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
 
+//   @@index([projectId])
+//   @@index([assigneeId])
 //   @@map("tasks")
 // }
 
