@@ -8,6 +8,8 @@ import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from '../auth/auth.module';
 import { HealthModule } from '../health/health.module';
 import { ProjectsModule } from '../projects/projects.module';
+import { UsersModule } from '../users/users.module';
+import { CommonModule } from '../common/common.module';
 import configuration from '../config/configuration';
 import { validationSchema } from '../config/validation.schema';
 
@@ -33,9 +35,11 @@ import { validationSchema } from '../config/validation.schema';
             inject: [ConfigService],
         }),
         DatabaseModule,
+        CommonModule,
         AuthModule,
         HealthModule,
-        ProjectsModule, // Thêm ProjectsModule
+        ProjectsModule,
+        UsersModule, // Thêm UsersModule
     ],
     controllers: [AppController],
     providers: [
