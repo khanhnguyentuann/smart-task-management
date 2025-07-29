@@ -2,6 +2,9 @@ export interface User {
     id: string;
     email: string;
     role: 'ADMIN' | 'MEMBER';
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
     createdAt: string;
 }
 
