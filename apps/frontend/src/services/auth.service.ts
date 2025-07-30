@@ -3,15 +3,25 @@ import { AuthResponse, LoginDto, RegisterDto, User } from '@/types/auth';
 
 export const authService = {
     async register(data: RegisterDto): Promise<AuthResponse> {
-        const response = await apiClient.post<AuthResponse>('/auth/register', data);
-        this.saveTokens(response.data);
-        return response.data;
+        try {
+            const response = await apiClient.post<AuthResponse>('/auth/register', data);
+            this.saveTokens(response.data);
+            return response.data;
+        } catch (error) {
+            // Re-throw the error to let the component handle it
+            throw error;
+        }
     },
 
     async login(data: LoginDto): Promise<AuthResponse> {
-        const response = await apiClient.post<AuthResponse>('/auth/login', data);
-        this.saveTokens(response.data);
-        return response.data;
+        try {
+            const response = await apiClient.post<AuthResponse>('/auth/login', data);
+            this.saveTokens(response.data);
+            return response.data;
+        } catch (error) {
+            // Re-throw the error to let the component handle it
+            throw error;
+        }
     },
 
     async getMe(): Promise<{ user: User }> {
