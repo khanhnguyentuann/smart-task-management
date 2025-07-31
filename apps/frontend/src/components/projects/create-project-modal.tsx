@@ -19,7 +19,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { projectService } from "@/services/project.service"
-import { Loader2, FolderPlus } from "lucide-react"
+import { Loader2, FolderPlus, Sparkles } from "lucide-react"
+import { motion } from "framer-motion"
 
 const createProjectSchema = z.object({
     name: z.string().min(3, "Tên project phải có ít nhất 3 ký tự").max(100),
@@ -54,7 +55,7 @@ export function CreateProjectModal({ open, onOpenChange, onSuccess }: CreateProj
             const project = await projectService.create(data)
 
             toast({
-                title: "Tạo project thành công",
+                title: "Tạo project thành công! 🎉",
                 description: `Project "${project.name}" đã được tạo`,
             })
 
@@ -80,18 +81,30 @@ export function CreateProjectModal({ open, onOpenChange, onSuccess }: CreateProj
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <FolderPlus className="h-5 w-5" />
-                        Tạo Project mới
-                    </DialogTitle>
-                    <DialogDescription>
-                        Tạo một project mới để quản lý công việc của team
-                    </DialogDescription>
-                </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)}>
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <motion.div
+                                initial={{ rotate: 0 }}
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 0.5 }}
+                            >
+                                <FolderPlus className="h-5 w-5 text-primary" />
+                            </motion.div>
+                            Tạo Project Mới
+                        </DialogTitle>
+                        <DialogDescription>
+                            Tạo một project mới để quản lý công việc của team
+                        </DialogDescription>
+                    </DialogHeader>
+
                     <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="space-y-2"
+                        >
                             <Label htmlFor="name">Tên project</Label>
                             <Input
                                 id="name"
@@ -102,8 +115,14 @@ export function CreateProjectModal({ open, onOpenChange, onSuccess }: CreateProj
                             {errors.name && (
                                 <p className="text-xs text-destructive">{errors.name.message}</p>
                             )}
-                        </div>
-                        <div className="space-y-2">
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="space-y-2"
+                        >
                             <Label htmlFor="description">Mô tả (tùy chọn)</Label>
                             <Textarea
                                 id="description"
@@ -115,8 +134,21 @@ export function CreateProjectModal({ open, onOpenChange, onSuccess }: CreateProj
                             {errors.description && (
                                 <p className="text-xs text-destructive">{errors.description.message}</p>
                             )}
-                        </div>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md"
+                        >
+                            <Sparkles className="h-4 w-4 text-blue-600" />
+                            <p className="text-sm text-blue-800 dark:text-blue-200">
+                                AI sẽ tự động tóm tắt các task trong project này
+                            </p>
+                        </motion.div>
                     </div>
+
                     <DialogFooter>
                         <Button
                             type="button"

@@ -1,104 +1,152 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Project } from "@/types/project"
-import { FolderOpen, Users, Calendar, MoreVertical, Edit, Trash2, UserPlus } from "lucide-react"
+import { MoreHorizontal, Edit, Trash2, Eye, Users, CheckSquare } from "lucide-react"
+import { motion } from "framer-motion"
 
 interface ProjectCardProps {
     project: Project
+    index?: number
     onEdit?: (project: Project) => void
     onDelete?: (project: Project) => void
-    onManageMembers?: (project: Project) => void
+    onView?: (project: Project) => void
 }
 
-export function ProjectCard({ project, onEdit, onDelete, onManageMembers }: ProjectCardProps) {
+const projectColors = [
+    "bg-blue-500",
+    "bg-green-500",
+    "bg-purple-500",
+    "bg-yellow-500",
+    "bg-pink-500",
+    "bg-indigo-500",
+]
+
+export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: ProjectCardProps) {
     const isOwner = true // TODO: Check if current user is owner
+    const color = projectColors[index % projectColors.length]
+
+    // Mock data for demo
+    const tasks = {
+        todo: 8,
+        inProgress: 3,
+        done: 12,
+    }
+    const totalTasks = tasks.todo + tasks.inProgress + tasks.done
+    const progress = totalTasks > 0 ? (tasks.done / totalTasks) * 100 : 0
 
     return (
-        <Card className="h-full hover:shadow-lg transition-all duration-200 group">
-            <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                    <div className="space-y-1 flex-1">
-                        <Link href={`/projects/${project.id}`}>
-                            <CardTitle className="text-xl group-hover:text-primary transition-colors cursor-pointer">
-                                {project.name}
-                            </CardTitle>
-                        </Link>
-                        <CardDescription className="line-clamp-2">
-                            {project.description || "Không có mô tả"}
-                        </CardDescription>
-                    </div>
-                    {isOwner && (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
+        >
+            <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group h-full">
+                <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className={`w-3 h-3 rounded-full ${color}`} />
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-lg line-clamp-1">
+                                    {project.name}
+                                </h3>
+                                <Badge
+                                    variant={isOwner ? "default" : "secondary"}
+                                    className="mt-1"
+                                >
+                                    {isOwner ? "Admin" : "Member"}
+                                </Badge>
+                            </div>
+                        </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <MoreVertical className="h-4 w-4" />
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                >
+                                    <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => onEdit?.(project)}>
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    Chỉnh sửa
+                                <DropdownMenuItem onClick={() => onView?.(project)}>
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onManageMembers?.(project)}>
-                                    <UserPlus className="mr-2 h-4 w-4" />
-                                    Quản lý thành viên
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={() => onDelete?.(project)}
-                                    className="text-destructive focus:text-destructive"
-                                >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Xóa project
-                                </DropdownMenuItem>
+                                {isOwner && (
+                                    <>
+                                        <DropdownMenuItem onClick={() => onEdit?.(project)}>
+                                            <Edit className="h-4 w-4 mr-2" />
+                                            Edit
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="text-red-600"
+                                            onClick={() => onDelete?.(project)}
+                                        >
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            Delete
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    )}
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span>{project._count?.projectUsers || 1} thành viên</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(project.createdAt).toLocaleDateString('vi-VN')}</span>
-                    </div>
-                </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                        {project.description || "No description available"}
+                    </p>
 
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                            <AvatarFallback className="text-xs">
-                                {project.owner.email.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="text-sm">
-                            <p className="font-medium">{project.owner.email}</p>
-                            <p className="text-xs text-muted-foreground">Owner</p>
+                    <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <Users className="h-4 w-4" />
+                            {project._count?.projectUsers || 1} members
+                        </div>
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <CheckSquare className="h-4 w-4" />
+                            {totalTasks} tasks
                         </div>
                     </div>
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Progress</span>
+                            <span>{tasks.done}/{totalTasks}</span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                            <motion.div
+                                className="bg-blue-600 h-2 rounded-full"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progress}%` }}
+                                transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
+                            />
+                        </div>
+                        <div className="flex justify-between text-xs">
+                            <span className="text-gray-500">To Do: {tasks.todo}</span>
+                            <span className="text-blue-600">In Progress: {tasks.inProgress}</span>
+                            <span className="text-green-600">Done: {tasks.done}</span>
+                        </div>
+                    </div>
+
                     <Link href={`/projects/${project.id}`}>
-                        <Button size="sm" variant="outline">
-                            <FolderOpen className="mr-2 h-4 w-4" />
-                            Mở
+                        <Button
+                            variant="outline"
+                            className="w-full bg-transparent hover:bg-accent"
+                        >
+                            View Project
                         </Button>
                     </Link>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+        </motion.div>
     )
 }
