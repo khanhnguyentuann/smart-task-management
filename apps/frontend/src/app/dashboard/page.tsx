@@ -3,13 +3,17 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { authService } from "@/services/auth.service"
+import { projectService } from "@/services/project.service"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Loader2 } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 export default function DashboardPage() {
     const router = useRouter()
     const [user, setUser] = useState<any>(null)
+    const [projectCount, setProjectCount] = useState(0)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -20,6 +24,10 @@ export default function DashboardPage() {
         try {
             const response = await authService.getMe()
             setUser(response.user)
+
+            // Fetch project count
+            const projects = await projectService.getAll()
+            setProjectCount(projects.length)
         } catch (error) {
             router.push("/login")
         } finally {
@@ -53,9 +61,17 @@ export default function DashboardPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">0</div>
+                            <div className="text-2xl font-bold">{projectCount}</div>
                             <p className="text-xs text-muted-foreground">
-                                No projects yet
+                                {projectCount === 0 ? (
+                                    <Link href="/projects">
+                                        <Button variant="link" className="p-0 h-auto text-xs">
+                                            Create your first project
+                                        </Button>
+                                    </Link>
+                                ) : (
+                                    `${projectCount} active project${projectCount !== 1 ? 's' : ''}`
+                                )}
                             </p>
                         </CardContent>
                     </Card>

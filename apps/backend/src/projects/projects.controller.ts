@@ -16,6 +16,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
+import { SkipResponseWrapper } from 'src/common/decorators/skip-response-wrapper.decorator';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -31,6 +32,7 @@ export class ProjectsController {
     }
 
     @Get()
+    @SkipResponseWrapper()
     findAll(@CurrentUser() user: User) {
         return this.projectsService.findAll(user.id, user.role);
     }

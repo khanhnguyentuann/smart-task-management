@@ -9,7 +9,7 @@ export default function Home() {
           Smart Task Management
         </h1>
         <p className="text-xl text-muted-foreground max-w-md mx-auto">
-          AI-powered task management system to boost your team's productivity
+          AI-powered task management system to boost your team&#39;s productivity
         </p>
         <div className="flex gap-4 justify-center">
           <Link href="/login">
