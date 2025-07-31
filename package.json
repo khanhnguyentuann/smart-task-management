@@ -18,7 +18,7 @@
         "lint:backend": "yarn workspace @smart-task-management/backend lint"
     },
     "devDependencies": {
-        "concurrently": "^8.2.2"
+        "concurrently": "^9.2.0"
     },
     "resolutions": {
         "tsconfig-paths": "^4.2.0"
