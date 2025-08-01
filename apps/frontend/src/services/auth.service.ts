@@ -1,47 +1,45 @@
 import { apiClient } from '@/lib/api-client';
 import { AuthResponse, LoginDto, RegisterDto, User } from '@/types/auth';
+import { API_ENDPOINTS } from '@/constants/api';
+import { authStorage } from '@/utils/storage';
 
 export const authService = {
     async register(data: RegisterDto): Promise<AuthResponse> {
-        try {
-            const response = await apiClient.post<AuthResponse>('/auth/register', data);
-            this.saveTokens(response.data);
-            return response.data;
-        } catch (error) {
-            // Re-throw the error to let the component handle it
-            throw error;
-        }
+        const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
+        this.saveTokens(response.data);
+        return response.data;
     },
 
     async login(data: LoginDto): Promise<AuthResponse> {
-        try {
-            const response = await apiClient.post<AuthResponse>('/auth/login', data);
-            this.saveTokens(response.data);
-            return response.data;
-        } catch (error) {
-            // Re-throw the error to let the component handle it
-            throw error;
-        }
+        const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, data);
+        this.saveTokens(response.data);
+        return response.data;
     },
 
     async getMe(): Promise<{ user: User }> {
-        const response = await apiClient.get<{ user: User }>('/auth/me');
+        const response = await apiClient.get<{ user: User }>(API_ENDPOINTS.AUTH.ME);
+        return response.data;
+    },
+
+    async refresh(refreshToken: string): Promise<{ accessToken: string }> {
+        const response = await apiClient.post<{ accessToken: string }>(
+            API_ENDPOINTS.AUTH.REFRESH,
+            { refreshToken }
+        );
         return response.data;
     },
 
     logout() {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        // Don't redirect here, let the component handle it
+        authStorage.clear();
     },
 
     saveTokens(data: AuthResponse) {
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
+        authStorage.setToken(data.accessToken);
+        authStorage.setRefreshToken(data.refreshToken);
     },
 
     getAccessToken() {
-        return localStorage.getItem('accessToken');
+        return authStorage.getToken();
     },
 
     isAuthenticated() {

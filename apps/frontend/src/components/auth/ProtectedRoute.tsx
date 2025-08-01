@@ -1,51 +1,33 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { authService } from "@/services/auth.service"
-import { Loader2 } from "lucide-react"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { LoadingScreen } from "@/components/common/LoadingScreen";
+import { ROUTES } from "@/constants/routes";
 
 interface ProtectedRouteProps {
-    children: React.ReactNode
-    requireAuth?: boolean
+    children: React.ReactNode;
+    requireAuth?: boolean;
 }
 
 export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteProps) {
-    const router = useRouter()
-    const [isLoading, setIsLoading] = useState(true)
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const router = useRouter();
+    const { isAuthenticated, loading } = useAuth();
 
     useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                if (requireAuth) {
-                    await authService.getMe()
-                    setIsAuthenticated(true)
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error)
-                if (requireAuth) {
-                    router.push("/login")
-                }
-            } finally {
-                setIsLoading(false)
-            }
+        if (!loading && requireAuth && !isAuthenticated) {
+            router.push(ROUTES.LOGIN);
         }
+    }, [loading, requireAuth, isAuthenticated, router]);
 
-        checkAuth()
-    }, [requireAuth, router])
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </div>
-        )
+    if (loading) {
+        return <LoadingScreen message="Đang kiểm tra phiên đăng nhập..." />;
     }
 
     if (requireAuth && !isAuthenticated) {
-        return null
+        return null;
     }
 
-    return <>{children}</>
+    return <>{children}</>;
 }

@@ -1,194 +1,145 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/components/ui/use-toast"
-import { authService } from "@/services/auth.service"
-import {
-    LoginFormData,
-    RegisterFormData,
-    ValidationError,
-    validateLoginForm,
-    validateRegisterForm
-} from "@/utils/form-validation"
-import {
-    LoginRequest,
-    RegisterRequest,
-    ApiError,
-    isApiError,
-    getErrorMessage
-} from "@/types/api"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/contexts/ToastContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useForm } from '@/hooks/useForm';
+import { loginSchema, registerSchema, LoginFormData, RegisterFormData } from '@/schemas/auth.schema';
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
+import { isApiError, getErrorMessage } from '@/types/api';
+import { MockUser } from '@/types/mock-user';
 
-const initialLoginData: LoginFormData = {
-    email: "",
-    password: "",
-    remember: false
-}
+export function useLoginForm() {
+    const router = useRouter();
+    const { toast } = useToast();
+    const { login } = useAuth();
+    const [quickLoginLoading, setQuickLoginLoading] = useState(false);
 
-const initialRegisterData: RegisterFormData = {
-    email: "",
-    password: "",
-    confirmPassword: "",
-    firstName: "",
-    lastName: "",
-    role: "MEMBER"
-}
-
-// Generic overloads for proper typing
-export function useAuthForm(type: 'login'): {
-    loading: boolean
-    formData: LoginFormData
-    errors: ValidationError
-    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    handleSelectChange: (name: string, value: string) => void
-    handleSubmit: (e: React.FormEvent) => Promise<void>
-    handleQuickLogin: (user: any) => Promise<void>
-}
-
-export function useAuthForm(type: 'register'): {
-    loading: boolean
-    formData: RegisterFormData
-    errors: ValidationError
-    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    handleSelectChange: (name: string, value: string) => void
-    handleSubmit: (e: React.FormEvent) => Promise<void>
-    handleQuickLogin: (user: any) => Promise<void>
-}
-
-export function useAuthForm(type: 'login' | 'register') {
-    const router = useRouter()
-    const { toast } = useToast()
-
-    const [loading, setLoading] = useState(false)
-    const [formData, setFormData] = useState(
-        type === 'login' ? initialLoginData : initialRegisterData
-    )
-    const [errors, setErrors] = useState<ValidationError>({})
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type: inputType, checked } = e.target
-        setFormData((prev) => ({
-            ...prev,
-            [name]: inputType === "checkbox" ? checked : value
-        }))
-
-        // Clear error when user starts typing
-        if (errors[name]) {
-            setErrors((prev) => ({ ...prev, [name]: undefined }))
-        }
-    }
-
-    const handleSelectChange = (name: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [name]: value }))
-    }
-
-    const validate = (): boolean => {
-        const validationErrors = type === 'login'
-            ? validateLoginForm(formData as LoginFormData)
-            : validateRegisterForm(formData as RegisterFormData)
-
-        setErrors(validationErrors)
-        return Object.keys(validationErrors).length === 0
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!validate()) return
-
-        setLoading(true)
-        try {
-            if (type === 'login') {
-                const loginData = formData as LoginFormData
-                const loginRequest: LoginRequest = {
-                    email: loginData.email,
-                    password: loginData.password
-                }
-                await authService.login(loginRequest)
+    const form = useForm<LoginFormData>({
+        initialValues: {
+            email: '',
+            password: '',
+            remember: false,
+        },
+        schema: loginSchema,
+        onSubmit: async (values) => {
+            try {
+                await login(values.email, values.password);
+                toast({
+                    title: SUCCESS_MESSAGES.LOGIN,
+                    description: 'Đang chuyển hướng...',
+                    variant: 'success',
+                });
+            } catch (error) {
+                const errorMessage = isApiError(error) && error.response?.data?.message
+                    ? error.response.data.message
+                    : ERROR_MESSAGES.LOGIN_FAILED;
 
                 toast({
-                    title: "Đăng nhập thành công!",
-                    description: "Đang chuyển hướng..."
-                })
-            } else {
-                const registerData = formData as RegisterFormData
-                const registerRequest: RegisterRequest = {
-                    email: registerData.email,
-                    password: registerData.password,
-                    firstName: registerData.firstName,
-                    lastName: registerData.lastName,
-                    role: registerData.role
-                }
-                await authService.register(registerRequest)
-
-                toast({
-                    title: "🎉 Chào mừng bạn đến với Smart Task!",
-                    description: "Tài khoản đã được tạo thành công"
-                })
+                    title: 'Lỗi đăng nhập',
+                    description: errorMessage,
+                    variant: 'destructive',
+                });
             }
+        },
+    });
 
-            setTimeout(() => {
-                router.push("/dashboard")
-            }, 1000)
-
-        } catch (error: unknown) {
-            let errorMessage = type === 'login'
-                ? "Email hoặc mật khẩu không đúng"
-                : "Không thể tạo tài khoản"
-
-            // Use API error handling utilities
-            if (isApiError(error)) {
-                if (error.response?.status === 409) {
-                    errorMessage = "Email đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập."
-                } else {
-                    errorMessage = getErrorMessage(error)
-                }
-            } else {
-                errorMessage = getErrorMessage(error)
-            }
-
-            toast({
-                title: type === 'login' ? "Lỗi đăng nhập" : "Lỗi đăng ký",
-                description: errorMessage,
-                variant: "destructive"
-            })
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const handleQuickLogin = async (user: any) => {
-        setLoading(true)
+    const handleQuickLogin = async (user: MockUser) => {
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            setQuickLoginLoading(true);
+            // Mock login for demo
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             toast({
                 title: `Chào mừng ${user.name}!`,
-                description: "Đăng nhập thành công"
-            })
+                description: SUCCESS_MESSAGES.LOGIN,
+                variant: 'success',
+            });
 
-            setTimeout(() => {
-                router.push("/dashboard")
-            }, 500)
-        } catch (error: unknown) {
-            const errorMessage = getErrorMessage(error)
-
+            router.push(ROUTES.DASHBOARD);
+        } catch (error) {
             toast({
-                title: "Lỗi đăng nhập",
-                description: errorMessage,
-                variant: "destructive"
-            })
+                title: 'Lỗi đăng nhập',
+                description: getErrorMessage(error),
+                variant: 'destructive',
+            });
         } finally {
-            setLoading(false)
+            setQuickLoginLoading(false);
         }
-    }
+    };
+
+    // Wrapper function to convert useForm handleChange to expected format
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        const finalValue = type === 'checkbox' ? checked : value;
+        form.handleChange(name as keyof LoginFormData, finalValue);
+    };
 
     return {
-        loading,
-        formData,
-        errors,
-        handleChange,
-        handleSelectChange,
-        handleSubmit,
-        handleQuickLogin
-    }
+        // Map useForm properties to expected component props
+        loading: form.isSubmitting || quickLoginLoading,
+        formData: form.values,
+        errors: form.errors,
+        handleChange: handleInputChange,
+        handleSubmit: form.handleSubmit,
+        handleQuickLogin,
+    };
+}
+
+export function useRegisterForm() {
+    const { toast } = useToast();
+    const { register } = useAuth();
+
+    const form = useForm<RegisterFormData>({
+        initialValues: {
+            email: '',
+            password: '',
+            confirmPassword: '',
+            firstName: '',
+            lastName: '',
+        },
+        schema: registerSchema,
+        onSubmit: async (values) => {
+            try {
+                await register(values.email, values.password);
+                toast({
+                    title: SUCCESS_MESSAGES.REGISTER,
+                    description: 'Tài khoản đã được tạo thành công',
+                    variant: 'success',
+                });
+            } catch (error) {
+                let errorMessage: string = ERROR_MESSAGES.REGISTER_FAILED;
+
+                if (isApiError(error) && error.response?.status === 409) {
+                    errorMessage = ERROR_MESSAGES.EMAIL_EXISTS;
+                } else {
+                    errorMessage = getErrorMessage(error);
+                }
+
+                toast({
+                    title: 'Lỗi đăng ký',
+                    description: errorMessage,
+                    variant: 'destructive',
+                });
+            }
+        },
+    });
+
+    // Wrapper function to convert useForm handleChange to expected format
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        const finalValue = type === 'checkbox' ? checked : value;
+        form.handleChange(name as keyof RegisterFormData, finalValue);
+    };
+
+    return {
+        // Map useForm properties to expected component props
+        loading: form.isSubmitting,
+        formData: form.values,
+        errors: form.errors,
+        handleChange: handleInputChange,
+        handleSubmit: form.handleSubmit,
+    };
 }

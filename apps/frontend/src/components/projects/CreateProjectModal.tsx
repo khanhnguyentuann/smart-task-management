@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import {
     Dialog,
     DialogContent,
@@ -17,17 +16,14 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { Textarea } from "@/components/ui/Textarea"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from '@/contexts/ToastContext'
 import { projectService } from "@/services/project.service"
+import { createProjectSchema, CreateProjectFormData } from "@/schemas/project.schema"
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/constants/messages"
+import { ROUTES } from "@/constants/routes"
+import { getErrorMessage } from "@/types/api"
 import { Loader2, FolderPlus, Sparkles } from "lucide-react"
 import { motion } from "framer-motion"
-
-const createProjectSchema = z.object({
-    name: z.string().min(3, "Tên project phải có ít nhất 3 ký tự").max(100),
-    description: z.string().max(500).optional(),
-})
-
-type CreateProjectForm = z.infer<typeof createProjectSchema>
 
 interface CreateProjectModalProps {
     open: boolean
@@ -45,18 +41,19 @@ export function CreateProjectModal({ open, onOpenChange, onSuccess }: CreateProj
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm<CreateProjectForm>({
+    } = useForm<CreateProjectFormData>({
         resolver: zodResolver(createProjectSchema),
     })
 
-    const onSubmit = async (data: CreateProjectForm) => {
+    const onSubmit = async (data: CreateProjectFormData) => {
         setIsSubmitting(true)
         try {
             const project = await projectService.create(data)
 
             toast({
-                title: "Tạo project thành công! 🎉",
+                title: SUCCESS_MESSAGES.PROJECT_CREATED,
                 description: `Project "${project.name}" đã được tạo`,
+                variant: "success",
             })
 
             reset()
@@ -65,12 +62,12 @@ export function CreateProjectModal({ open, onOpenChange, onSuccess }: CreateProj
             if (onSuccess) {
                 onSuccess()
             } else {
-                router.push(`/projects/${project.id}`)
+                router.push(ROUTES.PROJECT_DETAIL(project.id))
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast({
                 title: "Lỗi",
-                description: error.response?.data?.message || "Không thể tạo project",
+                description: getErrorMessage(error) || ERROR_MESSAGES.PROJECT_CREATE_FAILED,
                 variant: "destructive",
             })
         } finally {

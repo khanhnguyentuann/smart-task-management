@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/Input"
 import { Spinner } from "@/components/ui/Spinner"
 import { projectService } from "@/services/project.service"
 import { Project } from "@/types/project"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from '@/contexts/ToastContext';
 import { Plus, Search, FolderOpen } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"

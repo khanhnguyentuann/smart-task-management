@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/Badge"
 import { Spinner } from "@/components/ui/Spinner"
 import { authService } from "@/services/auth.service"
 import { User } from "@/types/auth"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from '@/contexts/ToastContext';
 import {
     User as UserIcon,
     Mail,

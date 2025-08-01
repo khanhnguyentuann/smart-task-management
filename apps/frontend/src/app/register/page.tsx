@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useRegisterForm } from "@/hooks/useRegisterForm"
+import { useRegisterForm } from "@/hooks/useAuthForm"
 import { AuthLayout } from "@/components/auth/AuthLayout"
 import { RegisterForm } from "@/components/auth/RegisterForm"
 import { FeaturesGrid } from "@/components/marketing/FeaturesGrid"

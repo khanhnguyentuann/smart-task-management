@@ -7,7 +7,14 @@ import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { Mail, Sparkles } from "lucide-react"
-import { LoginFormData, ValidationError } from "@/utils/form-validation"
+import { LoginFormData } from "@/schemas/auth.schema"
+
+interface ValidationError {
+    email?: string
+    password?: string
+    confirmPassword?: string
+    [key: string]: string | undefined
+}
 
 interface LoginFormProps {
     formData: LoginFormData

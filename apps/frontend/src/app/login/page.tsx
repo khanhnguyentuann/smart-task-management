@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useLoginForm } from "@/hooks/useLoginForm"
+import { useLoginForm } from "@/hooks/useAuthForm"
 import { AuthLayout } from "@/components/auth/AuthLayout"
 import { QuickLogin } from "@/components/auth/QuickLogin"
 import { LoginForm } from "@/components/auth/LoginForm"
