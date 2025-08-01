@@ -4,36 +4,38 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { authService } from "@/services/auth.service"
 import { projectService } from "@/services/project.service"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
+import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { Loader2 } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Button"
+import { User } from "@/types/auth"
 
 export default function DashboardPage() {
     const router = useRouter()
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<User | null>(null)
     const [projectCount, setProjectCount] = useState(0)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        checkAuth()
-    }, [])
+        const checkAuth = async () => {
+            try {
+                const response = await authService.getMe()
+                setUser(response.user)
 
-    const checkAuth = async () => {
-        try {
-            const response = await authService.getMe()
-            setUser(response.user)
-
-            // Fetch project count
-            const projects = await projectService.getAll()
-            setProjectCount(projects.length)
-        } catch (error) {
-            router.push("/login")
-        } finally {
-            setLoading(false)
+                // Fetch project count
+                const projects = await projectService.getAll()
+                setProjectCount(projects.length)
+            } catch (error) {
+                console.error('Auth check or data fetch failed:', error)
+                router.push("/login")
+            } finally {
+                setLoading(false)
+            }
         }
-    }
+
+        checkAuth()
+    }, [router])
 
     if (loading) {
         return (

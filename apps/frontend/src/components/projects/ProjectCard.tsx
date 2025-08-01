@@ -1,15 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/Card"
+import { Badge } from "@/components/ui/Badge"
+import { Button } from "@/components/ui/Button"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/DropdownMenu"
 import { Project } from "@/types/project"
 import { MoreHorizontal, Edit, Trash2, Eye, Users, CheckSquare } from "lucide-react"
 import { motion } from "framer-motion"

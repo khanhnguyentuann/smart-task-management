@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 import { authService } from "@/services/auth.service"
 import { LoginFormData, ValidationError, validateLoginForm } from "@/utils/form-validation"
+import { isApiError } from "@/types/api"
+import { MockUser } from "@/types/mock-user" // Import MockUser type
 
 const initialLoginData: LoginFormData = {
     email: "",
@@ -59,14 +61,10 @@ export function useLoginForm() {
                 router.push("/dashboard")
             }, 1000)
 
-        } catch (error: any) {
-            let errorMessage = "Email hoặc mật khẩu không đúng"
-
-            if (error.response?.data?.message) {
-                errorMessage = error.response.data.message
-            } else if (error.message) {
-                errorMessage = error.message
-            }
+        } catch (error: unknown) {
+            const errorMessage = isApiError(error) && error.response?.data?.message
+                ? error.response.data.message
+                : "Email hoặc mật khẩu không đúng"
 
             toast({
                 title: "Lỗi đăng nhập",
@@ -78,7 +76,7 @@ export function useLoginForm() {
         }
     }
 
-    const handleQuickLogin = async (user: any) => {
+    const handleQuickLogin = async (user: MockUser) => {
         setLoading(true)
         try {
             await new Promise(resolve => setTimeout(resolve, 1000))
@@ -91,7 +89,8 @@ export function useLoginForm() {
             setTimeout(() => {
                 router.push("/dashboard")
             }, 500)
-        } catch {
+        } catch (error) {
+            console.error('Quick login failed:', error)
             toast({
                 title: "Lỗi đăng nhập",
                 description: "Không thể đăng nhập với tài khoản này",

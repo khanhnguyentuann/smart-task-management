@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Button"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,8 +11,8 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+} from "@/components/ui/DropdownMenu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
 import { authService } from "@/services/auth.service"
 import { User } from "@/types/auth"
 import { Menu, X, User as UserIcon, LogOut, Settings, Bell, Search } from "lucide-react"
@@ -39,6 +39,7 @@ export function Navbar({ onMenuClick, isSidebarOpen }: NavbarProps) {
             const response = await authService.getMe()
             setUser(response.user)
         } catch (error) {
+            console.error('Failed to fetch user:', error)
             // User not authenticated
             setUser(null)
         } finally {
@@ -128,8 +129,8 @@ export function Navbar({ onMenuClick, isSidebarOpen }: NavbarProps) {
                     {/* User Menu */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button 
-                                variant="ghost" 
+                            <Button
+                                variant="ghost"
                                 className="relative h-9 w-9 rounded-full transition-all duration-200 hover:bg-accent/50 hover:scale-105"
                             >
                                 <Avatar className="h-9 w-9 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200">

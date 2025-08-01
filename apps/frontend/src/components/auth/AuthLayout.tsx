@@ -1,8 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { BrandingSection } from "@/components/marketing/branding-section"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
+import { BrandingSection } from "@/components/marketing/BrandingSection"
 
 interface AuthLayoutProps {
     children: React.ReactNode

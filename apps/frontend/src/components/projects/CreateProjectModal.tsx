@@ -12,11 +12,11 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/Dialog"
+import { Button } from "@/components/ui/Button"
+import { Input } from "@/components/ui/Input"
+import { Label } from "@/components/ui/Label"
+import { Textarea } from "@/components/ui/Textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { projectService } from "@/services/project.service"
 import { Loader2, FolderPlus, Sparkles } from "lucide-react"

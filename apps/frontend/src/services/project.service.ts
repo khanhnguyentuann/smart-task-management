@@ -36,7 +36,7 @@ export const projectService = {
         return response.data;
     },
 
-    async addMembers(projectId: string, userIds: string[]): Promise<any> {
+    async addMembers(projectId: string, userIds: string[]): Promise<unknown> {
         const response = await apiClient.post(`/projects/${projectId}/members`, { userIds });
         return response.data;
     },

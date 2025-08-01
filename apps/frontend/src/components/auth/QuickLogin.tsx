@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar"
 import { MockUser } from "@/data/mock-users"
 
 interface QuickLoginProps {
@@ -31,11 +32,16 @@ export function QuickLogin({ users, onLogin, loading = false }: QuickLoginProps)
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 + index * 0.1 }}
                     >
-                        <img
-                            src={user.avatar}
-                            alt={user.name}
-                            className="w-8 h-8 rounded-full object-cover ring-2 ring-background group-hover:ring-primary/50 transition-all"
-                        />
+                        <Avatar className="h-8 w-8 ring-2 ring-background group-hover:ring-primary/50 transition-all">
+                            <AvatarImage
+                                src={user.avatar}
+                                alt={user.name}
+                                className="object-cover"
+                            />
+                            <AvatarFallback className="text-xs font-medium">
+                                {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                            </AvatarFallback>
+                        </Avatar>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{user.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{user.role}</p>

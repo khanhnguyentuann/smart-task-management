@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Button"
 import { Sparkles, Users, CheckSquare, BarChart3 } from "lucide-react"
 
 interface WelcomeScreenProps {

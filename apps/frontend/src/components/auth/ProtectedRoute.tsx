@@ -16,23 +16,24 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
     useEffect(() => {
-        checkAuth()
-    }, [])
-
-    const checkAuth = async () => {
-        try {
-            if (requireAuth) {
-                await authService.getMe()
-                setIsAuthenticated(true)
+        const checkAuth = async () => {
+            try {
+                if (requireAuth) {
+                    await authService.getMe()
+                    setIsAuthenticated(true)
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error)
+                if (requireAuth) {
+                    router.push("/login")
+                }
+            } finally {
+                setIsLoading(false)
             }
-        } catch (error) {
-            if (requireAuth) {
-                router.push("/login")
-            }
-        } finally {
-            setIsLoading(false)
         }
-    }
+
+        checkAuth()
+    }, [requireAuth, router])
 
     if (isLoading) {
         return (

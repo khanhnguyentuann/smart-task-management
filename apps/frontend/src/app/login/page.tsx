@@ -1,12 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { useLoginForm } from "@/hooks/use-login-form"
-import { AuthLayout } from "@/components/auth/auth-layout"
-import { QuickLogin } from "@/components/auth/quick-login"
-import { LoginForm } from "@/components/auth/login-form"
-import { FeaturesGrid } from "@/components/marketing/features-grid"
-import { StatsSection } from "@/components/marketing/stats-section"
+import { useLoginForm } from "@/hooks/useLoginForm"
+import { AuthLayout } from "@/components/auth/AuthLayout"
+import { QuickLogin } from "@/components/auth/QuickLogin"
+import { LoginForm } from "@/components/auth/LoginForm"
+import { FeaturesGrid } from "@/components/marketing/FeaturesGrid"
+import { StatsSection } from "@/components/marketing/StatsSection"
 import { mockUsers } from "@/data/mock-users"
 import { authFeatures, authStats } from "@/data/features"
 

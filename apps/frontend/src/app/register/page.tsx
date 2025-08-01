@@ -1,11 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { useRegisterForm } from "@/hooks/use-register-form"
-import { AuthLayout } from "@/components/auth/auth-layout"
-import { RegisterForm } from "@/components/auth/register-form"
-import { FeaturesGrid } from "@/components/marketing/features-grid"
-import { AchievementsSection } from "@/components/marketing/stats-section"
+import { useRegisterForm } from "@/hooks/useRegisterForm"
+import { AuthLayout } from "@/components/auth/AuthLayout"
+import { RegisterForm } from "@/components/auth/RegisterForm"
+import { FeaturesGrid } from "@/components/marketing/FeaturesGrid"
+import { AchievementsSection } from "@/components/marketing/StatsSection"
 import { registerBenefits, registerAchievements } from "@/data/features"
 
 export default function RegisterPage() {

@@ -1,12 +1,11 @@
 "use client"
 
 import { motion } from "framer-motion"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { PasswordInput } from "@/components/auth/password-input"
+import { Button } from "@/components/ui/Button"
+import { Input } from "@/components/ui/Input"
+import { Label } from "@/components/ui/Label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
+import { PasswordInput } from "@/components/auth/PasswordInput"
 import { Mail, User, Shield, Sparkles, Loader2 } from "lucide-react"
 import { RegisterFormData, ValidationError } from "@/utils/form-validation"
 
@@ -35,42 +34,6 @@ export function RegisterForm({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
         >
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                    <Label htmlFor="firstName">Họ</Label>
-                    <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            id="firstName"
-                            name="firstName"
-                            placeholder="Nguyễn"
-                            value={formData.firstName}
-                            onChange={onChange}
-                            className="pl-10"
-                            required
-                        />
-                    </div>
-                    {errors.firstName && <span className="text-xs text-destructive">{errors.firstName}</span>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="lastName">Tên</Label>
-                    <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            id="lastName"
-                            name="lastName"
-                            placeholder="Văn A"
-                            value={formData.lastName}
-                            onChange={onChange}
-                            className="pl-10"
-                            required
-                        />
-                    </div>
-                    {errors.lastName && <span className="text-xs text-destructive">{errors.lastName}</span>}
-                </div>
-            </div>
-
             <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -160,19 +123,6 @@ export function RegisterForm({
                     </>
                 )}
             </Button>
-
-            <div className="text-center pt-2">
-                <p className="text-xs text-muted-foreground">
-                    Bằng cách đăng ký, bạn đồng ý với{' '}
-                    <Link href="/terms" className="text-primary hover:underline">
-                        Điều khoản sử dụng
-                    </Link>{' '}
-                    và{' '}
-                    <Link href="/privacy" className="text-primary hover:underline">
-                        Chính sách bảo mật
-                    </Link>
-                </p>
-            </div>
         </motion.form>
     )
 }

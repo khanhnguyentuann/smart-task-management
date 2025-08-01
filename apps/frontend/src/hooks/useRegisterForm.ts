@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 import { authService } from "@/services/auth.service"
 import { RegisterFormData, ValidationError, validateRegisterForm } from "@/utils/form-validation"
+import { isApiError, getErrorMessage } from "@/types/api"
 
 const initialRegisterData: RegisterFormData = {
     email: "",
@@ -63,15 +64,13 @@ export function useRegisterForm() {
                 router.push("/dashboard")
             }, 1000)
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             let errorMessage = "Không thể tạo tài khoản"
 
-            if (error.response?.status === 409) {
+            if (isApiError(error) && error.response?.status === 409) {
                 errorMessage = "Email đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập."
-            } else if (error.response?.data?.message) {
-                errorMessage = error.response.data.message
-            } else if (error.message) {
-                errorMessage = error.message
+            } else {
+                errorMessage = getErrorMessage(error)
             }
 
             toast({

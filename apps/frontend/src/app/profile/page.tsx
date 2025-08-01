@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { ProtectedRoute } from "@/components/auth/protected-route"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Spinner } from "@/components/ui/spinner"
+import { DashboardLayout } from "@/components/layout/DashboardLayout"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
+import { Button } from "@/components/ui/Button"
+import { Input } from "@/components/ui/Input"
+import { Label } from "@/components/ui/Label"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
+import { Badge } from "@/components/ui/Badge"
+import { Spinner } from "@/components/ui/Spinner"
 import { authService } from "@/services/auth.service"
 import { User } from "@/types/auth"
 import { useToast } from "@/components/ui/use-toast"
@@ -24,8 +24,7 @@ import {
     X,
     Lock,
     Eye,
-    EyeOff,
-    Upload
+    EyeOff
 } from "lucide-react"
 import {
     Dialog,
@@ -34,7 +33,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/Dialog"
 
 export default function ProfilePage() {
     const router = useRouter()
@@ -66,28 +65,29 @@ export default function ProfilePage() {
     })
 
     useEffect(() => {
-        fetchUser()
-    }, [])
-
-    const fetchUser = async () => {
-        try {
-            const response = await authService.getMe()
-            const userData = response.user
-            setUser(userData)
-            setFormData({
-                firstName: userData.firstName || "",
-                lastName: userData.lastName || "",
-                email: userData.email,
-            })
-            if (userData.avatar) {
-                setAvatarPreview(userData.avatar)
+        const fetchUser = async () => {
+            try {
+                const response = await authService.getMe()
+                const userData = response.user
+                setUser(userData)
+                setFormData({
+                    firstName: userData.firstName || "",
+                    lastName: userData.lastName || "",
+                    email: userData.email,
+                })
+                if (userData.avatar) {
+                    setAvatarPreview(userData.avatar)
+                }
+            } catch (error) {
+                console.error('Failed to fetch user:', error)
+                router.push("/login")
+            } finally {
+                setLoading(false)
             }
-        } catch (error) {
-            router.push("/login")
-        } finally {
-            setLoading(false)
         }
-    }
+
+        fetchUser()
+    }, [router])
 
     const handleSave = async () => {
         setIsSaving(true)
@@ -110,6 +110,7 @@ export default function ProfilePage() {
                 })
             }
         } catch (error) {
+            console.error('Save failed:', error)
             toast({
                 title: "Lỗi",
                 description: "Không thể cập nhật thông tin",
@@ -186,6 +187,7 @@ export default function ProfilePage() {
                 confirmPassword: ""
             })
         } catch (error) {
+            console.error('Password change failed:', error)
             toast({
                 title: "Lỗi",
                 description: "Không thể đổi mật khẩu",
