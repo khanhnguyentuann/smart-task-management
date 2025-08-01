@@ -1,0 +1,178 @@
+"use client"
+
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PasswordInput } from "@/components/auth/password-input"
+import { Mail, User, Shield, Sparkles, Loader2 } from "lucide-react"
+import { RegisterFormData, ValidationError } from "@/utils/form-validation"
+
+interface RegisterFormProps {
+    formData: RegisterFormData
+    errors: ValidationError
+    loading: boolean
+    onSubmit: (e: React.FormEvent) => void
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    onSelectChange: (name: string, value: string) => void
+}
+
+export function RegisterForm({
+    formData,
+    errors,
+    loading,
+    onSubmit,
+    onChange,
+    onSelectChange
+}: RegisterFormProps) {
+    return (
+        <motion.form
+            onSubmit={onSubmit}
+            className="space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+        >
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                    <Label htmlFor="firstName">Họ</Label>
+                    <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            id="firstName"
+                            name="firstName"
+                            placeholder="Nguyễn"
+                            value={formData.firstName}
+                            onChange={onChange}
+                            className="pl-10"
+                            required
+                        />
+                    </div>
+                    {errors.firstName && <span className="text-xs text-destructive">{errors.firstName}</span>}
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="lastName">Tên</Label>
+                    <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            id="lastName"
+                            name="lastName"
+                            placeholder="Văn A"
+                            value={formData.lastName}
+                            onChange={onChange}
+                            className="pl-10"
+                            required
+                        />
+                    </div>
+                    {errors.lastName && <span className="text-xs text-destructive">{errors.lastName}</span>}
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="john@example.com"
+                        value={formData.email}
+                        onChange={onChange}
+                        className="pl-10"
+                        required
+                    />
+                </div>
+                {errors.email && <span className="text-xs text-destructive">{errors.email}</span>}
+            </div>
+
+            <PasswordInput
+                id="password"
+                name="password"
+                label="Mật khẩu"
+                placeholder="Tối thiểu 6 ký tự"
+                value={formData.password}
+                onChange={onChange}
+                error={errors.password}
+                required
+            />
+
+            <PasswordInput
+                id="confirmPassword"
+                name="confirmPassword"
+                label="Xác nhận mật khẩu"
+                placeholder="Nhập lại mật khẩu"
+                value={formData.confirmPassword}
+                onChange={onChange}
+                error={errors.confirmPassword}
+                required
+            />
+
+            <div className="space-y-2">
+                <Label htmlFor="role">Vai trò</Label>
+                <Select
+                    value={formData.role}
+                    onValueChange={(value: "ADMIN" | "MEMBER") => onSelectChange("role", value)}
+                >
+                    <SelectTrigger id="role" className="w-full">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="MEMBER">
+                            <div className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                Thành viên
+                            </div>
+                        </SelectItem>
+                        <SelectItem value="ADMIN">
+                            <div className="flex items-center gap-2">
+                                <Shield className="h-4 w-4" />
+                                Quản trị viên
+                            </div>
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <Button
+                type="submit"
+                disabled={loading}
+                className="w-full text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all min-h-[44px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 mt-6"
+            >
+                {loading ? (
+                    <>
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="mr-2"
+                        >
+                            <Loader2 className="h-4 w-4" />
+                        </motion.div>
+                        Đang tạo tài khoản...
+                    </>
+                ) : (
+                    <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Tạo tài khoản miễn phí
+                    </>
+                )}
+            </Button>
+
+            <div className="text-center pt-2">
+                <p className="text-xs text-muted-foreground">
+                    Bằng cách đăng ký, bạn đồng ý với{' '}
+                    <Link href="/terms" className="text-primary hover:underline">
+                        Điều khoản sử dụng
+                    </Link>{' '}
+                    và{' '}
+                    <Link href="/privacy" className="text-primary hover:underline">
+                        Chính sách bảo mật
+                    </Link>
+                </p>
+            </div>
+        </motion.form>
+    )
+}
