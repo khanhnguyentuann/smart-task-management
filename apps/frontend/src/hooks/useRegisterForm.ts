@@ -10,10 +10,7 @@ import { isApiError, getErrorMessage } from "@/types/api"
 const initialRegisterData: RegisterFormData = {
     email: "",
     password: "",
-    confirmPassword: "",
-    firstName: "",
-    lastName: "",
-    role: "MEMBER"
+    confirmPassword: ""
 }
 
 export function useRegisterForm() {
@@ -37,10 +34,6 @@ export function useRegisterForm() {
         }
     }
 
-    const handleSelectChange = (name: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [name]: value }))
-    }
-
     const validate = (): boolean => {
         const validationErrors = validateRegisterForm(formData)
         setErrors(validationErrors)
@@ -53,7 +46,10 @@ export function useRegisterForm() {
 
         setLoading(true)
         try {
-            await authService.register(formData)
+            await authService.register({
+                email: formData.email,
+                password: formData.password
+            })
 
             toast({
                 title: "🎉 Chào mừng bạn đến với Smart Task!",
@@ -88,7 +84,6 @@ export function useRegisterForm() {
         formData,
         errors,
         handleChange,
-        handleSelectChange,
         handleSubmit
     }
 }

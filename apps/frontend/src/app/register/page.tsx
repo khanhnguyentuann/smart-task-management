@@ -9,7 +9,7 @@ import { AchievementsSection } from "@/components/marketing/StatsSection"
 import { registerBenefits, registerAchievements } from "@/data/features"
 
 export default function RegisterPage() {
-    const { loading, formData, errors, handleChange, handleSelectChange, handleSubmit } = useRegisterForm()
+    const { loading, formData, errors, handleChange, handleSubmit } = useRegisterForm()
 
     const marketingContent = (
         <>
@@ -56,7 +56,6 @@ export default function RegisterPage() {
                 loading={loading}
                 onSubmit={handleSubmit}
                 onChange={handleChange}
-                onSelectChange={handleSelectChange}
             />
         </AuthLayout>
     )

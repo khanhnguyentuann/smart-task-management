@@ -4,9 +4,8 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { PasswordInput } from "@/components/auth/PasswordInput"
-import { Mail, User, Shield, Sparkles, Loader2 } from "lucide-react"
+import { Mail, Sparkles, Loader2 } from "lucide-react"
 import { RegisterFormData, ValidationError } from "@/utils/form-validation"
 
 interface RegisterFormProps {
@@ -15,7 +14,6 @@ interface RegisterFormProps {
     loading: boolean
     onSubmit: (e: React.FormEvent) => void
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    onSelectChange: (name: string, value: string) => void
 }
 
 export function RegisterForm({
@@ -23,8 +21,7 @@ export function RegisterForm({
     errors,
     loading,
     onSubmit,
-    onChange,
-    onSelectChange
+    onChange
 }: RegisterFormProps) {
     return (
         <motion.form
@@ -73,32 +70,6 @@ export function RegisterForm({
                 error={errors.confirmPassword}
                 required
             />
-
-            <div className="space-y-2">
-                <Label htmlFor="role">Vai trò</Label>
-                <Select
-                    value={formData.role}
-                    onValueChange={(value: "ADMIN" | "MEMBER") => onSelectChange("role", value)}
-                >
-                    <SelectTrigger id="role" className="w-full">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="MEMBER">
-                            <div className="flex items-center gap-2">
-                                <User className="h-4 w-4" />
-                                Thành viên
-                            </div>
-                        </SelectItem>
-                        <SelectItem value="ADMIN">
-                            <div className="flex items-center gap-2">
-                                <Shield className="h-4 w-4" />
-                                Quản trị viên
-                            </div>
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
 
             <Button
                 type="submit"

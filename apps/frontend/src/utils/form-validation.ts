@@ -19,16 +19,6 @@ export const validationRules = {
         if (!value) return "Vui lòng xác nhận mật khẩu"
         if (value !== password) return "Mật khẩu không khớp"
         return null
-    },
-
-    firstName: (value: string): string | null => {
-        if (!value.trim()) return "Vui lòng nhập họ"
-        return null
-    },
-
-    lastName: (value: string): string | null => {
-        if (!value.trim()) return "Vui lòng nhập tên"
-        return null
     }
 }
 
@@ -42,9 +32,6 @@ export interface RegisterFormData {
     email: string
     password: string
     confirmPassword: string
-    firstName: string
-    lastName: string
-    role: "ADMIN" | "MEMBER"
 }
 
 export function validateLoginForm(data: LoginFormData): ValidationError {
@@ -61,12 +48,6 @@ export function validateLoginForm(data: LoginFormData): ValidationError {
 
 export function validateRegisterForm(data: RegisterFormData): ValidationError {
     const errors: ValidationError = {}
-
-    const firstNameError = validationRules.firstName(data.firstName)
-    if (firstNameError) errors.firstName = firstNameError
-
-    const lastNameError = validationRules.lastName(data.lastName)
-    if (lastNameError) errors.lastName = lastNameError
 
     const emailError = validationRules.email(data.email)
     if (emailError) errors.email = emailError

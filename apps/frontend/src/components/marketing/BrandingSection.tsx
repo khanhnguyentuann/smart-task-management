@@ -24,7 +24,7 @@ export function BrandingSection({
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
-                className="flex items-center gap-4"
+                className="flex flex-col xl:flex-row items-center justify-center xl:justify-start gap-4 text-center xl:text-left"
             >
                 <motion.div
                     animate={{
@@ -41,10 +41,10 @@ export function BrandingSection({
                     <Sparkles className="h-8 w-8" />
                 </motion.div>
                 <div>
-                    <h1 className={`text-4xl font-bold bg-gradient-to-r ${gradientFrom} ${gradientTo} bg-clip-text text-transparent`}>
+                    <h1 className={`text-3xl md:text-4xl xl:text-4xl font-bold bg-gradient-to-r ${gradientFrom} ${gradientTo} bg-clip-text text-transparent`}>
                         {title}
                     </h1>
-                    <p className="text-lg text-muted-foreground">
+                    <p className="text-base md:text-lg xl:text-lg text-muted-foreground">
                         {subtitle}
                     </p>
                 </div>
@@ -56,7 +56,7 @@ export function BrandingSection({
                 transition={{ delay: 0.4 }}
                 className="space-y-4"
             >
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-2xl md:text-3xl xl:text-3xl font-bold text-gray-900 dark:text-white text-center xl:text-left">
                     {description}
                 </h2>
             </motion.div>

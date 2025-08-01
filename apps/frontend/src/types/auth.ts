@@ -16,7 +16,6 @@ export interface LoginDto {
 export interface RegisterDto {
     email: string;
     password: string;
-    role?: 'ADMIN' | 'MEMBER';
 }
 
 export interface AuthResponse {
