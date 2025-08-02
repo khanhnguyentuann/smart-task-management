@@ -13,11 +13,6 @@ export default function RegisterPage() {
 
     const marketingContent = (
         <>
-            <div className="space-y-4">
-                <p className="text-xl text-muted-foreground leading-relaxed">
-                    Trở thành một phần của cuộc cách mạng productivity. Miễn phí 30 ngày đầu, không cần thẻ tín dụng.
-                </p>
-            </div>
             <FeaturesGrid features={registerBenefits} columns={2} />
             <AchievementsSection achievements={registerAchievements} />
         </>

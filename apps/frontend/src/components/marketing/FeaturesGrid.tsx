@@ -10,14 +10,14 @@ interface FeaturesGridProps {
 }
 
 export function FeaturesGrid({ features, delay = 0.6, columns = 2 }: FeaturesGridProps) {
-    const gridCols = columns === 2 ? "grid-cols-2" : "grid-cols-3"
+    const gridCols = columns === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay }}
-            className={`grid ${gridCols} gap-6`}
+            className={`grid ${gridCols} gap-4`}
         >
             {features.map((feature, index) => (
                 <FeatureCard key={feature.title} feature={feature} index={index} />

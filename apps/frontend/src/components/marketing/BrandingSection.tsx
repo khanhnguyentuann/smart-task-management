@@ -14,17 +14,17 @@ interface BrandingSectionProps {
 export function BrandingSection({
     title = "Smart Task",
     subtitle = "Quản lý công việc thông minh",
-    description = "Chào mừng trở lại! 👋",
+    description = "Nền tảng quản lý dự án hiện đại với AI, giúp team của bạn làm việc hiệu quả hơn mỗi ngày.",
     gradientFrom = "from-blue-600",
     gradientTo = "to-purple-600"
 }: BrandingSectionProps) {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <motion.div
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring" }}
-                className="flex flex-col xl:flex-row items-center justify-center xl:justify-start gap-4 text-center xl:text-left"
+                className="flex items-center gap-3"
             >
                 <motion.div
                     animate={{
@@ -36,15 +36,15 @@ export function BrandingSection({
                         repeat: Infinity,
                         repeatType: "reverse"
                     }}
-                    className={`h-16 w-16 rounded-full bg-gradient-to-br ${gradientFrom} via-purple-500 ${gradientTo} flex items-center justify-center text-white shadow-2xl`}
+                    className={`h-12 w-12 rounded-full bg-gradient-to-br ${gradientFrom} via-purple-500 ${gradientTo} flex items-center justify-center text-white shadow-xl`}
                 >
-                    <Sparkles className="h-8 w-8" />
+                    <Sparkles className="h-6 w-6" />
                 </motion.div>
                 <div>
-                    <h1 className={`text-3xl md:text-4xl xl:text-4xl font-bold bg-gradient-to-r ${gradientFrom} ${gradientTo} bg-clip-text text-transparent`}>
+                    <h1 className={`text-2xl font-bold bg-gradient-to-r ${gradientFrom} ${gradientTo} bg-clip-text text-transparent`}>
                         {title}
                     </h1>
-                    <p className="text-base md:text-lg xl:text-lg text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                         {subtitle}
                     </p>
                 </div>
@@ -54,9 +54,8 @@ export function BrandingSection({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="space-y-4"
             >
-                <h2 className="text-2xl md:text-3xl xl:text-3xl font-bold text-gray-900 dark:text-white text-center xl:text-left">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                     {description}
                 </h2>
             </motion.div>

@@ -15,11 +15,6 @@ export default function LoginPage() {
 
     const marketingContent = (
         <>
-            <div className="space-y-4">
-                <p className="text-xl text-muted-foreground leading-relaxed">
-                    Nền tảng quản lý dự án hiện đại với AI, giúp team của bạn làm việc hiệu quả hơn mỗi ngày.
-                </p>
-            </div>
             <FeaturesGrid features={authFeatures} />
             <StatsSection stats={authStats} />
         </>
@@ -44,6 +39,8 @@ export default function LoginPage() {
             marketingContent={marketingContent}
             footerContent={footerContent}
             brandingProps={{
+                title: "Smart Task",
+                subtitle: "Quản lý công việc thông minh",
                 description: "Chào mừng trở lại! 👋"
             }}
         >
@@ -59,7 +56,7 @@ export default function LoginPage() {
                         <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Hoặc tiếp tục với</span>
+                        <span className="bg-white dark:bg-gray-900 px-2 text-muted-foreground">Hoặc tiếp tục với</span>
                     </div>
                 </div>
 
