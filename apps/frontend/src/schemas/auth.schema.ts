@@ -5,7 +5,9 @@ export const loginSchema = z.object({
     email: z
         .string()
         .min(1, VALIDATION_MESSAGES.EMAIL_REQUIRED)
-        .email(VALIDATION_MESSAGES.EMAIL_INVALID),
+        .refine((email) => z.email().safeParse(email).success, {
+            message: VALIDATION_MESSAGES.EMAIL_INVALID,
+        }),
     password: z
         .string()
         .min(1, VALIDATION_MESSAGES.PASSWORD_REQUIRED)
@@ -18,7 +20,9 @@ export const registerSchema = z
         email: z
             .string()
             .min(1, VALIDATION_MESSAGES.EMAIL_REQUIRED)
-            .email(VALIDATION_MESSAGES.EMAIL_INVALID),
+            .refine((email) => z.email().safeParse(email).success, {
+                message: VALIDATION_MESSAGES.EMAIL_INVALID,
+            }),
         password: z
             .string()
             .min(1, VALIDATION_MESSAGES.PASSWORD_REQUIRED)
