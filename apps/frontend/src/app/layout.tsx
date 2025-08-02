@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "@/app/globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ToastProvider } from "@/contexts/ToastContext";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import { APP_CONFIG } from "@/constants/config";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import '@/app/globals.css';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ToastProvider } from '@/contexts/ToastContext';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { APP_CONFIG } from '@/constants/config';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: APP_CONFIG.NAME,
@@ -18,7 +18,7 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): JSX.Element {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -30,9 +30,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <AuthProvider>
-              <ToastProvider>
-                {children}
-              </ToastProvider>
+              <ToastProvider>{children}</ToastProvider>
             </AuthProvider>
           </ThemeProvider>
         </ErrorBoundary>
