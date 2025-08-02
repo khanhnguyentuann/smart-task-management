@@ -21,6 +21,7 @@ export function useLoginForm() {
             remember: false,
         },
         schema: loginSchema,
+        validateOnChange: true,
         onSubmit: async (values) => {
             try {
                 await login(values.email, values.password);
@@ -30,6 +31,7 @@ export function useLoginForm() {
                     variant: 'success',
                 });
             } catch (error) {
+                console.error('Login error:', error);
                 const errorMessage = isApiError(error) && error.response?.data?.message
                     ? error.response.data.message
                     : ERROR_MESSAGES.LOGIN_FAILED;
@@ -94,11 +96,18 @@ export function useLoginForm() {
         form.handleChange(name as keyof LoginFormData, finalValue);
     };
 
+    const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name } = e.target;
+        form.handleBlur(name as keyof LoginFormData);
+    };
+
     return {
         loading: form.isSubmitting || quickLoginLoading,
         formData: form.values,
         errors: form.errors,
+        touched: form.touched,
         handleChange: handleInputChange,
+        handleBlur: handleInputBlur,
         handleSubmit: form.handleSubmit,
         handleQuickLogin,
     };
@@ -117,7 +126,11 @@ export function useRegisterForm() {
             lastName: '',
         },
         schema: registerSchema,
+        validateOnChange: true,
         onSubmit: async (values) => {
+            console.log('🚀 Register form submitted with values:', values);
+            console.log('🔍 Form errors before submit:', form.errors);
+
             try {
                 await register(values.email, values.password);
                 toast({
@@ -126,6 +139,8 @@ export function useRegisterForm() {
                     variant: 'success',
                 });
             } catch (error) {
+                console.error('❌ Register error:', error);
+
                 let errorMessage: string = ERROR_MESSAGES.REGISTER_FAILED;
 
                 if (isApiError(error) && error.response?.status === 409) {
@@ -149,11 +164,20 @@ export function useRegisterForm() {
         form.handleChange(name as keyof RegisterFormData, finalValue);
     };
 
+    const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name } = e.target;
+        form.handleBlur(name as keyof RegisterFormData);
+    };
+
     return {
         loading: form.isSubmitting,
         formData: form.values,
         errors: form.errors,
+        touched: form.touched,
         handleChange: handleInputChange,
+        handleBlur: handleInputBlur,
         handleSubmit: form.handleSubmit,
+        validateField: form.validateField,
+        validateAll: form.validateAll,
     };
 }

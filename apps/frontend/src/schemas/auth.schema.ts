@@ -26,7 +26,11 @@ export const registerSchema = z
         password: z
             .string()
             .min(1, VALIDATION_MESSAGES.PASSWORD_REQUIRED)
-            .min(6, VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH),
+            .min(6, VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH)
+            .regex(
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{6,}$/,
+                'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 số'
+            ),
         confirmPassword: z
             .string()
             .min(1, VALIDATION_MESSAGES.PASSWORD_CONFIRM_REQUIRED),
@@ -44,7 +48,11 @@ export const changePasswordSchema = z
         newPassword: z
             .string()
             .min(1, VALIDATION_MESSAGES.PASSWORD_REQUIRED)
-            .min(6, VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH),
+            .min(6, VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH)
+            .regex(
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{6,}$/,
+                'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 số'
+            ),
         confirmPassword: z.string().min(1, VALIDATION_MESSAGES.PASSWORD_CONFIRM_REQUIRED),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
