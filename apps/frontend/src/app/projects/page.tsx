@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/Input"
 import { Spinner } from "@/components/ui/Spinner"
 import { projectService } from "@/services/project.service"
 import { Project } from "@/types/project"
+import { getErrorMessage, isApiError } from "@/types/api"
 import { useToast } from '@/contexts/ToastContext';
 import { Plus, Search, FolderOpen } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -34,17 +35,58 @@ export default function ProjectsPage() {
                 setProjects([])
             }
         } catch (error) {
-            console.error('Error fetching projects:', error)
+            const errorMessage = getErrorMessage(error)
+            
+            if (isApiError(error)) {
+                const statusCode = error.response?.status
+                
+                switch (statusCode) {
+                    case 401:
+                        toast({
+                            title: "Phiên đăng nhập hết hạn",
+                            description: "Vui lòng đăng nhập lại",
+                            variant: "destructive",
+                        })
+                        router.push('/login')
+                        return
+                    
+                    case 403:
+                        toast({
+                            title: "Không có quyền truy cập",
+                            description: "Bạn không có quyền xem danh sách project",
+                            variant: "destructive",
+                        })
+                        return
+                    
+                    case 404:
+                        toast({
+                            title: "Không tìm thấy",
+                            description: "API endpoint không tồn tại",
+                            variant: "destructive",
+                        })
+                        return
+                    
+                    case 500:
+                        toast({
+                            title: "Lỗi máy chủ",
+                            description: "Máy chủ đang gặp sự cố, vui lòng thử lại sau",
+                            variant: "destructive",
+                        })
+                        return
+                }
+            }
+            
+            // Generic error message
             toast({
                 title: "Lỗi",
-                description: "Không thể tải danh sách project",
+                description: errorMessage || "Không thể tải danh sách project",
                 variant: "destructive",
             })
             setProjects([])
         } finally {
             setLoading(false)
         }
-    }, [toast])
+    }, [toast, router])
 
     useEffect(() => {
         fetchProjects()
@@ -56,10 +98,12 @@ export default function ProjectsPage() {
             try {
                 const data = await projectService.search(query)
                 setProjects(data)
-            } catch {
+            } catch (error) {
+                const errorMessage = getErrorMessage(error)
+                
                 toast({
-                    title: "Lỗi",
-                    description: "Không thể tìm kiếm project",
+                    title: "Lỗi tìm kiếm",
+                    description: errorMessage || "Không thể tìm kiếm project",
                     variant: "destructive",
                 })
             }
@@ -80,10 +124,44 @@ export default function ProjectsPage() {
                 description: "Đã xóa project",
             })
             fetchProjects()
-        } catch {
+        } catch (error) {
+            const errorMessage = getErrorMessage(error)
+
+            if (isApiError(error)) {
+                const statusCode = error.response?.status
+                
+                switch (statusCode) {
+                    case 403:
+                        toast({
+                            title: "Không có quyền",
+                            description: "Bạn không có quyền xóa project này",
+                            variant: "destructive",
+                        })
+                        return
+                    
+                    case 404:
+                        toast({
+                            title: "Không tìm thấy",
+                            description: "Project không tồn tại hoặc đã bị xóa",
+                            variant: "destructive",
+                        })
+                        // Refresh list to remove deleted item
+                        fetchProjects()
+                        return
+                    
+                    case 409:
+                        toast({
+                            title: "Không thể xóa",
+                            description: "Project có tasks đang hoạt động, không thể xóa",
+                            variant: "destructive",
+                        })
+                        return
+                }
+            }
+            
             toast({
                 title: "Lỗi",
-                description: "Không thể xóa project",
+                description: errorMessage || "Không thể xóa project",
                 variant: "destructive",
             })
         }
