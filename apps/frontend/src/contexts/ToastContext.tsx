@@ -1,7 +1,14 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { Toast, ToastProvider as RadixToastProvider } from '@/components/ui/Toast';
+import {
+    Toast,
+    ToastProvider as RadixToastProvider,
+    ToastViewport,
+    ToastTitle,
+    ToastDescription,
+    ToastClose,
+} from '@/components/ui/Toast';
 
 export type ToastVariant = 'default' | 'destructive' | 'success' | 'warning';
 
@@ -27,7 +34,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
     const toast = (data: Omit<ToastData, 'id'>) => {
         const id = Math.random().toString(36).substr(2, 9);
-        const newToast: ToastData = { id, ...data };
+        const newToast: ToastData = { 
+            id, 
+            variant: 'default',
+            duration: 5000,
+            ...data 
+        };
 
         setToasts((prev) => [...prev, newToast]);
 
@@ -50,16 +62,23 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         <ToastContext.Provider value={{ toasts, toast, dismiss, dismissAll }}>
             <RadixToastProvider>
                 {children}
+                <ToastViewport />
                 {toasts.map((toast) => (
                     <Toast
                         key={toast.id}
-                        variant={toast.variant}
+                        open={true}
                         onOpenChange={(open) => {
                             if (!open) dismiss(toast.id);
                         }}
+                        variant={toast.variant}
                     >
-                        {toast.title && <div className="font-semibold">{toast.title}</div>}
-                        {toast.description && <div className="text-sm">{toast.description}</div>}
+                        {toast.title && (
+                            <ToastTitle>{toast.title}</ToastTitle>
+                        )}
+                        {toast.description && (
+                            <ToastDescription>{toast.description}</ToastDescription>
+                        )}
+                        <ToastClose />
                     </Toast>
                 ))}
             </RadixToastProvider>
