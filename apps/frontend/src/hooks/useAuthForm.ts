@@ -1,18 +1,15 @@
 "use client"
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useForm } from '@/hooks/useForm';
 import { loginSchema, registerSchema, LoginFormData, RegisterFormData } from '@/schemas/auth.schema';
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/constants/messages';
-import { ROUTES } from '@/constants/routes';
 import { isApiError, getErrorMessage } from '@/types/api';
-import { MockUser } from '@/types/mock-user';
+import { MockUser } from '@/data/mock-users';
 
 export function useLoginForm() {
-    const router = useRouter();
     const { toast } = useToast();
     const { login } = useAuth();
     const [quickLoginLoading, setQuickLoginLoading] = useState(false);
@@ -49,16 +46,33 @@ export function useLoginForm() {
     const handleQuickLogin = async (user: MockUser) => {
         try {
             setQuickLoginLoading(true);
-            // Mock login for demo
-            await new Promise(resolve => setTimeout(resolve, 1000));
 
-            toast({
-                title: `Chào mừng ${user.name}!`,
-                description: SUCCESS_MESSAGES.LOGIN,
-                variant: 'success',
-            });
+            // Sử dụng email và password mặc định cho mock users
+            const mockPassword = 'password123'; // Password cho tất cả mock users
 
-            router.push(ROUTES.DASHBOARD);
+            // Thử đăng nhập với backend
+            try {
+                await login(user.email, mockPassword);
+                toast({
+                    title: `Chào mừng ${user.name}!`,
+                    description: SUCCESS_MESSAGES.LOGIN,
+                    variant: 'success',
+                });
+            } catch {
+                // Nếu user chưa tồn tại, tự động đăng ký
+                console.log('User not found, auto-registering...');
+                try {
+                    await register(user.email, mockPassword);
+                    await login(user.email, mockPassword);
+                    toast({
+                        title: `Tài khoản đã được tạo!`,
+                        description: `Chào mừng ${user.name}!`,
+                        variant: 'success',
+                    });
+                } catch (registerError) {
+                    throw registerError;
+                }
+            }
         } catch (error) {
             toast({
                 title: 'Lỗi đăng nhập',
@@ -70,6 +84,9 @@ export function useLoginForm() {
         }
     };
 
+    // Import register function from useAuth
+    const { register } = useAuth();
+
     // Wrapper function to convert useForm handleChange to expected format
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -78,7 +95,6 @@ export function useLoginForm() {
     };
 
     return {
-        // Map useForm properties to expected component props
         loading: form.isSubmitting || quickLoginLoading,
         formData: form.values,
         errors: form.errors,
@@ -127,7 +143,6 @@ export function useRegisterForm() {
         },
     });
 
-    // Wrapper function to convert useForm handleChange to expected format
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         const finalValue = type === 'checkbox' ? checked : value;
@@ -135,7 +150,6 @@ export function useRegisterForm() {
     };
 
     return {
-        // Map useForm properties to expected component props
         loading: form.isSubmitting,
         formData: form.values,
         errors: form.errors,

@@ -7,6 +7,7 @@ import {
     ValidationPipe,
     Get,
     UseGuards,
+    Logger,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -20,6 +21,8 @@ import { User } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
+    private readonly logger = new Logger(AuthController.name);
+
     constructor(private readonly authService: AuthService) { }
 
     @Post('register')
@@ -28,6 +31,7 @@ export class AuthController {
     async register(
         @Body(ValidationPipe) registerDto: RegisterDto,
     ): Promise<AuthResponseDto> {
+        this.logger.log(`Register attempt for: ${registerDto.email}`);
         return this.authService.register(registerDto);
     }
 
@@ -37,6 +41,7 @@ export class AuthController {
     async login(
         @Body(ValidationPipe) loginDto: LoginDto,
     ): Promise<AuthResponseDto> {
+        this.logger.log(`Login attempt for: ${loginDto.email}`);
         return this.authService.login(loginDto);
     }
 
@@ -46,6 +51,7 @@ export class AuthController {
     async refresh(
         @Body(ValidationPipe) refreshTokenDto: RefreshTokenDto,
     ): Promise<Pick<AuthResponseDto, 'accessToken'>> {
+        this.logger.log('Token refresh attempt');
         return this.authService.refreshToken(refreshTokenDto.refreshToken);
     }
 
@@ -53,6 +59,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @SkipResponseWrapper()
     async getProfile(@CurrentUser() user: User) {
+        this.logger.log(`Get profile for user: ${user.email}`);
         return { user };
     }
 
@@ -61,6 +68,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @SkipResponseWrapper()
     async logout(@CurrentUser() user: User) {
+        this.logger.log(`Logout user: ${user.email}`);
         await this.authService.logout(user.id);
         return { message: 'Logout successful' };
     }
