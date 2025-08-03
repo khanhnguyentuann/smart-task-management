@@ -142,7 +142,11 @@ export function UserMenu({ user, variant = "default" }: UserMenuProps) {
                     variant="ghost"
                     size="sm"
                     onClick={toggleTheme}
-                    className="h-8 w-8 p-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 shadow-sm"
+                    className={`theme-toggle-button h-8 w-8 p-0 rounded-full shadow-sm transition-all duration-200 ${
+                        theme === "light" 
+                            ? "bg-gradient-to-br from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600" 
+                            : "bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800"
+                    }`}
                 >
                     {theme === "light" ? (
                         <Sun className="h-4 w-4 text-white" />

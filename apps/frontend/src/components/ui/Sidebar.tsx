@@ -123,6 +123,7 @@ export function Sidebar({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
+                            transition={{ duration: 0.4, ease: [0.4, 0.0, 0.2, 1] }}
                             className="fixed inset-0 bg-black/50 z-40 md:hidden"
                             onClick={() => setOpenMobile(false)}
                         />
@@ -137,7 +138,13 @@ export function Sidebar({
                             initial={{ x: "-100%" }}
                             animate={{ x: 0 }}
                             exit={{ x: "-100%" }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            transition={{ 
+                                duration: 0.4, 
+                                ease: [0.4, 0.0, 0.2, 1],
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30
+                            }}
                             className={cn(
                                 "fixed left-0 top-0 h-full w-[280px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 z-50",
                                 className
@@ -157,7 +164,13 @@ export function Sidebar({
             animate={{
                 x: open ? 0 : -280,
             }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            transition={{ 
+                duration: 0.4, 
+                ease: [0.4, 0.0, 0.2, 1],
+                type: "spring",
+                stiffness: 300,
+                damping: 30
+            }}
             className={cn(
                 "fixed left-0 top-0 h-screen w-[280px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 overflow-hidden z-30",
                 className

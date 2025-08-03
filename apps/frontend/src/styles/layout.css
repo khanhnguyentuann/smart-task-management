@@ -1,0 +1,73 @@
+/* Layout and Scrollbar Styles */
+
+/* Prevent scroll bars during page transitions */
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Hide scrollbar during transitions */
+.transitioning {
+  overflow: hidden !important;
+}
+
+/* Ensure content doesn't cause horizontal scroll */
+.page-content {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Prevent layout shift during transitions */
+.dashboard-layout {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* Ensure sidebar doesn't cause horizontal scroll */
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 50;
+}
+
+/* Main content area */
+.main-content {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* Prevent content overflow */
+.content-wrapper {
+  max-width: 100%;
+  overflow-x: hidden;
+  word-wrap: break-word;
+}
+
+/* Prevent layout shift */
+.layout-stable {
+  min-height: 100vh;
+  position: relative;
+}

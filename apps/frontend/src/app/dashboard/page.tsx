@@ -6,13 +6,14 @@ import { useAuth } from "@/contexts/AuthContext"
 import { projectService } from "@/services/project.service"
 import { ROUTES } from "@/constants/routes"
 import { DASHBOARD_CONFIG } from "@/constants/config"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProtectedLayout } from "@/components/layout/ProtectedLayout"
 import { Loader2, FolderOpen, CheckSquare, Users, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/Button"
 import { motion } from "framer-motion"
 import { AnimatedBackground } from "@/components/ui/AnimatedBackground"
+import { TaskStatusChart } from "@/components/charts"
 
 export default function DashboardPage() {
     const router = useRouter()
@@ -135,6 +136,22 @@ export default function DashboardPage() {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* Task Status Chart */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: DASHBOARD_CONFIG.ANIMATION_DURATION, delay: 0.3 }}
+                >
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Task Status Overview</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <TaskStatusChart className="h-64" />
+                        </CardContent>
+                    </Card>
+                </motion.div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

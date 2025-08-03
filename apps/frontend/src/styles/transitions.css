@@ -1,0 +1,169 @@
+/* Theme Transitions */
+
+/* Enhanced Theme Transition Styles */
+html {
+  transition: background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Global theme transition for all elements */
+* {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    fill 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    stroke 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Specific transitions for layout elements */
+body,
+div,
+section,
+article,
+aside,
+header,
+footer,
+nav,
+main {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhanced button transitions */
+button,
+[role="button"] {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhanced input and form element transitions */
+input,
+textarea,
+select,
+[role="textbox"] {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhanced card and container transitions */
+[class*="card"],
+[class*="container"],
+[class*="wrapper"],
+.card,
+.container,
+.wrapper {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhanced icon and SVG transitions */
+svg,
+[class*="icon"],
+.icon {
+  transition:
+    color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    fill 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    stroke 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhanced text and typography transitions */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
+label,
+.text,
+.typography {
+  transition: color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhanced sidebar and navigation transitions */
+[class*="sidebar"],
+[class*="nav"],
+.sidebar,
+.nav {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhanced dropdown and menu transitions */
+[class*="dropdown"],
+[class*="menu"],
+.dropdown,
+.menu {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhanced avatar and image transitions */
+[class*="avatar"],
+[class*="image"],
+.avatar,
+.image {
+  transition:
+    border-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Disable transitions for elements that shouldn't transition */
+.no-transition,
+.no-transition * {
+  transition: none !important;
+}
+
+/* Optimize transitions for better performance */
+.theme-transition {
+  will-change: background-color, color, border-color;
+  transform: translateZ(0);
+}
+
+/* Smooth theme toggle button animation */
+.theme-toggle-button {
+  transition:
+    background 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
+
+/* Prevent layout shift during theme transitions */
+.theme-stable {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Enhanced focus styles with transitions */
+.focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.focus-visible:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}

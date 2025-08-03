@@ -21,13 +21,12 @@ export default function RootLayout({
 }>): JSX.Element {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} theme-stable`}>
         <ErrorBoundary>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
-            disableTransitionOnChange
           >
             <AuthProvider>
               <ToastProvider>{children}</ToastProvider>
