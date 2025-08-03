@@ -11,8 +11,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 import { Project } from "@/types/project"
-import { MoreHorizontal, Edit, Trash2, Eye, Users, CheckSquare } from "lucide-react"
+import { MoreHorizontal, Edit, Trash2, Eye, Users, CheckSquare, Calendar } from "lucide-react"
 import { motion } from "framer-motion"
+import { formatRelativeTime } from "@/utils/date"
+import { truncate } from "@/utils/string"
 
 interface ProjectCardProps {
     project: Project
@@ -103,7 +105,7 @@ export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: Pr
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground line-clamp-2">
-                        {project.description || "No description available"}
+                        {project.description ? truncate(project.description, 120) : "No description available"}
                     </p>
 
                     <div className="flex items-center justify-between text-sm">
@@ -116,6 +118,13 @@ export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: Pr
                             {totalTasks} tasks
                         </div>
                     </div>
+                    
+                    {project.createdAt && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
+                            Tạo {formatRelativeTime(project.createdAt)}
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <div className="flex justify-between text-xs text-muted-foreground">

@@ -160,8 +160,8 @@ export function useRegisterForm() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
-        const finalValue = type === 'checkbox' ? checked : value;
-        form.handleChange(name as keyof RegisterFormData, finalValue);
+        const finalValue = type === 'checkbox' ? checked.toString() : value;
+        form.handleChange(name as keyof RegisterFormData, finalValue as string);
     };
 
     const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/Button"
 import { User, Settings, HelpCircle, LogOut } from "lucide-react"
 import { authService } from "@/services/auth.service"
 import { User as UserType } from "@/types/auth"
+import { getUserInitials, getFullName } from "@/utils/string"
 
 interface UserMenuProps {
     user: UserType
@@ -21,17 +22,6 @@ interface UserMenuProps {
 
 export function UserMenu({ user }: UserMenuProps) {
     const router = useRouter()
-
-    const getUserInitials = (email: string) => {
-        return email.substring(0, 2).toUpperCase()
-    }
-
-    const getFullName = (user: UserType) => {
-        if (user.firstName && user.lastName) {
-            return `${user.firstName} ${user.lastName}`
-        }
-        return user.email
-    }
 
     const handleLogout = () => {
         authService.logout()

@@ -14,6 +14,7 @@ import { Spinner } from "@/components/ui/Spinner"
 import { authService } from "@/services/auth.service"
 import { User } from "@/types/auth"
 import { useToast } from '@/contexts/ToastContext';
+import { getUserInitials, getFullName } from "@/utils/string"
 import {
     User as UserIcon,
     Mail,
@@ -196,19 +197,7 @@ export default function ProfilePage() {
         }
     }
 
-    const getUserInitials = (user: User) => {
-        if (user.firstName && user.lastName) {
-            return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-        }
-        return user.email.substring(0, 2).toUpperCase()
-    }
 
-    const getFullName = (user: User) => {
-        if (user.firstName || user.lastName) {
-            return `${user.firstName || ""} ${user.lastName || ""}`.trim()
-        }
-        return user.email
-    }
 
     if (loading) {
         return (
@@ -278,9 +267,9 @@ export default function ProfilePage() {
                             <div className="flex items-center gap-6">
                                 <div className="relative group">
                                     <Avatar className="h-24 w-24 ring-4 ring-background shadow-lg">
-                                        <AvatarImage src={avatarPreview || user.avatar} alt={getFullName(user)} />
+                                        <AvatarImage src={avatarPreview || user.avatar} alt={getFullName(user.firstName, user.lastName, user.email)} />
                                         <AvatarFallback className="text-lg bg-gradient-to-br from-primary/20 to-primary/10">
-                                            {getUserInitials(user)}
+                                            {getUserInitials(user.firstName, user.lastName, user.email)}
                                         </AvatarFallback>
                                     </Avatar>
                                     {isEditing && (
@@ -300,7 +289,7 @@ export default function ProfilePage() {
                                     )}
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-semibold">{getFullName(user)}</h3>
+                                    <h3 className="text-xl font-semibold">{getFullName(user.firstName, user.lastName, user.email)}</h3>
                                     <p className="text-muted-foreground">{user.email}</p>
                                     <Badge variant={user.role === "ADMIN" ? "default" : "secondary"} className="mt-2">
                                         <Shield className="h-3 w-3 mr-1" />
