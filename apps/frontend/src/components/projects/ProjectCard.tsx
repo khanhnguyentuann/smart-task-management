@@ -15,6 +15,8 @@ import { MoreHorizontal, Edit, Trash2, Eye, Users, CheckSquare, Calendar } from 
 import { motion } from "framer-motion"
 import { formatRelativeTime } from "@/utils/date"
 import { truncate } from "@/utils/string"
+import { PROJECT_COLORS, VALIDATION_CONFIG } from "@/constants/config"
+import { UI_MESSAGES } from "@/constants/messages"
 
 interface ProjectCardProps {
     project: Project
@@ -24,18 +26,11 @@ interface ProjectCardProps {
     onView?: (project: Project) => void
 }
 
-const projectColors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-yellow-500",
-    "bg-pink-500",
-    "bg-indigo-500",
-]
+
 
 export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: ProjectCardProps) {
     const isOwner = true // TODO: Check if current user is owner
-    const color = projectColors[index % projectColors.length]
+    const color = PROJECT_COLORS[index % PROJECT_COLORS.length]
 
     // Mock data for demo
     const tasks = {
@@ -105,7 +100,7 @@ export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: Pr
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground line-clamp-2">
-                        {project.description ? truncate(project.description, 120) : "No description available"}
+                        {project.description ? truncate(project.description, VALIDATION_CONFIG.DESCRIPTION_TRUNCATE_LENGTH) : UI_MESSAGES.NO_DESCRIPTION}
                     </p>
 
                     <div className="flex items-center justify-between text-sm">
@@ -118,7 +113,7 @@ export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: Pr
                             {totalTasks} tasks
                         </div>
                     </div>
-                    
+
                     {project.createdAt && (
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Calendar className="h-3 w-3" />

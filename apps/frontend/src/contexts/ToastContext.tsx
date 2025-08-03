@@ -7,6 +7,7 @@ import {
     ReactNode,
     useCallback,
 } from 'react';
+import { UI_CONFIG } from '@/constants/config';
 import {
     Toast,
     ToastProvider as RadixToastProvider,
@@ -50,7 +51,7 @@ export function ToastProvider({ children }: { children: ReactNode }): JSX.Elemen
         const newToast: ToastData = {
             id,
             variant: 'default',
-            duration: 5000,
+            duration: UI_CONFIG.TOAST_DURATION,
             ...data,
         };
         setToasts(prev => [...prev, newToast]);

@@ -21,6 +21,10 @@ export const ERROR_MESSAGES = {
     PROJECT_DELETE_FAILED: 'Không thể xóa project',
     PROFILE_UPDATE_FAILED: 'Không thể cập nhật thông tin',
     PASSWORD_CHANGE_FAILED: 'Không thể đổi mật khẩu',
+    FILE_TOO_LARGE: 'File quá lớn',
+    FILE_SIZE_LIMIT: 'Vui lòng chọn ảnh dưới 5MB',
+    PASSWORD_MISMATCH: 'Mật khẩu mới không khớp',
+    PASSWORD_TOO_SHORT: 'Mật khẩu mới phải có ít nhất 6 ký tự',
 } as const;
 
 export const VALIDATION_MESSAGES = {
@@ -32,4 +36,13 @@ export const VALIDATION_MESSAGES = {
     PASSWORD_MISMATCH: 'Mật khẩu không khớp',
     PROJECT_NAME_REQUIRED: 'Tên project không được để trống',
     PROJECT_NAME_MIN_LENGTH: 'Tên project phải có ít nhất 3 ký tự',
+} as const;
+
+export const UI_MESSAGES = {
+    EMAIL_READONLY: 'Email không thể thay đổi',
+    NO_DESCRIPTION: 'No description available',
+    LOADING: 'Đang tải...',
+    SAVING: 'Đang lưu...',
+    UPDATING: 'Đang cập nhật...',
+    DELETING: 'Đang xóa...',
 } as const;

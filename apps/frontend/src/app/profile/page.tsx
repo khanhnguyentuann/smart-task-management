@@ -15,6 +15,8 @@ import { authService } from "@/services/auth.service"
 import { User } from "@/types/auth"
 import { useToast } from '@/contexts/ToastContext';
 import { getUserInitials, getFullName } from "@/utils/string"
+import { FILE_CONFIG, VALIDATION_CONFIG, UI_CONFIG } from "@/constants/config"
+import { ERROR_MESSAGES, UI_MESSAGES } from "@/constants/messages"
 import {
     User as UserIcon,
     Mail,
@@ -94,7 +96,7 @@ export default function ProfilePage() {
         setIsSaving(true)
         try {
             // This will be implemented when backend is ready
-            await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, UI_CONFIG.API_SIMULATION_DELAY)) // Simulate API call
 
             toast({
                 title: "Cập nhật thành công",
@@ -136,10 +138,10 @@ export default function ProfilePage() {
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
-            if (file.size > 5 * 1024 * 1024) { // 5MB
+            if (file.size > FILE_CONFIG.MAX_AVATAR_SIZE) { // 5MB
                 toast({
-                    title: "File quá lớn",
-                    description: "Vui lòng chọn ảnh dưới 5MB",
+                    title: ERROR_MESSAGES.FILE_TOO_LARGE,
+                    description: ERROR_MESSAGES.FILE_SIZE_LIMIT,
                     variant: "destructive"
                 })
                 return
@@ -158,16 +160,16 @@ export default function ProfilePage() {
         if (passwordForm.newPassword !== passwordForm.confirmPassword) {
             toast({
                 title: "Lỗi",
-                description: "Mật khẩu mới không khớp",
+                description: ERROR_MESSAGES.PASSWORD_MISMATCH,
                 variant: "destructive"
             })
             return
         }
 
-        if (passwordForm.newPassword.length < 6) {
+        if (passwordForm.newPassword.length < VALIDATION_CONFIG.PASSWORD_MIN_LENGTH) {
             toast({
                 title: "Lỗi",
-                description: "Mật khẩu mới phải có ít nhất 6 ký tự",
+                description: ERROR_MESSAGES.PASSWORD_TOO_SHORT,
                 variant: "destructive"
             })
             return
@@ -175,7 +177,7 @@ export default function ProfilePage() {
 
         try {
             // This will be implemented when backend is ready
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            await new Promise(resolve => setTimeout(resolve, UI_CONFIG.API_SIMULATION_DELAY))
 
             toast({
                 title: "Đổi mật khẩu thành công",
@@ -337,7 +339,7 @@ export default function ProfilePage() {
                                         className="bg-muted"
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        Email không thể thay đổi
+                                        {UI_MESSAGES.EMAIL_READONLY}
                                     </p>
                                 </div>
                             </div>
@@ -462,7 +464,7 @@ export default function ProfilePage() {
                                     onChange={(e) =>
                                         setPasswordForm({ ...passwordForm, newPassword: e.target.value })
                                     }
-                                    placeholder="Tối thiểu 6 ký tự"
+                                    placeholder={`Tối thiểu ${VALIDATION_CONFIG.PASSWORD_MIN_LENGTH} ký tự`}
                                     leftIcon={<Lock className="h-4 w-4" />}
                                     rightIcon={
                                         <button

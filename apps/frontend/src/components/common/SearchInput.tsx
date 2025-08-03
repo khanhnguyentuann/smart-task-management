@@ -13,10 +13,12 @@ interface SearchInputProps {
     className?: string
 }
 
-export function SearchInput({ 
-    placeholder = "Tìm kiếm...", 
-    onSearch, 
-    debounceMs = 500,
+import { UI_CONFIG } from '@/constants/config'
+
+export function SearchInput({
+    placeholder = "Tìm kiếm...",
+    onSearch,
+    debounceMs = UI_CONFIG.DEBOUNCE_DELAY,
     className = ""
 }: SearchInputProps) {
     const [searchTerm, setSearchTerm] = useState('')

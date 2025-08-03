@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/Label"
 import { PasswordInput } from "@/components/auth/PasswordInput"
 import { Mail, Sparkles, Loader2, AlertCircle } from "lucide-react"
 import { RegisterFormData } from "@/schemas/auth.schema"
+import { VALIDATION_CONFIG } from "@/constants/config"
 
 interface ValidationError {
     email?: string
@@ -87,7 +88,7 @@ export function RegisterForm({
                     id="password"
                     name="password"
                     label="Mật khẩu"
-                    placeholder="Tối thiểu 6 ký tự"
+                    placeholder={`Tối thiểu ${VALIDATION_CONFIG.PASSWORD_MIN_LENGTH} ký tự`}
                     value={formData.password}
                     onChange={onChange}
                     onBlur={onBlur}

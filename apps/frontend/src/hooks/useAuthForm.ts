@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useForm } from '@/hooks/useForm';
 import { loginSchema, registerSchema, LoginFormData, RegisterFormData } from '@/schemas/auth.schema';
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/constants/messages';
+import { AUTH_CONFIG } from '@/constants/config';
 import { isApiError, getErrorMessage } from '@/types/api';
 import { MockUser } from '@/data/mock-users';
 
@@ -50,7 +51,7 @@ export function useLoginForm() {
             setQuickLoginLoading(true);
 
             // Sử dụng email và password mặc định cho mock users
-            const mockPassword = 'password123'; // Password cho tất cả mock users
+            const mockPassword = AUTH_CONFIG.MOCK_PASSWORD; // Password cho tất cả mock users
 
             // Thử đăng nhập với backend
             try {
