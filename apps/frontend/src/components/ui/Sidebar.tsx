@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
 import { motion, AnimatePresence } from "framer-motion"
+import { PanelLeft } from "lucide-react"
 
 interface SidebarContextType {
     expanded: boolean
@@ -110,7 +111,7 @@ export function Sidebar({
     className,
     children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-    const { open, openMobile, isMobile } = useSidebar()
+    const { open, openMobile, setOpenMobile, isMobile } = useSidebar()
 
     if (isMobile) {
         return (
@@ -123,6 +124,7 @@ export function Sidebar({
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                            onClick={() => setOpenMobile(false)}
                         />
                     )}
                 </AnimatePresence>
@@ -135,9 +137,9 @@ export function Sidebar({
                             initial={{ x: "-100%" }}
                             animate={{ x: 0 }}
                             exit={{ x: "-100%" }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
                             className={cn(
-                                "fixed left-0 top-0 h-full w-[280px] border-r bg-background",
+                                "fixed left-0 top-0 h-full w-[280px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 z-50",
                                 className
                             )}
                         >
@@ -153,17 +155,15 @@ export function Sidebar({
     return (
         <motion.aside
             animate={{
-                width: open ? 280 : 0,
-                opacity: open ? 1 : 0,
+                x: open ? 0 : -280,
             }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
             className={cn(
-                "fixed left-0 top-0 h-screen border-r bg-background overflow-hidden z-30",
+                "fixed left-0 top-0 h-screen w-[280px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 overflow-hidden z-30",
                 className
             )}
-            style={{ width: open ? 280 : 0 }}
         >
-            <div className="w-[280px] h-full">
+            <div className="w-full h-full">
                 {children}
             </div>
         </motion.aside>
@@ -176,7 +176,7 @@ export function SidebarHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
-            className={cn("flex items-center border-b px-4 py-3", className)}
+            className={cn("flex items-center border-b border-slate-200 dark:border-slate-800 px-4 py-3", className)}
             {...props}
         />
     )
@@ -195,7 +195,7 @@ export function SidebarFooter({
 }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
-            className={cn("mt-auto border-t px-4 py-3", className)}
+            className={cn("mt-auto border-t border-slate-200 dark:border-slate-800 px-4 py-3", className)}
             {...props}
         />
     )
@@ -244,24 +244,10 @@ export function SidebarTrigger({
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className={cn("", className)}
+            className={cn("w-8 h-8 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors rounded-md", className)}
             {...props}
         >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            >
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
+            <PanelLeft className="h-4 w-4 text-white" />
         </Button>
     )
 }

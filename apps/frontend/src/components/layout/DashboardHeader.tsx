@@ -8,8 +8,11 @@ import {
     CheckSquare,
     Users,
     Calendar,
-    BarChart3
+    BarChart3,
+    Bell
 } from "lucide-react"
+import { useState, useEffect } from "react"
+import { getGreeting, formatDateTime } from "@/utils/date"
 
 const pageInfo = {
     "/dashboard": {
@@ -56,7 +59,23 @@ const pageInfo = {
 
 export function DashboardHeader() {
     const pathname = usePathname()
+    const [greeting, setGreeting] = useState(getGreeting())
+    const [currentTime, setCurrentTime] = useState(new Date())
     const currentPage = pageInfo[pathname as keyof typeof pageInfo] || pageInfo["/dashboard"]
+
+    useEffect(() => {
+        const updateTime = () => {
+            setCurrentTime(new Date())
+            setGreeting(getGreeting())
+        }
+
+        updateTime()
+        const interval = setInterval(updateTime, 1000) // Update every second
+
+        return () => clearInterval(interval)
+    }, [])
+
+    const isDashboard = pathname === "/dashboard"
 
     return (
         <header className="h-16 bg-background border-b">
@@ -64,11 +83,39 @@ export function DashboardHeader() {
                 <SidebarTrigger />
 
                 <div className="flex items-center gap-3">
-                    <currentPage.icon className="h-5 w-5 text-muted-foreground" />
+                    {isDashboard ? (
+                        <greeting.icon className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                        <currentPage.icon className="h-5 w-5 text-muted-foreground" />
+                    )}
                     <div>
-                        <h1 className="text-lg font-semibold">{currentPage.title}</h1>
-                        <p className="text-sm text-muted-foreground">{currentPage.description}</p>
+                        <h1 className="text-lg font-semibold">
+                            {isDashboard ? greeting.text : currentPage.title}
+                        </h1>
+                        <p className="text-sm text-muted-foreground">
+                            {isDashboard ? "Welcome back to your workspace" : currentPage.description}
+                        </p>
                     </div>
+                </div>
+
+                {/* Current Date & Time - Centered */}
+                <div className="flex-1 flex justify-center">
+                    <div className="text-center">
+                        <div className="text-sm font-medium text-muted-foreground">
+                            {formatDateTime(currentTime)}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Notification Bell */}
+                <div className="relative">
+                    <button className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <Bell className="h-5 w-5 text-muted-foreground" />
+                        {/* Notification Badge */}
+                        <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                            2
+                        </div>
+                    </button>
                 </div>
             </div>
         </header>

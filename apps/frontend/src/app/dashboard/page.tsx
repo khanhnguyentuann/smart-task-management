@@ -2,60 +2,58 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { authService } from "@/services/auth.service"
+import { useAuth } from "@/contexts/AuthContext"
 import { projectService } from "@/services/project.service"
 import { ROUTES } from "@/constants/routes"
 import { DASHBOARD_CONFIG } from "@/constants/config"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
-import { DashboardLayout } from "@/components/layout/DashboardLayout"
+import { ProtectedLayout } from "@/components/layout/ProtectedLayout"
 import { Loader2, FolderOpen, CheckSquare, Users, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/Button"
-import { User } from "@/types/auth"
 import { motion } from "framer-motion"
 import { AnimatedBackground } from "@/components/ui/AnimatedBackground"
 
 export default function DashboardPage() {
     const router = useRouter()
-    const [user, setUser] = useState<User | null>(null)
+    const { user } = useAuth()
     const [projectCount, setProjectCount] = useState(0)
-    const [loading, setLoading] = useState(true)
+    const [dataLoading, setDataLoading] = useState(true)
 
     useEffect(() => {
-        const checkAuth = async () => {
+        const fetchData = async () => {
             try {
-                const response = await authService.getMe()
-                setUser(response.user)
-
                 const projects = await projectService.getAll()
                 setProjectCount(projects.length)
             } catch (error) {
-                console.error('Auth check or data fetch failed:', error)
-                router.push(ROUTES.LOGIN)
+                console.error('Data fetch failed:', error)
             } finally {
-                setLoading(false)
+                setDataLoading(false)
             }
         }
 
-        checkAuth()
-    }, [router])
+        fetchData()
+    }, [])
 
-    if (loading) {
+    // Show loading while fetching data
+    if (dataLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <motion.div
-                    animate={{
-                        rotate: 360,
-                        scale: [1, 1.2, 1],
-                    }}
-                    transition={{
-                        rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                        scale: { duration: 1, repeat: Infinity },
-                    }}
-                >
-                    <Loader2 className="h-12 w-12 text-primary" />
-                </motion.div>
-            </div>
+            <ProtectedLayout>
+                <div className="min-h-screen flex items-center justify-center">
+                    <motion.div
+                        animate={{
+                            rotate: 360,
+                            scale: [1, 1.2, 1],
+                        }}
+                        transition={{
+                            rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                            scale: { duration: 1, repeat: Infinity },
+                        }}
+                    >
+                        <Loader2 className="h-12 w-12 text-primary" />
+                    </motion.div>
+                </div>
+            </ProtectedLayout>
         )
     }
 
@@ -96,7 +94,7 @@ export default function DashboardPage() {
     ]
 
     return (
-        <DashboardLayout>
+        <ProtectedLayout>
             <AnimatedBackground />
             <div className="p-6 space-y-6">
                 <motion.div
@@ -186,6 +184,6 @@ export default function DashboardPage() {
                     </Card>
                 </motion.div>
             </div>
-        </DashboardLayout>
+        </ProtectedLayout>
     )
 }

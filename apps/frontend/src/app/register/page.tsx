@@ -1,6 +1,7 @@
 "use client"
 
 import { AuthLayout } from "@/components/auth/AuthLayout"
+import { AuthGuard } from "@/components/auth/AuthGuard"
 import { RegisterForm } from "@/components/auth/RegisterForm"
 import { FeaturesGrid } from "@/components/marketing/FeaturesGrid"
 import { AchievementsSection } from "@/components/marketing/StatsSection"
@@ -11,7 +12,7 @@ import { ROUTES } from "@/constants/routes"
 
 export default function RegisterPage() {
     const {
-        loading,
+        loading: formLoading,
         formData,
         errors,
         touched,
@@ -53,29 +54,31 @@ export default function RegisterPage() {
     )
 
     return (
-        <AuthLayout
-            title="Tạo tài khoản mới"
-            subtitle="Bắt đầu hành trình quản lý công việc thông minh"
-            marketingContent={marketingContent}
-            footerContent={footerContent}
-            brandingProps={{
-                title: "Smart Task Management",
-                subtitle: "Nâng tầm năng suất với AI",
-                description: "Tham gia cùng hàng nghìn người dùng đã chọn Smart Task để tối ưu hóa công việc",
-                gradientFrom: "from-purple-600",
-                gradientTo: "to-blue-600"
-            }}
-            backgroundGradient="from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-950"
-        >
-            <RegisterForm
-                formData={formData}
-                errors={errors}
-                touched={touched}
-                loading={loading}
-                onSubmit={handleSubmit}
-                onChange={handleChange}
-                onBlur={handleBlur}
-            />
-        </AuthLayout>
+        <AuthGuard requireAuth={false} redirectTo={ROUTES.DASHBOARD}>
+            <AuthLayout
+                title="Tạo tài khoản mới"
+                subtitle="Bắt đầu hành trình quản lý công việc thông minh"
+                marketingContent={marketingContent}
+                footerContent={footerContent}
+                brandingProps={{
+                    title: "Smart Task Management",
+                    subtitle: "Nâng tầm năng suất với AI",
+                    description: "Tham gia cùng hàng nghìn người dùng đã chọn Smart Task để tối ưu hóa công việc",
+                    gradientFrom: "from-purple-600",
+                    gradientTo: "to-blue-600"
+                }}
+                backgroundGradient="from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-950"
+            >
+                <RegisterForm
+                    formData={formData}
+                    errors={errors}
+                    touched={touched}
+                    loading={formLoading}
+                    onSubmit={handleSubmit}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                />
+            </AuthLayout>
+        </AuthGuard>
     )
 }
