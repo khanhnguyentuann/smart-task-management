@@ -1,73 +1,89 @@
-# 🎯 Smart Task Management System
+# 🚀 Smart Task Management
 
-A full-stack task management system with AI-powered features, built with modern technologies.
+**Nền tảng quản lý dự án thông minh với AI, giúp team của bạn làm việc hiệu quả hơn.**
 
-## 🏗️ Project Structure (Mono Repo)
+## 🎯 Tech Stack
+
+- **Frontend:** Next.js 14, React 18, TypeScript, Tailwind CSS
+- **Backend:** NestJS, PostgreSQL, Prisma ORM
+- **Auth:** JWT + Passport
+- **Package Manager:** Yarn Workspaces
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL 15+
+- Yarn
+
+### Setup
+
+```bash
+# Clone & install
+git clone <repo-url>
+cd smart-task-management
+yarn install
+
+# Start database
+docker-compose up -d postgres
+
+# Setup environment
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env.local
+
+# Setup database
+yarn workspace @smart-task-management/backend db:generate
+yarn workspace @smart-task-management/backend db:migrate
+
+# Start development
+yarn dev
+```
+
+**Access:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:3001
+- API Docs: http://localhost:3001/api/docs
+
+## 📁 Project Structure
 
 ```
 smart-task-management/
 ├── apps/
-│   ├── frontend/          # Next.js React app
-│   └── backend/           # NestJS API server
-├── packages/
-│   └── types/            # Shared TypeScript types
-├── package.json          # Root workspace config
-└── README.md
+│   ├── backend/          # NestJS API
+│   └── frontend/         # Next.js App
+├── packages/             # Shared packages
+└── docker-compose.yml    # Database
 ```
 
-## 🚀 Getting Started
+## 🛠️ Development
 
-### Prerequisites
-- Node.js >= 18
-- PostgreSQL
-- yarn (recommended package manager)
-
-### Development
-
-Run all apps in development mode:
 ```bash
+# Start all services
 yarn dev
-```
 
-Or run individually:
-```bash
-# Frontend only
+# Start individually
 yarn dev:frontend
-
-# Backend only (coming soon)
 yarn dev:backend
-```
 
-### Build
-```bash
+# Build
 yarn build
+
+# Lint
+yarn lint
 ```
 
-## 🧱 Tech Stack
+## 📚 Documentation
 
-### Backend (Coming Soon)
-- 🧠 Language: TypeScript
-- ⚙️ Framework: NestJS
-- 🗄️ Database: PostgreSQL + Prisma
-- 🔐 Auth: JWT + Refresh Token
-- 🤖 AI: OpenAI API integration
+- [Backend API](./apps/backend/README.md)
+- [Frontend App](./apps/frontend/README.md)
 
-### Frontend
-- ⚛️ Framework: Next.js (React)
-- 🧠 Language: TypeScript
-- 💅 UI: Tailwind CSS + shadcn/ui
-- 🌐 State Management: TanStack Query
+## 🤝 Contributing
 
-## 📝 Development Progress
-
-- [x] Setup mono repo structure
-- [ ] Backend NestJS setup
-- [ ] Authentication system
-- [ ] Project management
-- [ ] Task management
-- [ ] AI integration
-- [ ] Docker deployment
+1. Fork & create feature branch
+2. Follow coding standards
+3. Add tests
+4. Submit PR
 
 ---
 
-This project follows the milestone-based development approach with systematic commits for each feature.
+**Made with ❤️ by Smart Task Team**
