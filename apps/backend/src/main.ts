@@ -6,7 +6,9 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        logger: process.env.LOG_LEVEL === 'warn' ? ['warn', 'error'] : ['log', 'warn', 'error'],
+    });
     const configService = app.get(ConfigService);
     const reflector = app.get(Reflector);
     const logger = new Logger('Bootstrap');
@@ -53,9 +55,17 @@ async function bootstrap() {
     const port = configService.get('port') || 3001;
     await app.listen(port);
 
-    logger.log(`🚀 Backend server is running on http://localhost:${port}`);
-    logger.log(`📚 API available at http://localhost:${port}/api`);
-    logger.log(`🏥 Health check at http://localhost:${port}/health`);
+    // Add delay to let frontend show its URL first
+    setTimeout(() => {
+        // Only log API URL when in quiet mode
+        if (process.env.LOG_LEVEL === 'warn') {
+            console.log(`📚 API available at http://localhost:${port}/api`);
+        } else {
+            console.log(`🚀 Backend server is running on http://localhost:${port}`);
+            console.log(`📚 API available at http://localhost:${port}/api`);
+            console.log(`🏥 Health check at http://localhost:${port}/health`);
+        }
+    }, 2000); // 2 second delay
 }
 
 bootstrap().catch((error) => {
