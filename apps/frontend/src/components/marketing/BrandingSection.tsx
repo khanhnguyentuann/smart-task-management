@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Sparkles } from "lucide-react"
+import { AppLogo } from "@/components/common/AppLogo"
 
 interface BrandingSectionProps {
     title?: string
@@ -26,20 +26,11 @@ export function BrandingSection({
                 transition={{ delay: 0.2, type: "spring" }}
                 className="flex items-center gap-3"
             >
-                <motion.div
-                    animate={{
-                        rotate: [0, 10, -10, 0],
-                        scale: [1, 1.1, 1]
-                    }}
-                    transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                    }}
-                    className={`h-12 w-12 rounded-full bg-gradient-to-br ${gradientFrom} via-purple-500 ${gradientTo} flex items-center justify-center text-white shadow-xl`}
-                >
-                    <Sparkles className="h-6 w-6" />
-                </motion.div>
+                <AppLogo 
+                    size="lg" 
+                    animated={true}
+                    className={`bg-gradient-to-br ${gradientFrom} via-purple-500 ${gradientTo}`}
+                />
                 <div>
                     <h1 className={`text-2xl font-bold bg-gradient-to-r ${gradientFrom} ${gradientTo} bg-clip-text text-transparent`}>
                         {title}

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { PasswordInput } from "@/components/auth/PasswordInput"
-import { Mail, Sparkles } from "lucide-react"
+import { Mail } from "lucide-react"
+import { AppLogo } from "@/components/common/AppLogo"
 import { LoginFormData } from "@/schemas/auth.schema"
 
 interface ValidationError {
@@ -94,13 +95,13 @@ export function LoginForm({ formData, errors, loading, onSubmit, onChange }: Log
                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                             className="mr-2"
                         >
-                            <Sparkles className="h-4 w-4" />
+                            <AppLogo size="sm" variant="icon-only" className="bg-transparent shadow-none" />
                         </motion.div>
                         Đang đăng nhập...
                     </>
                 ) : (
                     <>
-                        <Sparkles className="h-4 w-4 mr-2" />
+                        <AppLogo size="sm" variant="icon-only" className="mr-2 bg-transparent shadow-none" />
                         Đăng nhập
                     </>
                 )}

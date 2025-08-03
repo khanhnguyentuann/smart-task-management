@@ -23,6 +23,7 @@ import { UserMenu } from "@/components/layout/UserMenu"
 import { motion } from "framer-motion"
 import { authService } from "@/services/auth.service"
 import { User as UserType } from "@/types/auth"
+import { NavbarLogo } from "@/components/common/AppLogo"
 
 const menuItems = [
     {
@@ -86,22 +87,7 @@ export function AppSidebar() {
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                 >
-                    <div className="flex items-center gap-2 text-xl font-bold text-blue-600">
-                        <motion.div
-                            animate={{
-                                rotate: [0, 10, -10, 0],
-                                scale: [1, 1.1, 1],
-                            }}
-                            transition={{
-                                duration: 3,
-                                repeat: Number.POSITIVE_INFINITY,
-                                repeatType: "reverse",
-                            }}
-                        >
-                            <div className="text-2xl">🤖</div>
-                        </motion.div>
-                        Smart Task
-                    </div>
+                    <NavbarLogo />
                 </motion.div>
             </SidebarHeader>
 

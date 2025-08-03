@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { PasswordInput } from "@/components/auth/PasswordInput"
-import { Mail, Sparkles, Loader2, AlertCircle } from "lucide-react"
+import { Mail, Loader2, AlertCircle } from "lucide-react"
+import { AppLogo } from "@/components/common/AppLogo"
 import { RegisterFormData } from "@/schemas/auth.schema"
 import { VALIDATION_CONFIG } from "@/constants/config"
 
@@ -155,7 +156,7 @@ export function RegisterForm({
                     </>
                 ) : (
                     <>
-                        <Sparkles className="h-4 w-4 mr-2" />
+                        <AppLogo size="sm" variant="icon-only" className="mr-2 bg-transparent shadow-none" />
                         Tạo tài khoản miễn phí
                     </>
                 )}

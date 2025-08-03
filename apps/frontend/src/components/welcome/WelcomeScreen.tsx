@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/Button"
-import { Sparkles, Users, CheckSquare, BarChart3 } from "lucide-react"
+import { Users, CheckSquare, BarChart3 } from "lucide-react"
+import { AppLogo } from "@/components/common/AppLogo"
 
 interface WelcomeScreenProps {
     onGetStarted: () => void
@@ -51,7 +52,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
                             className="inline-block"
                         >
                             <div className="flex items-center justify-center gap-3 text-6xl font-bold text-blue-600">
-                                <Sparkles className="h-16 w-16" />
+                                <AppLogo size="xl" variant="icon-only" className="text-blue-600 bg-transparent shadow-none" />
                                 <span>Smart Task</span>
                             </div>
                         </motion.div>
@@ -105,7 +106,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
                             size="lg"
                             className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
                         >
-                            <Sparkles className="h-5 w-5 mr-2" />
+                            <AppLogo size="sm" variant="icon-only" className="mr-2 bg-transparent shadow-none" />
                             Get Started
                         </Button>
                     </motion.div>

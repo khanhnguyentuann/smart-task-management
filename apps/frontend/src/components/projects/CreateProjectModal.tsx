@@ -22,7 +22,8 @@ import { createProjectSchema, CreateProjectFormData } from "@/schemas/project.sc
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/constants/messages"
 import { ROUTES } from "@/constants/routes"
 import { getErrorMessage } from "@/types/api"
-import { Loader2, FolderPlus, Sparkles } from "lucide-react"
+import { Loader2, FolderPlus } from "lucide-react"
+import { AppLogo } from "@/components/common/AppLogo"
 import { motion } from "framer-motion"
 
 interface CreateProjectModalProps {
@@ -139,7 +140,7 @@ export function CreateProjectModal({ open, onOpenChange, onSuccess }: CreateProj
                             transition={{ delay: 0.3 }}
                             className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md"
                         >
-                            <Sparkles className="h-4 w-4 text-blue-600" />
+                            <AppLogo size="sm" variant="icon-only" className="text-blue-600 bg-transparent shadow-none" />
                             <p className="text-sm text-blue-800 dark:text-blue-200">
                                 AI sẽ tự động tóm tắt các task trong project này
                             </p>

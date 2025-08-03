@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { BrandingSection } from "@/components/marketing/BrandingSection"
-import { Sparkles } from "lucide-react"
+import { AuthLogo } from "@/components/common/AppLogo"
 
 interface AuthLayoutProps {
     children: React.ReactNode
@@ -75,20 +75,7 @@ export function AuthLayout({
                                             className="flex flex-col items-center space-y-4"
                                         >
                                             {/* App Logo */}
-                                            <motion.div
-                                                animate={{
-                                                    rotate: [0, 10, -10, 0],
-                                                    scale: [1, 1.1, 1]
-                                                }}
-                                                transition={{
-                                                    duration: 4,
-                                                    repeat: Infinity,
-                                                    repeatType: "reverse"
-                                                }}
-                                                className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-600 via-purple-500 to-purple-600 flex items-center justify-center text-white shadow-xl"
-                                            >
-                                                <Sparkles className="h-7 w-7" />
-                                            </motion.div>
+                                            <AuthLogo />
 
                                             <div>
                                                 <CardTitle className="text-xl sm:text-2xl font-bold">{title}</CardTitle>
