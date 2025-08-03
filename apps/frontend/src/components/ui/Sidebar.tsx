@@ -3,8 +3,8 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
-import { Sheet, SheetContent } from "@/components/ui/Sheet"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface SidebarContextType {
     expanded: boolean
@@ -68,6 +68,21 @@ export function SidebarProvider({
         }
     }, [isMobile, setOpen])
 
+    // Close mobile sidebar when clicking outside
+    React.useEffect(() => {
+        if (!isMobile || !openMobile) return
+
+        const handleClickOutside = (event: MouseEvent) => {
+            const sidebar = document.getElementById("mobile-sidebar")
+            if (sidebar && !sidebar.contains(event.target as Node)) {
+                setOpenMobile(false)
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [isMobile, openMobile])
+
     const contextValue = React.useMemo<SidebarContextType>(
         () => ({
             expanded,
@@ -84,56 +99,74 @@ export function SidebarProvider({
 
     return (
         <SidebarContext.Provider value={contextValue}>
-            <div className={cn("flex min-h-screen", className)} {...props}>
+            <div className={cn("relative min-h-screen", className)} {...props}>
                 {children}
             </div>
         </SidebarContext.Provider>
     )
 }
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-    side?: "left" | "right"
-    variant?: "default" | "floating" | "inset"
-    collapsible?: "offcanvas" | "icon" | "none"
-}
-
 export function Sidebar({
-    side = "left",
-    variant = "default",
-    collapsible = "offcanvas",
     className,
     children,
-    ...props
-}: SidebarProps) {
-    const { open, openMobile, isMobile, setOpenMobile } = useSidebar()
+}: React.HTMLAttributes<HTMLDivElement>) {
+    const { open, openMobile, isMobile } = useSidebar()
 
     if (isMobile) {
         return (
-            <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-                <SheetContent side={side} className="p-0 w-[280px]">
-                    <div className={cn("flex h-full flex-col", className)} {...props}>
-                        {children}
-                    </div>
-                </SheetContent>
-            </Sheet>
+            <>
+                {/* Mobile overlay */}
+                <AnimatePresence>
+                    {openMobile && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* Mobile sidebar */}
+                <AnimatePresence>
+                    {openMobile && (
+                        <motion.aside
+                            id="mobile-sidebar"
+                            initial={{ x: "-100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "-100%" }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className={cn(
+                                "fixed left-0 top-0 h-full w-[280px] border-r bg-background",
+                                className
+                            )}
+                        >
+                            {children}
+                        </motion.aside>
+                    )}
+                </AnimatePresence>
+            </>
         )
     }
 
+    // Desktop sidebar
     return (
-        <aside
+        <motion.aside
+            animate={{
+                width: open ? 280 : 0,
+                opacity: open ? 1 : 0,
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className={cn(
-                "flex h-screen flex-col border-r bg-background transition-all duration-300",
-                !open && collapsible === "icon" && "w-[60px]",
-                open && "w-[280px]",
-                variant === "floating" && "m-4 rounded-lg border shadow-lg",
-                variant === "inset" && "ml-0",
-                side === "right" && "order-last border-l border-r-0",
+                "fixed left-0 top-0 h-screen border-r bg-background overflow-hidden z-30",
                 className
             )}
-            {...props}
+            style={{ width: open ? 280 : 0 }}
         >
-            {children}
-        </aside>
+            <div className="w-[280px] h-full">
+                {children}
+            </div>
+        </motion.aside>
     )
 }
 

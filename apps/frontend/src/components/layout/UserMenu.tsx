@@ -19,14 +19,34 @@ import { ROUTES } from "@/constants/routes"
 
 interface UserMenuProps {
     user: UserType
+    variant?: "default" | "compact"
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ user, variant = "default" }: UserMenuProps) {
     const router = useRouter()
 
     const handleLogout = () => {
         authService.logout()
         router.push(ROUTES.LOGIN)
+    }
+
+    if (variant === "compact") {
+        return (
+            <div className="flex items-center gap-3 p-2">
+                <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.avatar} alt={getFullName(user.firstName, user.lastName, user.email)} />
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+                        {getUserInitials(user.firstName, user.lastName, user.email)}
+                    </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">
+                        {getFullName(user.firstName, user.lastName, user.email)}
+                    </p>
+                    <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                </div>
+            </div>
+        )
     }
 
     return (
