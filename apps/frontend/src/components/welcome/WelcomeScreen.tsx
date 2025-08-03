@@ -34,7 +34,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
+                    transition={{ duration: 0.4 }} // Reduced from 0.6
                     className="space-y-8"
                 >
                     {/* Logo and Title */}
@@ -60,7 +60,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
                         <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
+                            transition={{ delay: 0.2 }} // Reduced from 0.3
                             className="text-xl text-muted-foreground max-w-2xl mx-auto"
                         >
                             Transform your productivity with AI-powered task management. Organize, collaborate, and achieve more with
@@ -72,7 +72,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
                     <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6 }}
+                        transition={{ delay: 0.4 }} // Reduced from 0.6
                         className="grid md:grid-cols-3 gap-8 my-12"
                     >
                         {features.map((feature, index) => (
@@ -80,7 +80,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
                                 key={feature.title}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.8 + index * 0.2 }}
+                                transition={{ delay: 0.6 + index * 0.1 }} // Reduced delays
                                 className="space-y-4"
                             >
                                 <motion.div
@@ -99,7 +99,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 1.2, type: "spring" }}
+                        transition={{ delay: 0.8, type: "spring" }} // Reduced from 1.2
                     >
                         <Button
                             onClick={onGetStarted}

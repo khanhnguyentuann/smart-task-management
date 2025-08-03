@@ -51,15 +51,23 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
                 setLoading(false);
                 return;
             }
+            
+            // Set cached user immediately to reduce loading time
             const cachedUser = authStorage.getUser();
             if (cachedUser) {
                 setUser(cachedUser);
+                setLoading(false); // Set loading to false immediately for cached user
             }
+            
+            // Fetch fresh user data in background
             const response = await authService.getMe();
             setUser(response.user);
             authStorage.setUser(response.user);
         } catch (error) {
             console.error('Auth check failed:', error);
+            // Clear invalid cached data
+            authStorage.setUser(null as unknown as User);
+            setUser(null);
         } finally {
             setLoading(false);
         }
