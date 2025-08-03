@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { ROUTES } from "@/constants/routes"
 import Link from "next/link"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
@@ -74,7 +75,7 @@ export function LoginForm({ formData, errors, loading, onSubmit, onChange }: Log
                     Ghi nhớ đăng nhập
                 </label>
                 <Link
-                    href="/forgot-password"
+                    href={ROUTES.FORGOT_PASSWORD}
                     className="text-primary text-sm font-medium hover:underline transition-colors"
                 >
                     Quên mật khẩu?

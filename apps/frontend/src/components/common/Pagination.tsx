@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button"
 import { Select } from "@/components/ui/Select"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 import { PaginationParams } from "@/schemas/common.schema"
+import { PAGINATION_CONFIG } from "@/constants/config"
 
 interface PaginationProps {
     pagination: PaginationParams
@@ -23,12 +24,10 @@ export function Pagination({
     const startItem = (page - 1) * pageSize + 1
     const endItem = Math.min(page * pageSize, total)
 
-    const pageSizeOptions = [
-        { value: "10", label: "10 / trang" },
-        { value: "20", label: "20 / trang" },
-        { value: "50", label: "50 / trang" },
-        { value: "100", label: "100 / trang" },
-    ]
+    const pageSizeOptions = PAGINATION_CONFIG.PAGE_SIZE_OPTIONS.map(size => ({
+        value: size.toString(),
+        label: `${size} / trang`
+    }))
 
     return (
         <div className="flex items-center justify-between px-2">

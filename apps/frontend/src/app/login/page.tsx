@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useLoginForm } from "@/hooks/useAuthForm"
+import { ROUTES } from "@/constants/routes"
 import { AuthLayout } from "@/components/auth/AuthLayout"
 import { QuickLogin } from "@/components/auth/QuickLogin"
 import { LoginForm } from "@/components/auth/LoginForm"
@@ -24,7 +25,7 @@ export default function LoginPage() {
         <p className="text-sm text-center text-muted-foreground w-full">
             Chưa có tài khoản?{' '}
             <Link
-                href="/register"
+                href={ROUTES.REGISTER}
                 className="text-primary font-medium hover:underline transition-colors"
             >
                 Đăng ký ngay

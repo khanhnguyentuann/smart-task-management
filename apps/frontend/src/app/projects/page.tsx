@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/Spinner"
 import { projectService } from "@/services/project.service"
 import { Project } from "@/types/project"
 import { getErrorMessage, isApiError } from "@/types/api"
+import { ROUTES } from "@/constants/routes"
 import { useToast } from '@/contexts/ToastContext';
 import { Plus, Search, FolderOpen } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -36,10 +37,10 @@ export default function ProjectsPage() {
             }
         } catch (error) {
             const errorMessage = getErrorMessage(error)
-            
+
             if (isApiError(error)) {
                 const statusCode = error.response?.status
-                
+
                 switch (statusCode) {
                     case 401:
                         toast({
@@ -47,9 +48,9 @@ export default function ProjectsPage() {
                             description: "Vui lòng đăng nhập lại",
                             variant: "destructive",
                         })
-                        router.push('/login')
+                        router.push(ROUTES.LOGIN)
                         return
-                    
+
                     case 403:
                         toast({
                             title: "Không có quyền truy cập",
@@ -57,7 +58,7 @@ export default function ProjectsPage() {
                             variant: "destructive",
                         })
                         return
-                    
+
                     case 404:
                         toast({
                             title: "Không tìm thấy",
@@ -65,7 +66,7 @@ export default function ProjectsPage() {
                             variant: "destructive",
                         })
                         return
-                    
+
                     case 500:
                         toast({
                             title: "Lỗi máy chủ",
@@ -75,7 +76,7 @@ export default function ProjectsPage() {
                         return
                 }
             }
-            
+
             // Generic error message
             toast({
                 title: "Lỗi",
@@ -100,7 +101,7 @@ export default function ProjectsPage() {
                 setProjects(data)
             } catch (error) {
                 const errorMessage = getErrorMessage(error)
-                
+
                 toast({
                     title: "Lỗi tìm kiếm",
                     description: errorMessage || "Không thể tìm kiếm project",
@@ -129,7 +130,7 @@ export default function ProjectsPage() {
 
             if (isApiError(error)) {
                 const statusCode = error.response?.status
-                
+
                 switch (statusCode) {
                     case 403:
                         toast({
@@ -138,7 +139,7 @@ export default function ProjectsPage() {
                             variant: "destructive",
                         })
                         return
-                    
+
                     case 404:
                         toast({
                             title: "Không tìm thấy",
@@ -148,7 +149,7 @@ export default function ProjectsPage() {
                         // Refresh list to remove deleted item
                         fetchProjects()
                         return
-                    
+
                     case 409:
                         toast({
                             title: "Không thể xóa",
@@ -158,7 +159,7 @@ export default function ProjectsPage() {
                         return
                 }
             }
-            
+
             toast({
                 title: "Lỗi",
                 description: errorMessage || "Không thể xóa project",
@@ -168,7 +169,7 @@ export default function ProjectsPage() {
     }
 
     const handleView = (project: Project) => {
-        router.push(`/projects/${project.id}`)
+        router.push(ROUTES.PROJECT_DETAIL(project.id))
     }
 
     const filteredProjects = projects.filter(

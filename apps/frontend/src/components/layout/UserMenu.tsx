@@ -15,6 +15,7 @@ import { User, Settings, HelpCircle, LogOut } from "lucide-react"
 import { authService } from "@/services/auth.service"
 import { User as UserType } from "@/types/auth"
 import { getUserInitials, getFullName } from "@/utils/string"
+import { ROUTES } from "@/constants/routes"
 
 interface UserMenuProps {
     user: UserType
@@ -25,7 +26,7 @@ export function UserMenu({ user }: UserMenuProps) {
 
     const handleLogout = () => {
         authService.logout()
-        router.push("/login")
+        router.push(ROUTES.LOGIN)
     }
 
     return (
@@ -36,13 +37,13 @@ export function UserMenu({ user }: UserMenuProps) {
                     className="w-full justify-start gap-2 p-2"
                 >
                     <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar} alt={getFullName(user)} />
+                        <AvatarImage src={user.avatar} alt={getFullName(user.firstName, user.lastName, user.email)} />
                         <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
-                            {getUserInitials(user.email)}
+                            {getUserInitials(user.firstName, user.lastName, user.email)}
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col items-start flex-1 text-sm">
-                        <span className="font-medium">{getFullName(user)}</span>
+                        <span className="font-medium">{getFullName(user.firstName, user.lastName, user.email)}</span>
                         <span className="text-xs text-muted-foreground">{user.role}</span>
                     </div>
                 </Button>
@@ -50,18 +51,18 @@ export function UserMenu({ user }: UserMenuProps) {
             <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{getFullName(user)}</p>
+                        <p className="text-sm font-medium leading-none">{getFullName(user.firstName, user.lastName, user.email)}</p>
                         <p className="text-xs leading-none text-muted-foreground">
                             {user.email}
                         </p>
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/profile")}>
+                <DropdownMenuItem onClick={() => router.push(ROUTES.PROFILE)}>
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/settings")}>
+                <DropdownMenuItem onClick={() => router.push(ROUTES.SETTINGS)}>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                 </DropdownMenuItem>

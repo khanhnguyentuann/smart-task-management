@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { authService } from "@/services/auth.service"
 import { projectService } from "@/services/project.service"
+import { ROUTES } from "@/constants/routes"
+import { DASHBOARD_CONFIG } from "@/constants/config"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { Loader2, FolderOpen, CheckSquare, Users, TrendingUp } from "lucide-react"
@@ -29,7 +31,7 @@ export default function DashboardPage() {
                 setProjectCount(projects.length)
             } catch (error) {
                 console.error('Auth check or data fetch failed:', error)
-                router.push("/login")
+                router.push(ROUTES.LOGIN)
             } finally {
                 setLoading(false)
             }
@@ -69,7 +71,7 @@ export default function DashboardPage() {
         },
         {
             title: "Active Tasks",
-            value: 0,
+            value: DASHBOARD_CONFIG.DEFAULT_ACTIVE_TASKS,
             icon: CheckSquare,
             color: "text-green-600",
             bgColor: "bg-green-100 dark:bg-green-900/20",
@@ -77,7 +79,7 @@ export default function DashboardPage() {
         },
         {
             title: "Team Members",
-            value: 1,
+            value: DASHBOARD_CONFIG.DEFAULT_TEAM_MEMBERS,
             icon: Users,
             color: "text-purple-600",
             bgColor: "bg-purple-100 dark:bg-purple-900/20",
@@ -85,7 +87,7 @@ export default function DashboardPage() {
         },
         {
             title: "Completion Rate",
-            value: "0%",
+            value: DASHBOARD_CONFIG.DEFAULT_COMPLETION_RATE,
             icon: TrendingUp,
             color: "text-orange-600",
             bgColor: "bg-orange-100 dark:bg-orange-900/20",
@@ -116,7 +118,7 @@ export default function DashboardPage() {
                             key={stat.title}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            transition={{ duration: DASHBOARD_CONFIG.ANIMATION_DURATION, delay: index * DASHBOARD_CONFIG.ANIMATION_DELAY }}
                         >
                             <Card className="hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -149,7 +151,7 @@ export default function DashboardPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
+                    transition={{ duration: DASHBOARD_CONFIG.ANIMATION_DURATION, delay: 0.4 }}
                 >
                     <Card>
                         <CardHeader>
@@ -157,7 +159,7 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent className="grid gap-4 md:grid-cols-3">
                             <Button
-                                onClick={() => router.push("/projects")}
+                                onClick={() => router.push(ROUTES.PROJECTS)}
                                 className="w-full"
                                 variant="outline"
                             >
@@ -165,7 +167,7 @@ export default function DashboardPage() {
                                 Create New Project
                             </Button>
                             <Button
-                                onClick={() => router.push("/tasks")}
+                                onClick={() => router.push(ROUTES.TASKS)}
                                 className="w-full"
                                 variant="outline"
                             >
@@ -173,7 +175,7 @@ export default function DashboardPage() {
                                 Add Task
                             </Button>
                             <Button
-                                onClick={() => router.push("/team")}
+                                onClick={() => router.push(ROUTES.TEAM)}
                                 className="w-full"
                                 variant="outline"
                             >

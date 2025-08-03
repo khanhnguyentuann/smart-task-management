@@ -17,6 +17,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { getUserInitials, getFullName } from "@/utils/string"
 import { FILE_CONFIG, VALIDATION_CONFIG, UI_CONFIG } from "@/constants/config"
 import { ERROR_MESSAGES, UI_MESSAGES } from "@/constants/messages"
+import { ROUTES } from "@/constants/routes"
 import {
     User as UserIcon,
     Mail,
@@ -83,7 +84,7 @@ export default function ProfilePage() {
                 }
             } catch (error) {
                 console.error('Failed to fetch user:', error)
-                router.push("/login")
+                router.push(ROUTES.LOGIN)
             } finally {
                 setLoading(false)
             }

@@ -18,8 +18,9 @@ export const AUTH_CONFIG = {
 } as const;
 
 export const PAGINATION_CONFIG = {
-    DEFAULT_PAGE_SIZE: 20,
+    DEFAULT_PAGE_SIZE: 10,
     PAGE_SIZE_OPTIONS: [10, 20, 50, 100],
+    DEFAULT_PAGE: 1,
 } as const;
 
 export const FILE_CONFIG = {
@@ -50,3 +51,34 @@ export const PROJECT_COLORS = [
     "bg-pink-500",
     "bg-indigo-500",
 ] as const;
+
+export const DASHBOARD_CONFIG = {
+    DEFAULT_TEAM_MEMBERS: 1,
+    DEFAULT_COMPLETION_RATE: "0%",
+    DEFAULT_ACTIVE_TASKS: 0,
+    ANIMATION_DELAY: 0.1,
+    ANIMATION_DURATION: 0.5,
+} as const;
+
+export const PROJECT_CONFIG = {
+    MOCK_TASKS: {
+        TODO: 8,
+        IN_PROGRESS: 3,
+        DONE: 12,
+    },
+    DEFAULT_MEMBERS: 1,
+    PROGRESS_ANIMATION_DELAY: 0.3,
+} as const;
+
+export const FEATURES_CONFIG = {
+    STATS: {
+        ACTIVE_USERS: "50K+",
+        UPTIME: "99.9%",
+        SUPPORT: "24/7",
+        COUNTRIES: "150+",
+        HAPPY_USERS: "100K+",
+        RATING: "4.9/5",
+        PRODUCTIVITY_BOOST: "300%",
+    },
+    PRODUCTIVITY_BOOST_PERCENTAGE: "300%",
+} as const;

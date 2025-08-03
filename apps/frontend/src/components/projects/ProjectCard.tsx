@@ -15,8 +15,9 @@ import { MoreHorizontal, Edit, Trash2, Eye, Users, CheckSquare, Calendar } from 
 import { motion } from "framer-motion"
 import { formatRelativeTime } from "@/utils/date"
 import { truncate } from "@/utils/string"
-import { PROJECT_COLORS, VALIDATION_CONFIG } from "@/constants/config"
+import { PROJECT_COLORS, VALIDATION_CONFIG, PROJECT_CONFIG } from "@/constants/config"
 import { UI_MESSAGES } from "@/constants/messages"
+import { ROUTES } from "@/constants/routes"
 
 interface ProjectCardProps {
     project: Project
@@ -34,9 +35,9 @@ export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: Pr
 
     // Mock data for demo
     const tasks = {
-        todo: 8,
-        inProgress: 3,
-        done: 12,
+        todo: PROJECT_CONFIG.MOCK_TASKS.TODO,
+        inProgress: PROJECT_CONFIG.MOCK_TASKS.IN_PROGRESS,
+        done: PROJECT_CONFIG.MOCK_TASKS.DONE,
     }
     const totalTasks = tasks.todo + tasks.inProgress + tasks.done
     const progress = totalTasks > 0 ? (tasks.done / totalTasks) * 100 : 0
@@ -45,7 +46,7 @@ export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: Pr
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
+            transition={{ duration: PROJECT_CONFIG.PROGRESS_ANIMATION_DELAY, delay: index * 0.1 }}
         >
             <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group h-full">
                 <CardHeader className="pb-3">
@@ -106,7 +107,7 @@ export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: Pr
                     <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-1 text-muted-foreground">
                             <Users className="h-4 w-4" />
-                            {project._count?.projectUsers || 1} members
+                            {project._count?.projectUsers || PROJECT_CONFIG.DEFAULT_MEMBERS} members
                         </div>
                         <div className="flex items-center gap-1 text-muted-foreground">
                             <CheckSquare className="h-4 w-4" />
@@ -141,7 +142,7 @@ export function ProjectCard({ project, index = 0, onEdit, onDelete, onView }: Pr
                         </div>
                     </div>
 
-                    <Link href={`/projects/${project.id}`}>
+                    <Link href={ROUTES.PROJECT_DETAIL(project.id)}>
                         <Button
                             variant="outline"
                             className="w-full bg-transparent hover:bg-accent"

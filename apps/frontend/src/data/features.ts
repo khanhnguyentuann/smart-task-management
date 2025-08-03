@@ -1,4 +1,5 @@
 import { LucideIcon, Zap, Users, BarChart3, Shield, Globe, Award, Star, TrendingUp } from "lucide-react"
+import { FEATURES_CONFIG } from "@/constants/config"
 
 export interface Feature {
     icon: LucideIcon
@@ -43,10 +44,10 @@ export const authFeatures: Feature[] = [
 
 // Stats for login page
 export const authStats: Stat[] = [
-    { number: "50K+", label: "Active Users" },
-    { number: "99.9%", label: "Uptime" },
-    { number: "24/7", label: "Support" },
-    { number: "150+", label: "Countries" }
+    { number: FEATURES_CONFIG.STATS.ACTIVE_USERS, label: "Active Users" },
+    { number: FEATURES_CONFIG.STATS.UPTIME, label: "Uptime" },
+    { number: FEATURES_CONFIG.STATS.SUPPORT, label: "Support" },
+    { number: FEATURES_CONFIG.STATS.COUNTRIES, label: "Countries" }
 ]
 
 // Benefits for register page
@@ -54,7 +55,7 @@ export const registerBenefits: Feature[] = [
     {
         icon: Zap,
         title: "Boost Productivity",
-        description: "Tăng hiệu suất làm việc lên 300% với AI automation"
+        description: `Tăng hiệu suất làm việc lên ${FEATURES_CONFIG.PRODUCTIVITY_BOOST_PERCENTAGE} với AI automation`
     },
     {
         icon: Users,
@@ -85,8 +86,8 @@ export const registerBenefits: Feature[] = [
 
 // Achievements for register page
 export const registerAchievements: Achievement[] = [
-    { icon: Users, number: "100K+", label: "Happy Users" },
-    { icon: Star, number: "4.9/5", label: "Rating" },
-    { icon: TrendingUp, number: "300%", label: "Productivity Boost" },
-    { icon: Globe, number: "150+", label: "Countries" }
+    { icon: Users, number: FEATURES_CONFIG.STATS.HAPPY_USERS, label: "Happy Users" },
+    { icon: Star, number: FEATURES_CONFIG.STATS.RATING, label: "Rating" },
+    { icon: TrendingUp, number: FEATURES_CONFIG.STATS.PRODUCTIVITY_BOOST, label: "Productivity Boost" },
+    { icon: Globe, number: FEATURES_CONFIG.STATS.COUNTRIES, label: "Countries" }
 ]
