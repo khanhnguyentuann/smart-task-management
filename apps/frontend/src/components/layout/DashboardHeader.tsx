@@ -11,7 +11,7 @@ import {
     BarChart3,
     Bell
 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { getGreeting, formatDateTime } from "@/utils/date"
 
 const pageInfo = {
@@ -61,7 +61,16 @@ export function DashboardHeader() {
     const pathname = usePathname()
     const [greeting, setGreeting] = useState(getGreeting())
     const [currentTime, setCurrentTime] = useState(new Date())
-    const currentPage = pageInfo[pathname as keyof typeof pageInfo] || pageInfo["/dashboard"]
+
+    // Memoize currentPage to prevent recalculation
+    const currentPage = useMemo(() => {
+        return pageInfo[pathname as keyof typeof pageInfo] || pageInfo["/dashboard"]
+    }, [pathname])
+
+    // Memoize isDashboard to prevent recalculation
+    const isDashboard = useMemo(() => {
+        return pathname === "/dashboard"
+    }, [pathname])
 
     useEffect(() => {
         const updateTime = () => {
@@ -70,12 +79,11 @@ export function DashboardHeader() {
         }
 
         updateTime()
-        const interval = setInterval(updateTime, 1000) // Update every second
+        // Increase interval to 30 seconds to reduce re-renders
+        const interval = setInterval(updateTime, 30000)
 
         return () => clearInterval(interval)
     }, [])
-
-    const isDashboard = pathname === "/dashboard"
 
     return (
         <header className="h-16 bg-background border-b">

@@ -20,15 +20,15 @@ interface AuthGuardProps {
  * @param props.fallback - Custom loading component (optional)
  * @returns The protected component or loading screen
  */
-export function AuthGuard({ 
-    children, 
-    requireAuth = true, 
+export function AuthGuard({
+    children,
+    requireAuth = true,
     redirectTo,
-    fallback 
+    fallback
 }: AuthGuardProps) {
-    const { loading, shouldRender } = useAuthRedirect({ 
-        requireAuth, 
-        redirectTo 
+    const { loading, shouldRender } = useAuthRedirect({
+        requireAuth,
+        redirectTo
     })
 
     // Show loading while checking authentication OR don't render content

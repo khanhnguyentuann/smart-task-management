@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { projectService } from "@/services/project.service"
@@ -35,29 +35,8 @@ export default function DashboardPage() {
         fetchData()
     }, [])
 
-    // Show loading while fetching data
-    if (dataLoading) {
-        return (
-            <ProtectedLayout>
-                <div className="min-h-screen flex items-center justify-center">
-                    <motion.div
-                        animate={{
-                            rotate: 360,
-                            scale: [1, 1.2, 1],
-                        }}
-                        transition={{
-                            rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                            scale: { duration: 1, repeat: Infinity },
-                        }}
-                    >
-                        <Loader2 className="h-12 w-12 text-primary" />
-                    </motion.div>
-                </div>
-            </ProtectedLayout>
-        )
-    }
-
-    const stats = [
+    // Memoize stats to prevent recalculation
+    const stats = useMemo(() => [
         {
             title: "Total Projects",
             value: projectCount,
@@ -91,7 +70,18 @@ export default function DashboardPage() {
             bgColor: "bg-orange-100 dark:bg-orange-900/20",
             description: "No completed tasks"
         }
-    ]
+    ], [projectCount])
+
+    // Show loading while fetching data
+    if (dataLoading) {
+        return (
+            <ProtectedLayout>
+                <div className="min-h-screen flex items-center justify-center">
+                    <Loader2 className="h-12 w-12 text-primary animate-spin" />
+                </div>
+            </ProtectedLayout>
+        )
+    }
 
     return (
         <ProtectedLayout>

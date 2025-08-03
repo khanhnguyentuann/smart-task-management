@@ -26,7 +26,7 @@ export interface AppLogoProps {
 
 const sizeClasses = {
     sm: "h-8 w-8",
-    md: "h-10 w-10", 
+    md: "h-10 w-10",
     lg: "h-12 w-12",
     xl: "h-14 w-14",
 }
@@ -34,7 +34,7 @@ const sizeClasses = {
 const iconSizes = {
     sm: "h-4 w-4",
     md: "h-5 w-5",
-    lg: "h-6 w-6", 
+    lg: "h-6 w-6",
     xl: "h-7 w-7",
 }
 

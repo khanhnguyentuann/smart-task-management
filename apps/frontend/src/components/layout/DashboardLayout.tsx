@@ -18,7 +18,7 @@ function DashboardContent({ children }: DashboardLayoutProps) {
         <>
             <AppSidebar />
 
-            <div 
+            <div
                 className="flex-1 flex flex-col min-h-screen"
                 style={{
                     marginLeft: isMobile ? 0 : open ? 280 : 0,
@@ -29,10 +29,10 @@ function DashboardContent({ children }: DashboardLayoutProps) {
                     <motion.div
                         key={pathname}
                         className="flex-1 flex flex-col min-h-screen"
-                        initial={{ opacity: 0, x: 50 }}
+                        initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -50 }}
-                        transition={{ duration: 0.8, ease: 'easeInOut' }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
                         <DashboardHeader />
                         <main className="flex-1 overflow-y-auto bg-background">

@@ -61,20 +61,20 @@
 
 @layer utilities {
 
-  /* Custom animations */
+  /* Optimized animations with transform3d for GPU acceleration */
   @keyframes float {
 
     0%,
     100% {
-      transform: translateY(0) rotate(0deg);
+      transform: translate3d(0, 0, 0) rotate(0deg);
     }
 
     33% {
-      transform: translateY(-10px) rotate(5deg);
+      transform: translate3d(0, -10px, 0) rotate(5deg);
     }
 
     66% {
-      transform: translateY(5px) rotate(-5deg);
+      transform: translate3d(0, 5px, 0) rotate(-5deg);
     }
   }
 
@@ -82,34 +82,30 @@
 
     0%,
     100% {
-      transform: translate(0, 0) scale(1);
+      transform: translate3d(0, 0, 0) scale(1);
     }
 
     33% {
-      transform: translate(30px, -30px) scale(1.05);
+      transform: translate3d(30px, -30px, 0) scale(1.05);
     }
 
     66% {
-      transform: translate(-20px, 20px) scale(0.95);
+      transform: translate3d(-20px, 20px, 0) scale(0.95);
     }
   }
 
   @keyframes particle {
     0% {
-      transform: translate(0, 0);
+      transform: translate3d(0, 0, 0);
       opacity: 0;
     }
 
-    10% {
-      opacity: 0.2;
-    }
-
-    90% {
-      opacity: 0.2;
+    50% {
+      opacity: 1;
     }
 
     100% {
-      transform: translate(100px, -100px);
+      transform: translate3d(100px, -100px, 0);
       opacity: 0;
     }
   }
@@ -118,11 +114,13 @@
 
     0%,
     100% {
-      opacity: 0;
+      opacity: 0.2;
+      transform: translate3d(0, 0, 0) scale(1);
     }
 
     50% {
       opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1.2);
     }
   }
 
@@ -130,11 +128,11 @@
 
     0%,
     100% {
-      transform: translateX(0);
+      transform: translate3d(0, 0, 0) scale(1);
     }
 
     50% {
-      transform: translateX(-25%);
+      transform: translate3d(0, -10px, 0) scale(1.1);
     }
   }
 
@@ -150,59 +148,87 @@
     }
   }
 
+  /* Performance-optimized animation classes */
   .animate-float {
-    animation: float 3s ease-in-out infinite;
+    animation: float 4s ease-in-out infinite;
+    will-change: transform;
   }
 
   .animate-float-slow {
-    animation: float-slow 8s ease-in-out infinite;
+    animation: float-slow 6s ease-in-out infinite;
+    will-change: transform;
   }
 
   .animate-particle {
-    animation: particle 10s linear infinite;
+    animation: particle 8s linear infinite;
+    will-change: transform, opacity;
   }
 
   .animate-twinkle {
-    animation: twinkle 3s ease-in-out infinite;
+    animation: twinkle 2s ease-in-out infinite;
+    will-change: transform, opacity;
   }
 
   .animate-wave {
-    animation: wave 3s ease-in-out infinite;
+    animation: wave 2s ease-in-out infinite;
+    will-change: transform;
   }
 
   .animate-gradient-shift {
-    animation: gradient-shift 8s ease infinite;
+    animation: gradient-shift 3s ease infinite;
     background-size: 200% 200%;
+    will-change: background-position;
   }
 
+  /* Optimized scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
+    background: transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(156, 163, 175, 0.5);
     border-radius: 3px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(156, 163, 175, 0.8);
   }
 
-  /* Dark mode scrollbar */
   .dark .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
   }
 
   .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(75, 85, 99, 0.5);
   }
 
   .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(75, 85, 99, 0.8);
+  }
+
+  /* Performance utilities */
+  .gpu-accelerated {
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+
+  .reduce-motion {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Optimized focus styles */
+  .focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  .focus-visible:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }

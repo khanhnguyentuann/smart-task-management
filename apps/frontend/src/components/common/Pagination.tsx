@@ -13,11 +13,11 @@ interface PaginationProps {
     total?: number
 }
 
-export function Pagination({ 
-    pagination, 
-    onPageChange, 
-    onPageSizeChange, 
-    total = 0 
+export function Pagination({
+    pagination,
+    onPageChange,
+    onPageSizeChange,
+    total = 0
 }: PaginationProps) {
     const { page, pageSize } = pagination
     const totalPages = Math.ceil(total / pageSize)

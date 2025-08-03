@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import {
     LayoutDashboard,
@@ -21,10 +21,10 @@ import {
     SidebarFooter,
 } from "@/components/ui/Sidebar"
 import { UserMenu } from "@/components/layout/UserMenu"
-import { authService } from "@/services/auth.service"
-import { User as UserType } from "@/types/auth"
+import { useAuth } from "@/contexts/AuthContext"
 import { NavbarLogo } from "@/components/common/AppLogo"
 
+// Memoize menu items to prevent recreation on every render
 const menuItems = [
     {
         title: "Dashboard",
@@ -56,30 +56,19 @@ const menuItems = [
         icon: BarChart3,
         href: "/reports",
     },
-]
+] as const
 
 export function AppSidebar() {
     const pathname = usePathname()
     const router = useRouter()
-    const [user, setUser] = useState<UserType | null>(null)
+    const { user } = useAuth() // Use AuthContext instead of separate state
     const [isNavigating, setIsNavigating] = useState(false)
 
-    useEffect(() => {
-        fetchUser()
-    }, [])
 
-    const fetchUser = async () => {
-        try {
-            const response = await authService.getMe()
-            setUser(response.user)
-        } catch (error) {
-            console.error('Failed to fetch user:', error)
-        }
-    }
 
     const handleNavigate = async (href: string) => {
         if (pathname === href) return // Don't navigate if already on the page
-        
+
         setIsNavigating(true)
         try {
             await router.push(href)
