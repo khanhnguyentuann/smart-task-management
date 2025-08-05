@@ -7,14 +7,14 @@
 - **Frontend:** Next.js 14, React 18, TypeScript, Tailwind CSS
 - **Backend:** NestJS, PostgreSQL, Prisma ORM
 - **Auth:** JWT + Passport
-- **Package Manager:** Yarn Workspaces
+- **Package Manager:** pnpm Workspaces
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL 15+
-- Yarn
+- pnpm
 
 ### Setup
 
@@ -22,7 +22,7 @@
 # Clone & install
 git clone <repo-url>
 cd smart-task-management
-yarn install
+pnpm install
 
 # Start database
 docker-compose up -d postgres
@@ -32,11 +32,11 @@ cp apps/backend/.env.example apps/backend/.env
 cp apps/frontend/.env.example apps/frontend/.env.local
 
 # Setup database
-yarn workspace @smart-task-management/backend db:generate
-yarn workspace @smart-task-management/backend db:migrate
+pnpm --filter @smart-task-management/backend db:generate
+pnpm --filter @smart-task-management/backend db:migrate
 
 # Start development
-yarn dev
+pnpm dev
 ```
 
 **Access:**
@@ -59,17 +59,17 @@ smart-task-management/
 
 ```bash
 # Start all services
-yarn dev
+pnpm dev
 
 # Start individually
-yarn dev:frontend
-yarn dev:backend
+pnpm dev:frontend
+pnpm dev:backend
 
 # Build
-yarn build
+pnpm build
 
 # Lint
-yarn lint
+pnpm lint
 ```
 
 ## 📚 Documentation

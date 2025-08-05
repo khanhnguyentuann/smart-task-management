@@ -2,30 +2,24 @@
     "name": "smart-task-management",
     "version": "0.1.0",
     "private": true,
-    "workspaces": [
-        "apps/*",
-        "packages/*"
-    ],
     "scripts": {
-        "dev": "concurrently --kill-others --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"frontend,backend\" \"yarn workspace @smart-task-management/frontend dev\" \"yarn workspace @smart-task-management/backend start:dev:quiet\"",
-        "dev:simple": "concurrently --kill-others --prefix \"[{name}]\" --names \"frontend,backend\" \"yarn workspace @smart-task-management/frontend dev\" \"yarn workspace @smart-task-management/backend start:dev:quiet\"",
-        "dev:minimal": "echo \"🚀 Starting Smart Task Management...\" && concurrently --kill-others --prefix \"[{name}]\" --names \"frontend,backend\" \"yarn workspace @smart-task-management/frontend dev\" \"yarn workspace @smart-task-management/backend start:dev:quiet\"",
-        "dev:clean": "concurrently --kill-others --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"frontend,backend\" \"yarn workspace @smart-task-management/frontend dev\" \"powershell -Command \\\"Start-Sleep 2; yarn workspace @smart-task-management/backend start:dev:quiet\\\"\"",
-        "dev:ultra": "concurrently --kill-others --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"frontend,backend\" \"yarn workspace @smart-task-management/frontend dev\" \"powershell -Command \\\"Start-Sleep 3; yarn workspace @smart-task-management/backend start:dev:quiet\\\"\"",
-        "dev:frontend": "yarn workspace @smart-task-management/frontend dev",
-        "dev:backend": "yarn workspace @smart-task-management/backend start:dev",
-        "build": "yarn workspace @smart-task-management/frontend build && yarn workspace @smart-task-management/backend build",
-        "build:frontend": "yarn workspace @smart-task-management/frontend build",
-        "build:backend": "yarn workspace @smart-task-management/backend build",
-        "lint": "yarn workspace @smart-task-management/frontend lint && yarn workspace @smart-task-management/backend lint",
-        "lint:frontend": "yarn workspace @smart-task-management/frontend lint",
-        "lint:backend": "yarn workspace @smart-task-management/backend lint"
+        "dev": "concurrently --kill-others --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"frontend,backend\" \"pnpm --filter @smart-task-management/frontend dev\" \"pnpm --filter @smart-task-management/backend start:dev:quiet\"",
+        "dev:frontend": "pnpm --filter @smart-task-management/frontend dev",
+        "dev:backend": "pnpm --filter @smart-task-management/backend start:dev",
+        "build": "pnpm --filter @smart-task-management/frontend build && pnpm --filter @smart-task-management/backend build",
+        "build:frontend": "pnpm --filter @smart-task-management/frontend build",
+        "build:backend": "pnpm --filter @smart-task-management/backend build",
+        "lint": "pnpm --filter @smart-task-management/frontend lint && pnpm --filter @smart-task-management/backend lint",
+        "lint:frontend": "pnpm --filter @smart-task-management/frontend lint",
+        "lint:backend": "pnpm --filter @smart-task-management/backend lint"
     },
     "devDependencies": {
         "concurrently": "^9.2.0"
     },
-    "resolutions": {
-        "tsconfig-paths": "^4.2.0"
+    "pnpm": {
+        "overrides": {
+            "tsconfig-paths": "^4.2.0"
+        }
     },
     "dependencies": {
         "@radix-ui/react-tabs": "^1.1.12"
