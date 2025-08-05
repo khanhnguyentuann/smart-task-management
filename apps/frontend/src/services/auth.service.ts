@@ -1,7 +1,55 @@
 import { apiClient } from '@/lib/api-client';
 import { AuthResponse, LoginDto, RegisterDto, User } from '@/types/auth';
 import { API_ENDPOINTS } from '@/constants/api';
-import { authStorage } from '@/utils/storage';
+
+// Direct localStorage access to avoid circular dependency
+const getToken = (): string | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+        return localStorage.getItem('accessToken');
+    } catch (error) {
+        console.error('Error reading token from localStorage:', error);
+        return null;
+    }
+};
+
+const setToken = (token: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem('accessToken', token);
+    } catch (error) {
+        console.error('Error setting token in localStorage:', error);
+    }
+};
+
+const setRefreshToken = (token: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem('refreshToken', token);
+    } catch (error) {
+        console.error('Error setting refresh token in localStorage:', error);
+    }
+};
+
+const setUser = (user: User): void => {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem('user', JSON.stringify(user));
+    } catch (error) {
+        console.error('Error setting user in localStorage:', error);
+    }
+};
+
+const clearAuth = (): void => {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+    } catch (error) {
+        console.error('Error clearing auth from localStorage:', error);
+    }
+};
 
 export const authService = {
     async register(data: RegisterDto): Promise<AuthResponse> {
@@ -30,24 +78,24 @@ export const authService = {
             API_ENDPOINTS.AUTH.REFRESH,
             { refreshToken }
         );
-        authStorage.setToken(response.data.accessToken);
+        setToken(response.data.accessToken);
         return response.data;
     },
 
     logout() {
         console.log('👋 Logging out...');
-        authStorage.clear();
+        clearAuth();
     },
 
     saveTokens(data: AuthResponse) {
         console.log('💾 Saving tokens...');
-        authStorage.setToken(data.accessToken);
-        authStorage.setRefreshToken(data.refreshToken);
-        authStorage.setUser(data.user);
+        setToken(data.accessToken);
+        setRefreshToken(data.refreshToken);
+        setUser(data.user);
     },
 
     getAccessToken() {
-        return authStorage.getToken();
+        return getToken();
     },
 
     isAuthenticated() {

@@ -1,7 +1,7 @@
 "use client"
 
 import { ProtectedLayout } from "@/components/layout/ProtectedLayout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
 import { motion } from "framer-motion"
 import {
     TaskStatusChart,

@@ -1,7 +1,47 @@
 import axios from 'axios';
-import { authStorage } from '@/utils/storage';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+
+// Direct localStorage access to avoid circular dependency
+const getToken = (): string | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+        return localStorage.getItem('accessToken');
+    } catch (error) {
+        console.error('Error reading token from localStorage:', error);
+        return null;
+    }
+};
+
+const getRefreshToken = (): string | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+        return localStorage.getItem('refreshToken');
+    } catch (error) {
+        console.error('Error reading refresh token from localStorage:', error);
+        return null;
+    }
+};
+
+const setToken = (token: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem('accessToken', token);
+    } catch (error) {
+        console.error('Error setting token in localStorage:', error);
+    }
+};
+
+const clearAuth = (): void => {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+    } catch (error) {
+        console.error('Error clearing auth from localStorage:', error);
+    }
+};
 
 export const apiClient = axios.create({
     baseURL: API_URL,
@@ -14,7 +54,7 @@ export const apiClient = axios.create({
 // Request interceptor để thêm token
 apiClient.interceptors.request.use(
     (config) => {
-        const token = authStorage.getToken();
+        const token = getToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -49,7 +89,7 @@ apiClient.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const refreshToken = authStorage.getRefreshToken();
+                const refreshToken = getRefreshToken();
                 if (!refreshToken) {
                     throw new Error('No refresh token');
                 }
@@ -60,7 +100,7 @@ apiClient.interceptors.response.use(
                 });
 
                 const { accessToken } = response.data;
-                authStorage.setToken(accessToken);
+                setToken(accessToken);
                 console.log('✅ Token refreshed successfully');
 
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -68,7 +108,7 @@ apiClient.interceptors.response.use(
             } catch (refreshError) {
                 console.error('❌ Token refresh failed:', refreshError);
                 // Clear storage and redirect to login
-                authStorage.clear();
+                clearAuth();
                 if (typeof window !== 'undefined') {
                     window.location.href = '/login';
                 }

@@ -90,7 +90,20 @@ export default function ProjectsPage() {
     }, [toast, router])
 
     useEffect(() => {
-        fetchProjects()
+        let isMounted = true;
+        
+        const loadProjects = async () => {
+            if (isMounted) {
+                await fetchProjects();
+            }
+        };
+        
+        loadProjects();
+        
+        // Cleanup function to prevent memory leaks
+        return () => {
+            isMounted = false;
+        };
     }, [fetchProjects])
 
     const handleSearch = async (query: string) => {

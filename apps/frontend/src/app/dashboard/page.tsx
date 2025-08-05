@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { projectService } from "@/services/project.service"
 import { ROUTES } from "@/constants/routes"
 import { DASHBOARD_CONFIG } from "@/constants/config"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
 import { ProtectedLayout } from "@/components/layout/ProtectedLayout"
 import { Loader2, FolderOpen, CheckSquare, Users, TrendingUp } from "lucide-react"
 import Link from "next/link"
@@ -22,18 +22,29 @@ export default function DashboardPage() {
     const [dataLoading, setDataLoading] = useState(true)
 
     useEffect(() => {
+        let isMounted = true;
+        
         const fetchData = async () => {
             try {
                 const projects = await projectService.getAll()
-                setProjectCount(projects.length)
+                if (isMounted) {
+                    setProjectCount(projects.length)
+                }
             } catch (error) {
                 console.error('Data fetch failed:', error)
             } finally {
-                setDataLoading(false)
+                if (isMounted) {
+                    setDataLoading(false)
+                }
             }
         }
 
         fetchData()
+        
+        // Cleanup function to prevent memory leaks
+        return () => {
+            isMounted = false;
+        }
     }, [])
 
     // Memoize stats to prevent recalculation

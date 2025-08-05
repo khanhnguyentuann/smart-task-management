@@ -9,6 +9,11 @@ export function AnimatedBackground() {
 
     useEffect(() => {
         setMounted(true)
+        
+        // Cleanup function to prevent memory leaks
+        return () => {
+            setMounted(false)
+        }
     }, [])
 
     if (!mounted) return null
