@@ -107,10 +107,16 @@ export function DashboardHeader() {
                             </motion.span>
                         </>
                     ) : (
-                        <currentPage.icon className="h-5 w-5 text-muted-foreground" />
+                        <motion.div
+                            animate={{ rotate: [0, 15, -15, 0] }}
+                            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
+                            className="p-2 bg-gradient-to-br from-green-500 to-blue-500 rounded-full shadow-lg"
+                        >
+                            <currentPage.icon className="h-5 w-5 text-white" />
+                        </motion.div>
                     )}
                     <div>
-                        <h1 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <h1 className="text-xl font-semibold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
                             {isDashboard ? (
                                 `${greeting.text}, ${user?.firstName || user?.email.split('@')[0]}!`
                             ) : (
