@@ -19,7 +19,7 @@ export function AnimatedBackground() {
     if (!mounted) return null
 
     return (
-        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="fixed inset-0 -z-20 overflow-hidden pointer-events-none">
             {theme === "dark" ? <DarkBackground /> : <LightBackground />}
         </div>
     )

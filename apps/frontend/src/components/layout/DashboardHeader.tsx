@@ -12,7 +12,9 @@ import {
     Bell
 } from "lucide-react"
 import { useState, useEffect, useMemo } from "react"
-import { getGreeting, formatDateTime } from "@/utils/date"
+import { getGreeting } from "@/utils/date"
+import { useAuth } from "@/contexts/AuthContext"
+import { motion } from "framer-motion"
 
 const pageInfo = {
     "/dashboard": {
@@ -59,8 +61,8 @@ const pageInfo = {
 
 export function DashboardHeader() {
     const pathname = usePathname()
+    const { user } = useAuth()
     const [greeting, setGreeting] = useState(getGreeting())
-    const [currentTime, setCurrentTime] = useState(new Date())
 
     // Memoize currentPage to prevent recalculation
     const currentPage = useMemo(() => {
@@ -73,14 +75,13 @@ export function DashboardHeader() {
     }, [pathname])
 
     useEffect(() => {
-        const updateTime = () => {
-            setCurrentTime(new Date())
+        const updateGreeting = () => {
             setGreeting(getGreeting())
         }
 
-        updateTime()
-        // Increase interval to 30 seconds to reduce re-renders
-        const interval = setInterval(updateTime, 30000)
+        updateGreeting()
+        // Update greeting every 30 minutes
+        const interval = setInterval(updateGreeting, 1800000)
 
         return () => clearInterval(interval)
     }, [])
@@ -90,33 +91,40 @@ export function DashboardHeader() {
             <div className="flex h-full items-center px-6 gap-4">
                 <SidebarTrigger />
 
-                <div className="flex items-center gap-3">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-3"
+                >
                     {isDashboard ? (
-                        <greeting.icon className="h-5 w-5 text-muted-foreground" />
+                        <>
+                            <motion.span
+                                animate={{ rotate: [0, 10, -10, 0] }}
+                                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+                                className="text-2xl"
+                            >
+                                🌅
+                            </motion.span>
+                        </>
                     ) : (
                         <currentPage.icon className="h-5 w-5 text-muted-foreground" />
                     )}
                     <div>
-                        <h1 className="text-lg font-semibold">
-                            {isDashboard ? greeting.text : currentPage.title}
+                        <h1 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            {isDashboard ? (
+                                `${greeting.text}, ${user?.firstName || user?.email.split('@')[0]}!`
+                            ) : (
+                                currentPage.title
+                            )}
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            {isDashboard ? "Welcome back to your workspace" : currentPage.description}
+                            {isDashboard ? "Ready to make today productive?" : currentPage.description}
                         </p>
                     </div>
-                </div>
-
-                {/* Current Date & Time - Centered */}
-                <div className="flex-1 flex justify-center">
-                    <div className="text-center">
-                        <div className="text-sm font-medium text-muted-foreground">
-                            {formatDateTime(currentTime)}
-                        </div>
-                    </div>
-                </div>
+                </motion.div>
 
                 {/* Notification Bell */}
-                <div className="relative">
+                <div className="ml-auto relative">
                     <button className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                         <Bell className="h-5 w-5 text-muted-foreground" />
                         {/* Notification Badge */}

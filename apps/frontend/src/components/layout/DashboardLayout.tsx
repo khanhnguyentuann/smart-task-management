@@ -3,6 +3,7 @@
 import { SidebarProvider, useSidebar } from "@/components/ui/Sidebar"
 import { AppSidebar } from "@/components/layout/AppSidebar"
 import { DashboardHeader } from "@/components/layout/DashboardHeader"
+import { AnimatedBackground } from "@/components/ui/AnimatedBackground"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -69,14 +70,14 @@ function DashboardContent({ children }: DashboardLayoutProps) {
                             <DashboardHeader />
                         </motion.div>
                         
-                        <main className="flex-1 overflow-hidden bg-background">
+                        <main className="flex-1 overflow-hidden bg-transparent">
                             <motion.div 
                                 className="h-full overflow-y-auto page-content"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.4, delay: 0.2 }}
                             >
-                                <div className="p-6">
+                                <div className="p-6 bg-background/80 backdrop-blur-sm rounded-lg">
                                     {children}
                                 </div>
                             </motion.div>
@@ -91,7 +92,8 @@ function DashboardContent({ children }: DashboardLayoutProps) {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
         <SidebarProvider defaultOpen={true}>
-            <div className="flex min-h-screen bg-background overflow-hidden">
+            <AnimatedBackground />
+            <div className="flex min-h-screen bg-transparent overflow-hidden">
                 <DashboardContent>{children}</DashboardContent>
             </div>
         </SidebarProvider>

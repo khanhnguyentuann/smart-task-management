@@ -95,3 +95,31 @@ temp/
 
 # Docker
 docker-data/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Cursor config
+.cursor/
+
+# UI tham khảo
+smari-task-management-ui/

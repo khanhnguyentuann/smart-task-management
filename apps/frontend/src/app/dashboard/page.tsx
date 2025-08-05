@@ -12,7 +12,6 @@ import { Loader2, FolderOpen, CheckSquare, Users, TrendingUp } from "lucide-reac
 import Link from "next/link"
 import { Button } from "@/components/ui/Button"
 import { motion } from "framer-motion"
-import { AnimatedBackground } from "@/components/ui/AnimatedBackground"
 import { TaskStatusChart } from "@/components/charts"
 
 export default function DashboardPage() {
@@ -97,7 +96,6 @@ export default function DashboardPage() {
 
     return (
         <ProtectedLayout>
-            <AnimatedBackground />
             <div className="p-6 space-y-6">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
