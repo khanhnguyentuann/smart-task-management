@@ -58,7 +58,7 @@ export function AppLogo({
     const logoClasses = cn(
         "rounded-full bg-gradient-to-br from-blue-600 via-purple-500 to-purple-600 flex items-center justify-center text-white",
         showShadow && "shadow-xl",
-        clickable && "cursor-pointer hover:scale-105 transition-transform",
+        clickable && "cursor-pointer hover:scale-110 hover:shadow-2xl transition-all duration-200",
         sizeClasses[size],
         className
     )
@@ -159,6 +159,7 @@ export function NavbarLogo({ ...props }: Omit<AppLogoProps, 'size' | 'animated' 
             animated={false}
             variant="text"
             clickable={true}
+            className="hover:scale-105 transition-all duration-200"
             {...props}
         />
     )

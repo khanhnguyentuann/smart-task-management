@@ -146,7 +146,7 @@ export function Sidebar({
                                 damping: 30
                             }}
                             className={cn(
-                                "fixed left-0 top-0 h-full w-[280px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 z-50",
+                                "fixed left-0 top-0 h-full w-[280px] border-r border-sidebar-border bg-sidebar text-sidebar-foreground z-50",
                                 className
                             )}
                         >
@@ -172,7 +172,7 @@ export function Sidebar({
                 damping: 30
             }}
             className={cn(
-                "fixed left-0 top-0 h-screen w-[280px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 overflow-hidden z-30",
+                "fixed left-0 top-0 h-screen w-[280px] border-r border-sidebar-border bg-sidebar text-sidebar-foreground overflow-hidden z-30",
                 className
             )}
         >
@@ -189,7 +189,7 @@ export function SidebarHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
-            className={cn("flex items-center border-b border-slate-200 dark:border-slate-800 px-4 py-3", className)}
+            className={cn("flex items-center border-b border-sidebar-border px-4 py-3", className)}
             {...props}
         />
     )
@@ -208,7 +208,7 @@ export function SidebarFooter({
 }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div
-            className={cn("mt-auto border-t border-slate-200 dark:border-slate-800 px-4 py-3", className)}
+            className={cn("mt-auto border-t border-sidebar-border px-4 py-3", className)}
             {...props}
         />
     )
@@ -235,10 +235,12 @@ export function SidebarMenuButton({
 }: React.ComponentProps<typeof Button> & { isActive?: boolean }) {
     return (
         <Button
-            variant={isActive ? "secondary" : "ghost"}
+            variant="ghost"
             className={cn(
-                "w-full justify-start gap-2 px-2",
-                isActive && "bg-primary/10 text-primary hover:bg-primary/20",
+                "w-full justify-start gap-2 px-3 py-2 h-10 rounded-lg transition-all duration-200",
+                isActive 
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm hover:shadow-md" 
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-105 hover:shadow-sm",
                 className
             )}
             {...props}
@@ -257,10 +259,15 @@ export function SidebarTrigger({
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className={cn("w-8 h-8 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors rounded-md", className)}
+            className={cn(
+                "w-8 h-8 rounded-lg transition-all duration-200",
+                "bg-sidebar-accent text-sidebar-accent-foreground",
+                "hover:bg-sidebar-primary hover:text-sidebar-primary-foreground hover:scale-110 hover:shadow-md",
+                className
+            )}
             {...props}
         >
-            <PanelLeft className="h-4 w-4 text-white" />
+            <PanelLeft className="h-4 w-4" />
         </Button>
     )
 }
