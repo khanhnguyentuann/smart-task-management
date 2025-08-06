@@ -10,6 +10,7 @@ import { Profile } from "@/features/user"
 import { Settings } from "@/features/settings"
 import { Notifications } from "@/features/notifications"
 import { HelpSupport } from "@/features/help"
+import { useToast } from "@/shared/components/ui/use-toast"
 
 import { AnimatedBackground } from "@/shared/components/ui/AnimatedBackground"
 import { TaskBot } from "@/shared/components/ui/TaskBot"
@@ -24,6 +25,7 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
 
   useEffect(() => {
     // Check for saved user in localStorage
@@ -43,11 +45,19 @@ export default function Home() {
   }
 
   const handleLogout = () => {
+    const userName = user?.firstName || "User"
     setUser(null)
     localStorage.removeItem("smart-task-user")
     setShowWelcome(true)
     setCurrentPage("dashboard")
     setSelectedProject(null)
+    
+    // Show logout success toast
+    toast({
+      title: "👋 See you soon!",
+      description: `Successfully logged out. Come back anytime, ${userName}!`,
+      variant: "default",
+    })
   }
 
   const handleGetStarted = () => {

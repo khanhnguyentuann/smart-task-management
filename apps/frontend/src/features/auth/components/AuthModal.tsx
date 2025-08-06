@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Eye, EyeOff, Mail, Lock, User, Sparkles, CheckCircle, XCircle } from "lucide-react"
 import { validatePassword, validateConfirmPassword, getStrengthColor, getStrengthText } from "../utils/passwordValidation"
 import { useAuth } from "../hooks/useAuth"
+import { useToast } from "@/shared/components/ui/use-toast"
 
 interface AuthModalProps {
   open: boolean
@@ -21,6 +22,7 @@ interface AuthModalProps {
 
 export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
   const { login, register } = useAuth()
+  const { toast } = useToast()
   const [isLogin, setIsLogin] = useState(true)
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -90,6 +92,12 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
         const user = await login(formData.email, formData.password)
         onLogin(user)
         onOpenChange(false)
+        // Show success toast
+        toast({
+          title: "🎉 Welcome back!",
+          description: `Successfully logged in as ${user.firstName} ${user.lastName}`,
+          variant: "default",
+        })
         // Reset form after successful login
         setFormData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" })
       } else {
@@ -97,12 +105,24 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
         const user = await register(formData.firstName, formData.lastName, formData.email, formData.password)
         onLogin(user)
         onOpenChange(false)
+        // Show success toast
+        toast({
+          title: "🎉 Account created!",
+          description: `Welcome to Smart Task, ${user.firstName}! Your account has been created successfully.`,
+          variant: "default",
+        })
         // Reset form after successful registration
         setFormData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" })
       }
     } catch (err: any) {
       console.error("Auth error:", err)
       setError(err.message || "Authentication failed. Please try again.")
+      // Show error toast
+      toast({
+        title: "❌ Authentication failed",
+        description: err.message || "Please check your credentials and try again.",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
