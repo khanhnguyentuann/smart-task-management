@@ -41,7 +41,8 @@ export class TasksController {
     findAllByProject(
         @Param('projectId') projectId: string,
         @Query(ValidationPipe) filterDto: TaskFilterDto,
-        @CurrentUser() user: User,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        @CurrentUser() _user: User, // Required for guard validation
     ) {
         return this.tasksService.findAllByProject(projectId, filterDto);
     }

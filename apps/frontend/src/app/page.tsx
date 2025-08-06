@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react"
 import { SidebarProvider, SidebarInset } from "@/shared/components/ui/sidebar"
 import { AppSidebar } from "@/shared/components/layout/AppSidebar"
-import { EnhancedDashboardContent } from "@/shared/components/dashboard/EnhancedDashboardContent"
-import { ProjectsList } from "@/shared/components/projects/ProjectsList"
-import { ProjectDetail } from "@/shared/components/projects/ProjectDetail"
-import { MyTasks } from "@/shared/components/tasks/MyTasks"
-import { Profile } from "@/shared/components/user/Profile"
+import { EnhancedDashboardContent } from "@/features/dashboard/components/EnhancedDashboardContent"
+import { ProjectsList } from "@/features/projects/components/ProjectsList"
+import { ProjectDetail } from "@/features/projects/components/ProjectDetail"
+import { MyTasks } from "@/features/tasks/components/MyTasks"
+import { Profile } from "@/features/user/components/Profile"
 import { Settings } from "@/shared/components/settings/Settings"
 import { Notifications } from "@/shared/components/notifications/Notifications"
 import { HelpSupport } from "@/shared/components/help/HelpSupport"
@@ -119,7 +119,7 @@ export default function Home() {
     )
   }
 
-    return (
+  return (
     <>
       <AnimatePresence mode="wait">
         {showWelcome ? (

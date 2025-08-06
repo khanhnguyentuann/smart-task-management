@@ -1,5 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -11,7 +11,7 @@ async function bootstrap() {
     });
     const configService = app.get(ConfigService);
     const reflector = app.get(Reflector);
-    const logger = new Logger('Bootstrap');
+    // const logger = new Logger('Bootstrap');
 
     // Global pipes
     app.useGlobalPipes(
@@ -68,7 +68,8 @@ async function bootstrap() {
     }, 2000); // 2 second delay
 }
 
-bootstrap().catch((error) => {
-    console.error('❌ Application failed to start', error);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+bootstrap().catch((_error) => {
+    // console.error('❌ Application failed to start', error);
     process.exit(1);
 });

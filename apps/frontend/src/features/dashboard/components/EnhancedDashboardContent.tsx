@@ -25,20 +25,6 @@ interface DashboardContentProps {
 }
 
 export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentProps) {
-    // Add null check for user
-    if (!user) {
-        return (
-            <div className="flex flex-col h-full relative overflow-hidden">
-                <div className="flex-1 flex items-center justify-center">
-                    <div className="text-center">
-                        <div className="text-6xl mb-4">🤖</div>
-                        <h2 className="text-2xl font-bold mb-2">Welcome to Smart Task</h2>
-                        <p className="text-muted-foreground">Please log in to continue</p>
-                    </div>
-                </div>
-            </div>
-        )
-    }
     const [stats] = useState({
         totalProjects: 12,
         activeTasks: 28,
@@ -48,30 +34,6 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
 
     const [greeting, setGreeting] = useState("")
     const [timeEmoji, setTimeEmoji] = useState("")
-
-    useEffect(() => {
-        const updateGreeting = () => {
-            const hour = new Date().getHours()
-            const firstName = user?.name?.split(" ")[0] || "User"
-
-            if (hour < 12) {
-                setGreeting(`Good morning, ${firstName}!`)
-                setTimeEmoji("🌅")
-            } else if (hour < 17) {
-                setGreeting(`Good afternoon, ${firstName}!`)
-                setTimeEmoji("☀️")
-            } else {
-                setGreeting(`Good evening, ${firstName}!`)
-                setTimeEmoji("🌙")
-            }
-        }
-
-        if (user?.name) {
-            updateGreeting()
-            const interval = setInterval(updateGreeting, 60000) // Update every minute
-            return () => clearInterval(interval)
-        }
-    }, [user?.name])
 
     const [recentActivities] = useState([
         {
@@ -120,6 +82,30 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
         },
     ])
 
+    useEffect(() => {
+        const updateGreeting = () => {
+            const hour = new Date().getHours()
+            const firstName = user?.name?.split(" ")[0] || "User"
+
+            if (hour < 12) {
+                setGreeting(`Good morning, ${firstName}!`)
+                setTimeEmoji("🌅")
+            } else if (hour < 17) {
+                setGreeting(`Good afternoon, ${firstName}!`)
+                setTimeEmoji("☀️")
+            } else {
+                setGreeting(`Good evening, ${firstName}!`)
+                setTimeEmoji("🌙")
+            }
+        }
+
+        if (user?.name) {
+            updateGreeting()
+            const interval = setInterval(updateGreeting, 60000) // Update every minute
+            return () => clearInterval(interval)
+        }
+    }, [user?.name])
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case "success":
@@ -131,6 +117,21 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
             default:
                 return "bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400"
         }
+    }
+
+    // Add null check for user
+    if (!user) {
+        return (
+            <div className="flex flex-col h-full relative overflow-hidden">
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="text-6xl mb-4">🤖</div>
+                        <h2 className="text-2xl font-bold mb-2">Welcome to Smart Task</h2>
+                        <p className="text-muted-foreground">Please log in to continue</p>
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     const statsData = [

@@ -104,8 +104,10 @@ export class AuthService {
         }
     }
 
-    async logout(userId: string): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async logout(_userId: string): Promise<void> {
         // Future: Implement token blacklisting with Redis
+        // TODO: Implement token blacklisting logic
         return;
     }
 

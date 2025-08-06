@@ -1,7 +1,6 @@
 import {
     Injectable,
     NotFoundException,
-    ForbiddenException,
     ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
@@ -76,7 +75,8 @@ export class ProjectsService {
         });
     }
 
-    async findAll(userId: string, userRole: UserRole) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async findAll(userId: string, _userRole: UserRole) { // Required for future role-based filtering
         // Get all projects where user is a member or owner
         return this.prisma.project.findMany({
             where: {
