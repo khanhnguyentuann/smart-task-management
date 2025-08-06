@@ -1,17 +1,17 @@
 {
-    "name": "smart-task-management",
+    "name": "@smart-task-management/root",
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "concurrently --kill-others --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"frontend,backend\" \"pnpm --filter frontend dev\" \"pnpm --filter backend start:dev:quiet\"",
-        "dev:frontend": "pnpm --filter frontend dev",
-        "dev:backend": "pnpm --filter backend start:dev",
-        "build": "pnpm --filter frontend build && pnpm --filter backend build",
-        "build:frontend": "pnpm --filter frontend build",
-        "build:backend": "pnpm --filter backend build",
-        "lint": "pnpm --filter frontend lint && pnpm --filter backend lint",
-        "lint:frontend": "pnpm --filter frontend lint",
-        "lint:backend": "pnpm --filter backend lint"
+        "dev": "concurrently --kill-others --prefix-colors \"blue,green\" --prefix \"[{name}]\" --names \"frontend,backend\" \"pnpm --filter @smart-task-management/frontend dev\" \"pnpm --filter @smart-task-management/backend start:dev:quiet\"",
+        "dev:frontend": "pnpm --filter @smart-task-management/frontend dev",
+        "dev:backend": "pnpm --filter @smart-task-management/backend start:dev",
+        "build": "pnpm --filter @smart-task-management/frontend build && pnpm --filter @smart-task-management/backend build",
+        "build:frontend": "pnpm --filter @smart-task-management/frontend build",
+        "build:backend": "pnpm --filter @smart-task-management/backend build",
+        "lint": "pnpm --filter @smart-task-management/frontend lint && pnpm --filter @smart-task-management/backend lint",
+        "lint:frontend": "pnpm --filter @smart-task-management/frontend lint",
+        "lint:backend": "pnpm --filter @smart-task-management/backend lint"
     },
     "devDependencies": {
         "concurrently": "^9.2.0"
@@ -20,8 +20,5 @@
         "overrides": {
             "tsconfig-paths": "^4.2.0"
         }
-    },
-    "dependencies": {
-        "@radix-ui/react-tabs": "^1.1.12"
     }
 }

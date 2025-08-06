@@ -34,7 +34,15 @@ class ApiService {
       const response = await fetch(url, config)
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        // Try to get error message from response
+        let errorMessage = `HTTP error! status: ${response.status}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.message || errorData.error || errorMessage
+        } catch {
+          // If we can't parse JSON, use default message
+        }
+        throw new Error(errorMessage)
       }
       
       return await response.json()
@@ -52,7 +60,7 @@ class ApiService {
     })
   }
 
-  async register(userData: { name: string; email: string; password: string }) {
+  async register(userData: { firstName: string; lastName: string; email: string; password: string }) {
     return this.request(API_ROUTES.AUTH.REGISTER, {
       method: "POST",
       body: JSON.stringify(userData),

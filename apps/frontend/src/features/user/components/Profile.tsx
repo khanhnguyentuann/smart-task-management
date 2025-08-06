@@ -14,9 +14,10 @@ import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 interface ProfileProps {
   user: {
     id: string
-    name: string
+    firstName: string
+    lastName: string
     email: string
-    role: "Admin" | "Member"
+    role: "ADMIN" | "MEMBER"
     avatar: string
     department?: string
   }
@@ -47,12 +48,9 @@ export function Profile({ user }: ProfileProps) {
                   <div className="relative">
                     <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
                       <Avatar className="h-20 w-20 ring-4 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
                         <AvatarFallback className="text-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                          {user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
+                          {`${user.firstName[0]}${user.lastName[0]}`}
                         </AvatarFallback>
                       </Avatar>
                     </motion.div>
@@ -65,9 +63,9 @@ export function Profile({ user }: ProfileProps) {
                     </motion.button>
                   </div>
                   <div className="space-y-2">
-                    <h2 className="text-2xl font-semibold">{user.name}</h2>
+                    <h2 className="text-2xl font-semibold">{user.firstName} {user.lastName}</h2>
                     <div className="flex items-center gap-2">
-                      <Badge variant={user.role === "Admin" ? "default" : "secondary"} className="text-sm">
+                      <Badge variant={user.role === "ADMIN" ? "default" : "secondary"} className="text-sm">
                         {user.role}
                       </Badge>
                       {user.department && (
@@ -80,11 +78,20 @@ export function Profile({ user }: ProfileProps) {
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="name" defaultValue={user.name} className="pl-10" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">First Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input id="firstName" defaultValue={user.firstName} className="pl-10" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input id="lastName" defaultValue={user.lastName} className="pl-10" />
+                      </div>
                     </div>
                   </div>
 

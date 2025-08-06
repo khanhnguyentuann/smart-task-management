@@ -18,21 +18,29 @@ async function main() {
     // Mock users data
     const mockUsers = [
         {
+            firstName: 'Sarah',
+            lastName: 'Chen',
             email: 'sarah@company.com',
             passwordHash: defaultPassword,
             role: UserRole.ADMIN,
         },
         {
+            firstName: 'Alex',
+            lastName: 'Rodriguez',
             email: 'alex@company.com',
             passwordHash: defaultPassword,
             role: UserRole.MEMBER,
         },
         {
+            firstName: 'Emily',
+            lastName: 'Johnson',
             email: 'emily@company.com',
             passwordHash: defaultPassword,
             role: UserRole.ADMIN,
         },
         {
+            firstName: 'Michael',
+            lastName: 'Kim',
             email: 'michael@company.com',
             passwordHash: defaultPassword,
             role: UserRole.MEMBER,
@@ -54,6 +62,8 @@ async function main() {
         where: { email: 'admin@test.com' },
         update: {},
         create: {
+            firstName: 'Admin',
+            lastName: 'User',
             email: 'admin@test.com',
             passwordHash: await argon2.hash('admin123'),
             role: UserRole.ADMIN,

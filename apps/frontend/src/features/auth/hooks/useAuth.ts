@@ -35,10 +35,10 @@ export const useAuth = () => {
     }
   }
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (firstName: string, lastName: string, email: string, password: string) => {
     try {
       setLoading(true)
-      const response = await authService.register(name, email, password)
+      const response = await authService.register(firstName, lastName, email, password)
       authService.setAuthToken(response.token)
       authService.setUser(response.user)
       setUser(response.user)

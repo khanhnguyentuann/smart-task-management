@@ -17,9 +17,10 @@ import { User, Settings, LogOut, Bell, HelpCircle } from "lucide-react"
 interface UserMenuProps {
   user: {
     id: string
-    name: string
+    firstName: string
+    lastName: string
     email: string
-    role: "Admin" | "Member"
+    role: "ADMIN" | "MEMBER"
     avatar: string
     department?: string
   }
@@ -46,19 +47,16 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
           >
             <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: "spring", stiffness: 300 }}>
               <Avatar className="h-10 w-10 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                  {user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                  {`${user.firstName[0]}${user.lastName[0]}`}
                 </AvatarFallback>
               </Avatar>
             </motion.div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.name}</p>
+              <p className="text-sm font-medium truncate">{user.firstName} {user.lastName}</p>
               <div className="flex items-center gap-2">
-                <Badge variant={user.role === "Admin" ? "default" : "secondary"} className="text-xs">
+                <Badge variant={user.role === "ADMIN" ? "default" : "secondary"} className="text-xs">
                   {user.role}
                 </Badge>
                 {user.department && <span className="text-xs text-muted-foreground truncate">{user.department}</span>}
@@ -70,16 +68,13 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
         <DropdownMenuContent align="start" className="w-56">
           <div className="flex items-center gap-3 p-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+              <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
               <AvatarFallback>
-                {user.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+                {`${user.firstName[0]}${user.lastName[0]}`}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.name}</p>
+              <p className="text-sm font-medium truncate">{user.firstName} {user.lastName}</p>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
           </div>

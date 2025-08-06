@@ -16,7 +16,7 @@ export class AuthService {
     ) { }
 
     async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-        const { email, password } = registerDto;
+        const { firstName, lastName, email, password } = registerDto;
 
         const existingUser = await this.prisma.user.findUnique({
             where: { email },
@@ -30,6 +30,8 @@ export class AuthService {
 
         const user = await this.prisma.user.create({
             data: {
+                firstName,
+                lastName,
                 email,
                 passwordHash: hashedPassword,
                 role: 'MEMBER', // Always set role as MEMBER for new registrations
@@ -42,6 +44,8 @@ export class AuthService {
             ...tokens,
             user: {
                 id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
                 email: user.email,
                 role: user.role,
                 createdAt: user.createdAt,
@@ -72,6 +76,8 @@ export class AuthService {
             ...tokens,
             user: {
                 id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
                 email: user.email,
                 role: user.role,
                 createdAt: user.createdAt,

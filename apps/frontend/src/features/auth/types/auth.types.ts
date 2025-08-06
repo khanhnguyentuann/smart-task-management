@@ -1,14 +1,45 @@
 export interface User {
   id: string
-  name: string
+  firstName: string
+  lastName: string
   email: string
-  role: "Admin" | "Member"
-  avatar: string
-  department: string
+  role: "ADMIN" | "MEMBER"
+  createdAt: string
+  // Frontend-only fields for UI
+  avatar?: string
+  department?: string
 }
 
 export interface AuthFormData {
-  name: string
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  confirmPassword?: string
+}
+
+// API Response types
+export interface AuthApiResponse {
+  accessToken: string
+  refreshToken: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    email: string
+    role: "ADMIN" | "MEMBER"
+    createdAt: string
+  }
+}
+
+export interface LoginCredentials {
+  email: string
+  password: string
+}
+
+export interface RegisterCredentials {
+  firstName: string
+  lastName: string
   email: string
   password: string
 }

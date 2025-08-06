@@ -91,9 +91,9 @@ export default function Home() {
   const getMascotMessage = () => {
     if (currentPage === "dashboard") {
       const hour = new Date().getHours()
-      if (hour < 12) return `Good morning, ${user?.name?.split(" ")[0]}! Ready to conquer today? 🌅`
-      if (hour < 17) return `Good afternoon, ${user?.name?.split(" ")[0]}! Keep up the great work! ☀️`
-      return `Good evening, ${user?.name?.split(" ")[0]}! Time to wrap up? 🌙`
+      if (hour < 12) return `Good morning, ${user?.firstName}! Ready to conquer today? 🌅`
+      if (hour < 17) return `Good afternoon, ${user?.firstName}! Keep up the great work! ☀️`
+      return `Good evening, ${user?.firstName}! Time to wrap up? 🌙`
     }
     return undefined
   }

@@ -1,32 +1,59 @@
 import { apiService } from "@/shared/services/api"
-import { User } from "../types/auth.types"
+import { User, AuthApiResponse, LoginCredentials, RegisterCredentials } from "../types/auth.types"
 
 export class AuthService {
   async login(email: string, password: string): Promise<{ user: User; token: string }> {
     try {
-      const response = await apiService.login({ email, password }) as { user: User; token: string }
-      return response
-    } catch (error) {
-      throw new Error("Login failed")
+      const response = await apiService.login({ email, password }) as AuthApiResponse
+      
+      // Transform API response to match frontend expectations
+      const user: User = {
+        ...response.user,
+        avatar: this.generateAvatar(response.user.firstName, response.user.lastName),
+        department: "Engineering" // Default department for now
+      }
+      
+      return {
+        user,
+        token: response.accessToken // Use accessToken from API
+      }
+    } catch (error: any) {
+      console.error("Login API error:", error)
+      // Pass through the actual error message from API
+      throw new Error(error.message || "Login failed")
     }
   }
 
-  async register(name: string, email: string, password: string): Promise<{ user: User; token: string }> {
+  async register(firstName: string, lastName: string, email: string, password: string): Promise<{ user: User; token: string }> {
     try {
-      const response = await apiService.register({ name, email, password }) as { user: User; token: string }
-      return response
-    } catch (error) {
-      throw new Error("Registration failed")
+      const response = await apiService.register({ firstName, lastName, email, password }) as AuthApiResponse
+      
+      // Transform API response to match frontend expectations
+      const user: User = {
+        ...response.user,
+        avatar: this.generateAvatar(response.user.firstName, response.user.lastName),
+        department: "Engineering" // Default department for now
+      }
+      
+      return {
+        user,
+        token: response.accessToken // Use accessToken from API
+      }
+    } catch (error: any) {
+      console.error("Registration API error:", error)
+      // Pass through the actual error message from API
+      throw new Error(error.message || "Registration failed")
     }
   }
 
   async logout(): Promise<void> {
     try {
       await apiService.logout()
-      localStorage.removeItem("authToken")
-      localStorage.removeItem("user")
+      this.clearAuth()
     } catch (error) {
       console.error("Logout error:", error)
+      // Clear auth even if API call fails
+      this.clearAuth()
     }
   }
 
@@ -54,6 +81,12 @@ export class AuthService {
   clearAuth(): void {
     localStorage.removeItem("authToken")
     localStorage.removeItem("user")
+  }
+
+  // Helper method to generate avatar URL based on name
+  private generateAvatar(firstName: string, lastName: string): string {
+    const initials = `${firstName[0]}${lastName[0]}`.toUpperCase()
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(firstName + ' ' + lastName)}&background=random&color=fff&size=200`
   }
 }
 
