@@ -1,33 +1,28 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
-import { LoadingAnimation } from "@/shared/components/ui/loading-animation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Eye, EyeOff, Mail, Lock, User, Sparkles, CheckCircle, XCircle } from "lucide-react"
-import { validatePassword, validateConfirmPassword, getStrengthColor, getStrengthText } from "../utils/passwordValidation"
-import { useAuth } from "../hooks/useAuth"
 import { useToast } from "@/shared/components/ui/use-toast"
 
-interface AuthModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onLogin: (user: any) => void
-}
+import { useAuth } from '../hooks'
+import { validatePassword, type RegisterFormData } from '../validation'
+import { getStrengthColor, getStrengthText } from '../utils'
+import { AUTH_CONSTANTS } from '../constants'
+import type { AuthModalProps } from '../types'
 
 export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true)
-  const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { login, register } = useAuth()
   const { toast } = useToast()
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterFormData>({
     firstName: "",
     lastName: "",
     email: "",
@@ -50,24 +45,37 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
     }
   }, [formData.password, isLogin])
 
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!open) {
+      resetForm()
+    }
+  }, [open])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
 
     try {
       if (isLogin) {
-        const user = await login(formData.email, formData.password)
+        const user = await login({
+          email: formData.email,
+          password: formData.password
+        })
+
         toast({
-          title: "🎉 Welcome back!",
+          title: AUTH_CONSTANTS.MESSAGES.LOGIN_SUCCESS,
           description: `Successfully logged in as ${user.firstName} ${user.lastName}`,
           variant: "default",
         })
+
+        resetForm()
         onLogin(user)
         onOpenChange(false)
       } else {
+        // Validate before submitting
         if (!passwordValidation.isValid) {
           toast({
-            title: "❌ Invalid password",
+            title: AUTH_CONSTANTS.MESSAGES.INVALID_PASSWORD,
             description: "Please ensure your password meets all requirements",
             variant: "destructive",
           })
@@ -76,38 +84,54 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
 
         if (!confirmPasswordValid) {
           toast({
-            title: "❌ Passwords don't match",
+            title: AUTH_CONSTANTS.MESSAGES.PASSWORD_MISMATCH,
             description: "Please ensure both passwords are identical",
             variant: "destructive",
           })
           return
         }
 
-        const user = await register(formData.firstName, formData.lastName, formData.email, formData.password)
+        const user = await register({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password
+        })
+
         toast({
-          title: "🎉 Account created!",
+          title: AUTH_CONSTANTS.MESSAGES.REGISTER_SUCCESS,
           description: `Welcome to Smart Task, ${user.firstName}! Your account has been created successfully.`,
           variant: "default",
         })
+
+        resetForm()
         onLogin(user)
         onOpenChange(false)
       }
     } catch (error: any) {
       toast({
-        title: "❌ Authentication failed",
-        description: error.message || "An error occurred during authentication",
+        title: AUTH_CONSTANTS.MESSAGES.AUTH_FAILED,
+        description: error.message,
         variant: "destructive",
       })
-    } finally {
-      setLoading(false)
     }
   }
 
-  const handleSocialLogin = (provider: 'google' | 'facebook') => {
+  const handleSocialLogin = (provider: typeof AUTH_CONSTANTS.SOCIAL_PROVIDERS[keyof typeof AUTH_CONSTANTS.SOCIAL_PROVIDERS]) => {
     toast({
-      title: "🚀 Coming Soon!",
+      title: AUTH_CONSTANTS.MESSAGES.SOCIAL_COMING_SOON,
       description: `${provider.charAt(0).toUpperCase() + provider.slice(1)} login will be available soon. Stay tuned!`,
       variant: "default",
+    })
+  }
+
+  const resetForm = () => {
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
     })
   }
 
@@ -209,8 +233,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              
-              {/* Password validation for registration */}
+
               {!isLogin && formData.password && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
@@ -218,7 +241,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
                       Strength: {getStrengthText(passwordValidation.strength)}
                     </span>
                   </div>
-                  
+
                   {passwordValidation.errors.length > 0 && (
                     <div className="space-y-1">
                       {passwordValidation.errors.map((error, index) => (
@@ -229,7 +252,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
                       ))}
                     </div>
                   )}
-                  
+
                   {passwordValidation.isValid && (
                     <div className="flex items-center gap-2 text-xs text-green-500">
                       <CheckCircle className="h-3 w-3" />
@@ -261,8 +284,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
                       required={!isLogin}
                     />
                   </div>
-                  
-                  {/* Confirm password validation */}
+
                   {formData.confirmPassword && (
                     <div className="flex items-center gap-2 text-xs">
                       {confirmPasswordValid ? (
@@ -283,20 +305,13 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
             </AnimatePresence>
 
             <div className="flex justify-center">
-              <EnhancedButton type="submit" disabled={loading} className="w-full max-w-xs">
-                {loading ? (
-                  <LoadingAnimation type="dots" size="sm" />
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    {isLogin ? "Sign In" : "Create Account"}
-                  </>
-                )}
+              <EnhancedButton type="submit" className="w-full max-w-xs">
+                <Sparkles className="h-4 w-4 mr-2" />
+                {isLogin ? "Sign In" : "Create Account"}
               </EnhancedButton>
             </div>
           </form>
 
-          {/* Social Login Section */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -310,7 +325,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
             <EnhancedButton
               type="button"
               variant="outline"
-              onClick={() => handleSocialLogin('google')}
+              onClick={() => handleSocialLogin(AUTH_CONSTANTS.SOCIAL_PROVIDERS.GOOGLE)}
               className="w-full"
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -336,24 +351,22 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
             <EnhancedButton
               type="button"
               variant="outline"
-              onClick={() => handleSocialLogin('facebook')}
+              onClick={() => handleSocialLogin(AUTH_CONSTANTS.SOCIAL_PROVIDERS.FACEBOOK)}
               className="w-full"
             >
               <svg className="mr-2 h-4 w-4" fill="#1877F2" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
               Facebook
             </EnhancedButton>
           </div>
 
-          {/* Toggle between login/register */}
           <div className="text-center">
             <button
               type="button"
               onClick={() => {
                 setIsLogin(!isLogin)
-                // Reset form when switching modes
-                setFormData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" })
+                resetForm()
               }}
               className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
             >
@@ -364,4 +377,4 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
       </DialogContent>
     </Dialog>
   )
-} 
+}

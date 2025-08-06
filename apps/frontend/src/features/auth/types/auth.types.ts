@@ -5,31 +5,17 @@ export interface User {
   email: string
   role: "ADMIN" | "MEMBER"
   createdAt: string
-  // Frontend-only fields for UI
   avatar?: string
   department?: string
 }
 
-export interface AuthFormData {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  confirmPassword?: string
-}
-
-// API Response types
-export interface AuthApiResponse {
+export interface AuthTokens {
   accessToken: string
   refreshToken: string
-  user: {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    role: "ADMIN" | "MEMBER"
-    createdAt: string
-  }
+}
+
+export interface AuthResponse extends AuthTokens {
+  user: User
 }
 
 export interface LoginCredentials {
@@ -44,18 +30,14 @@ export interface RegisterCredentials {
   password: string
 }
 
+export interface AuthState {
+  user: User | null
+  isAuthenticated: boolean
+  loading: boolean
+}
+
 export interface AuthModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onLogin: (user: User) => void
 }
-
-export interface LoginFormProps {
-  onSubmit: (data: AuthFormData) => void
-  loading: boolean
-}
-
-export interface RegisterFormProps {
-  onSubmit: (data: AuthFormData) => void
-  loading: boolean
-} 

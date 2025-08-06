@@ -1,79 +1,101 @@
-import { useState, useEffect } from "react"
-import { authService } from "../services/authService"
-import { User } from "../types/auth.types"
+import { useState, useEffect, useCallback } from 'react'
+import { authService } from '../services'
+import { formatAuthError } from '../utils'
+import type { User, AuthState, LoginCredentials, RegisterCredentials } from '../types'
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    isAuthenticated: false,
+    loading: true
+  })
 
+  // Initialize auth state from localStorage
   useEffect(() => {
     const initAuth = () => {
-      const savedUser = authService.getUser()
-      if (savedUser && authService.isAuthenticated()) {
-        setUser(savedUser)
-      }
-      setLoading(false)
+      const user = authService.getUser()
+      const isAuthenticated = authService.isAuthenticated()
+
+      setState({
+        user,
+        isAuthenticated,
+        loading: false
+      })
     }
 
     initAuth()
   }, [])
 
-  const login = async (email: string, password: string) => {
-    try {
-      setLoading(true)
-      const response = await authService.login(email, password)
-      authService.setAuthToken(response.token)
-      authService.setUser(response.user)
-      setUser(response.user)
-      console.log("Login successful")
-      return response.user
-    } catch (err) {
-      console.error("Login failed:", err)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
+  const login = useCallback(async (credentials: LoginCredentials): Promise<User> => {
+    setState(prev => ({ ...prev, loading: true }))
 
-  const register = async (firstName: string, lastName: string, email: string, password: string) => {
     try {
-      setLoading(true)
-      const response = await authService.register(firstName, lastName, email, password)
-      authService.setAuthToken(response.token)
-      authService.setUser(response.user)
-      setUser(response.user)
-      console.log("Registration successful")
-      return response.user
-    } catch (err) {
-      console.error("Registration failed:", err)
-      throw err
-    } finally {
-      setLoading(false)
+      const user = await authService.login(credentials)
+      setState({
+        user,
+        isAuthenticated: true,
+        loading: false
+      })
+      return user
+    } catch (error) {
+      setState(prev => ({ ...prev, loading: false }))
+      throw new Error(formatAuthError(error))
     }
-  }
+  }, [])
 
-  const logout = async () => {
+  const register = useCallback(async (credentials: RegisterCredentials): Promise<User> => {
+    setState(prev => ({ ...prev, loading: true }))
+
+    try {
+      const user = await authService.register(credentials)
+      setState({
+        user,
+        isAuthenticated: true,
+        loading: false
+      })
+      return user
+    } catch (error) {
+      setState(prev => ({ ...prev, loading: false }))
+      throw new Error(formatAuthError(error))
+    }
+  }, [])
+
+  const logout = useCallback(async (): Promise<void> => {
+    setState(prev => ({ ...prev, loading: true }))
+
     try {
       await authService.logout()
-      setUser(null)
-      console.log("Logged out successfully")
-    } catch (err) {
-      console.error("Logout error:", err)
+      setState({
+        user: null,
+        isAuthenticated: false,
+        loading: false
+      })
+    } catch (error) {
+      // Still clear state even if logout API fails
+      setState({
+        user: null,
+        isAuthenticated: false,
+        loading: false
+      })
+      throw new Error(formatAuthError(error))
     }
-  }
+  }, [])
 
-  const updateUser = (updatedUser: User) => {
-    authService.setUser(updatedUser)
-    setUser(updatedUser)
-  }
+  const updateUser = useCallback((user: User) => {
+    authService.setUser(user)
+    setState(prev => ({
+      ...prev,
+      user
+    }))
+  }, [])
 
   return {
-    user,
-    loading,
-    isAuthenticated: !!user,
+    user: state.user,
+    isAuthenticated: state.isAuthenticated,
+    loading: state.loading,
     login,
     register,
     logout,
-    updateUser,
+    updateUser
   }
-} 
+}

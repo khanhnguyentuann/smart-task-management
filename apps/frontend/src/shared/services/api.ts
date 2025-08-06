@@ -73,6 +73,13 @@ class ApiService {
     })
   }
 
+  async refreshToken(refreshToken: string) {
+    return this.request(API_ROUTES.AUTH.REFRESH, {
+      method: "POST",
+      body: JSON.stringify({ refreshToken }),
+    })
+  }
+
   // Projects endpoints
   async getProjects() {
     return this.request(API_ROUTES.PROJECTS.LIST)
