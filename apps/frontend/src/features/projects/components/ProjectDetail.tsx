@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
 import { ArrowLeft, Plus, Users, Settings, CheckSquare, Clock, AlertTriangle, Sparkles } from "lucide-react"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
-import { CreateTaskModal } from "@/shared/components/modals/CreateTaskModal"
+import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal"
 import { AnimatedTaskCard } from "@/shared/components/ui/animated-task-card"
 
 interface User {

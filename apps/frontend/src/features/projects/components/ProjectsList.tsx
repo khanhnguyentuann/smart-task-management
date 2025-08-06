@@ -8,7 +8,7 @@ import { Badge } from "@/shared/components/ui/badge"
 import { Search, Plus, Users, CheckSquare, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu"
-import { CreateProjectModal } from "@/shared/components/projects/CreateProjectModal"
+import { CreateProjectModal } from "@/features/projects/components/CreateProjectModal"
 
 interface User {
   name: string
