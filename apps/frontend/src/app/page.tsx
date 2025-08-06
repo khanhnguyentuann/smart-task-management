@@ -11,7 +11,7 @@ import { Profile } from "@/shared/components/user/Profile"
 import { Settings } from "@/shared/components/settings/Settings"
 import { Notifications } from "@/shared/components/notifications/Notifications"
 import { HelpSupport } from "@/shared/components/help/HelpSupport"
-import { ThemeProvider } from "@/shared/components/layout/ThemeProvider"
+
 import { AnimatedBackground } from "@/shared/components/ui/AnimatedBackground"
 import { TaskBot } from "@/shared/components/ui/TaskBot"
 import { WelcomeScreen } from "@/shared/components/welcome/WelcomeScreen"
@@ -101,28 +101,26 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-          <motion.div
-            animate={{
-              rotate: 360,
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              rotate: { duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-              scale: { duration: 1, repeat: Number.POSITIVE_INFINITY },
-            }}
-            className="text-6xl"
-          >
-            ✨
-          </motion.div>
-        </div>
-      </ThemeProvider>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <motion.div
+          animate={{
+            rotate: 360,
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            rotate: { duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+            scale: { duration: 1, repeat: Number.POSITIVE_INFINITY },
+          }}
+          className="text-6xl"
+        >
+          ✨
+        </motion.div>
+      </div>
     )
   }
 
-  return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    return (
+    <>
       <AnimatePresence mode="wait">
         {showWelcome ? (
           <motion.div
@@ -176,6 +174,6 @@ export default function Home() {
       </AnimatePresence>
 
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onLogin={handleLogin} />
-    </ThemeProvider>
+    </>
   )
 }

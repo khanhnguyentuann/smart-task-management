@@ -4,7 +4,7 @@ import { User } from "../types/auth.types"
 export class AuthService {
   async login(email: string, password: string): Promise<{ user: User; token: string }> {
     try {
-      const response = await apiService.login({ email, password })
+      const response = await apiService.login({ email, password }) as { user: User; token: string }
       return response
     } catch (error) {
       throw new Error("Login failed")
@@ -13,7 +13,7 @@ export class AuthService {
 
   async register(name: string, email: string, password: string): Promise<{ user: User; token: string }> {
     try {
-      const response = await apiService.register({ name, email, password })
+      const response = await apiService.register({ name, email, password }) as { user: User; token: string }
       return response
     } catch (error) {
       throw new Error("Registration failed")

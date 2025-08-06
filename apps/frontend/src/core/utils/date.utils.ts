@@ -12,19 +12,19 @@ export const formatRelativeTime = (date: string | Date) => {
 
 export const formatSmartDate = (date: string | Date) => {
   const dateObj = typeof date === "string" ? new Date(date) : date
-  
+
   if (isToday(dateObj)) {
     return "Today"
   }
-  
+
   if (isYesterday(dateObj)) {
     return "Yesterday"
   }
-  
+
   if (isTomorrow(dateObj)) {
     return "Tomorrow"
   }
-  
+
   return formatDate(dateObj)
 }
 

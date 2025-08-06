@@ -106,28 +106,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
             </EnhancedButton>
           </motion.div>
 
-          {/* Tech Mascot */}
-          <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.5 }}
-            className="fixed bottom-8 right-8"
-          >
-            <motion.div
-              animate={{
-                y: [0, -10, 0],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "reverse",
-              }}
-              className="text-6xl"
-            >
-              🤖
-            </motion.div>
-          </motion.div>
+
         </motion.div>
       </div>
     </div>

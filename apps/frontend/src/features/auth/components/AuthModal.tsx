@@ -25,6 +25,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   })
 
   // Mock users with realistic avatars
@@ -34,7 +35,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
       name: "Sarah Chen",
       email: "sarah@company.com",
       role: "Admin" as const,
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&backgroundColor=b6e3f4",
       department: "Product Design",
     },
     {
@@ -42,7 +43,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
       name: "Alex Rodriguez",
       email: "alex@company.com",
       role: "Member" as const,
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=ffdfbf",
       department: "Engineering",
     },
     {
@@ -50,7 +51,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
       name: "Emily Johnson",
       email: "emily@company.com",
       role: "Admin" as const,
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily&backgroundColor=d1d4f9",
       department: "Marketing",
     },
     {
@@ -58,7 +59,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
       name: "Michael Kim",
       email: "michael@company.com",
       role: "Member" as const,
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael&backgroundColor=c0f2d9",
       department: "Engineering",
     },
     {
@@ -66,13 +67,20 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
       name: "Jessica Taylor",
       email: "jessica@company.com",
       role: "Member" as const,
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jessica&backgroundColor=ffd5dc",
       department: "Sales",
     },
   ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate confirm password for registration
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!")
+      return
+    }
+    
     setLoading(true)
 
     // Simulate API call
@@ -89,7 +97,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
         name: formData.name,
         email: formData.email,
         role: "Member" as const,
-        avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face`,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(formData.name)}&backgroundColor=f0f0f0`,
         department: "New Team",
       }
       onLogin(newUser)
@@ -97,7 +105,7 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
 
     setLoading(false)
     onOpenChange(false)
-    setFormData({ name: "", email: "", password: "" })
+    setFormData({ name: "", email: "", password: "", confirmPassword: "" })
   }
 
   const handleQuickLogin = (user: any) => {
@@ -133,6 +141,10 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
                       src={user.avatar || "/placeholder.svg"}
                       alt={user.name}
                       className="w-8 h-8 rounded-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=6366f1&textColor=ffffff`;
+                      }}
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{user.name}</p>
@@ -217,16 +229,43 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
               </div>
             </div>
 
-            <EnhancedButton type="submit" disabled={loading} className="w-full">
-              {loading ? (
-                <LoadingAnimation type="dots" size="sm" />
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  {isLogin ? "Sign In" : "Create Account"}
-                </>
+            <AnimatePresence mode="wait">
+              {!isLogin && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Confirm your password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      className="pl-10"
+                      required={!isLogin}
+                    />
+                  </div>
+                </motion.div>
               )}
-            </EnhancedButton>
+            </AnimatePresence>
+
+            <div className="flex justify-center">
+              <EnhancedButton type="submit" disabled={loading} className="w-full max-w-xs">
+                {loading ? (
+                  <LoadingAnimation type="dots" size="sm" />
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isLogin ? "Sign In" : "Create Account"}
+                  </>
+                )}
+              </EnhancedButton>
+            </div>
           </form>
 
           {/* Toggle between login/register */}
