@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
@@ -19,46 +18,6 @@ interface AuthModalProps {
   onOpenChange: (open: boolean) => void
   onLogin: (user: any) => void
 }
-
-// Sample users for quick login (you can replace this with API call later)
-const sampleUsers = [
-  {
-    id: "1",
-    firstName: "Sarah",
-    lastName: "Chen",
-    email: "sarah@company.com",
-    role: "ADMIN" as const,
-    avatar: "https://ui-avatars.com/api/?name=Sarah+Chen&background=b6e3f4&color=fff&size=200",
-    department: "Product Design",
-  },
-  {
-    id: "2",
-    firstName: "Alex",
-    lastName: "Rodriguez",
-    email: "alex@company.com",
-    role: "MEMBER" as const,
-    avatar: "https://ui-avatars.com/api/?name=Alex+Rodriguez&background=ffdfbf&color=fff&size=200",
-    department: "Engineering",
-  },
-  {
-    id: "3",
-    firstName: "Emily",
-    lastName: "Johnson",
-    email: "emily@company.com",
-    role: "ADMIN" as const,
-    avatar: "https://ui-avatars.com/api/?name=Emily+Johnson&background=d1d4f9&color=fff&size=200",
-    department: "Marketing",
-  },
-  {
-    id: "4",
-    firstName: "Michael",
-    lastName: "Kim",
-    email: "michael@company.com",
-    role: "MEMBER" as const,
-    avatar: "https://ui-avatars.com/api/?name=Michael+Kim&background=c0f2d9&color=fff&size=200",
-    department: "Engineering",
-  },
-]
 
 export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
   const { login, register } = useAuth()
@@ -149,26 +108,6 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
     }
   }
 
-  const handleQuickLogin = async (user: any) => {
-    setLoading(true)
-    setError("")
-    
-    try {
-      // For quick login, we'll use the default password for these sample users
-      const defaultPassword = "password123"
-      const loggedInUser = await login(user.email, defaultPassword)
-      onLogin(loggedInUser)
-      onOpenChange(false)
-      // Reset form after successful quick login
-      setFormData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" })
-    } catch (err: any) {
-      console.error("Quick login error:", err)
-      setError("Quick login failed. Please use the form below.")
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -188,45 +127,6 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
               className="p-3 bg-red-50 border border-red-200 rounded-lg"
             >
               <p className="text-sm text-red-600">{error}</p>
-            </motion.div>
-          )}
-
-          {/* Quick Login Options */}
-          {isLogin && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-              <p className="text-sm text-muted-foreground text-center">Quick login as:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {sampleUsers.map((user) => (
-                  <motion.button
-                    key={user.id}
-                    onClick={() => handleQuickLogin(user)}
-                    disabled={loading}
-                    className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                    whileHover={{ scale: loading ? 1 : 1.02 }}
-                    whileTap={{ scale: loading ? 1 : 0.98 }}
-                  >
-                    <Image
-                      src={user.avatar || "/placeholder.svg"}
-                      alt={`${user.firstName} ${user.lastName}`}
-                      width={32}
-                      height={32}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.role}</p>
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                </div>
-              </div>
             </motion.div>
           )}
 

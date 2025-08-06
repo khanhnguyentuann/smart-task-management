@@ -12,9 +12,10 @@ import { Progress } from "@/shared/components/ui/progress"
 
 interface User {
     id: string
-    name: string
+    firstName: string
+    lastName: string
     email: string
-    role: "Admin" | "Member"
+    role: "ADMIN" | "MEMBER"
     avatar: string
     department?: string
 }
@@ -72,7 +73,7 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
         {
             id: 4,
             type: "milestone_reached",
-            user: "Alex Rodriguez",
+            user: "Team Member",
             action: "reached milestone",
             target: "50% project completion",
             time: "5 hours ago",
@@ -85,7 +86,7 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
     useEffect(() => {
         const updateGreeting = () => {
             const hour = new Date().getHours()
-            const firstName = user?.name?.split(" ")[0] || "User"
+            const firstName = user?.firstName || "User"
 
             if (hour < 12) {
                 setGreeting(`Good morning, ${firstName}!`)
@@ -99,12 +100,12 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
             }
         }
 
-        if (user?.name) {
+        if (user?.firstName) {
             updateGreeting()
             const interval = setInterval(updateGreeting, 60000) // Update every minute
             return () => clearInterval(interval)
         }
-    }, [user?.name])
+    }, [user?.firstName])
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -409,7 +410,7 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    {user.role === "Admin" && (
+                                                                         {user.role === "ADMIN" && (
                                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                             <EnhancedButton
                                                 onClick={() => onNavigate("projects")}

@@ -10,9 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu"
-import { EnhancedThemeToggle } from "@/shared/components/ui/enhanced-theme-toggle"
+import { User, Bell, Settings, HelpCircle, LogOut } from "lucide-react"
 import { motion } from "framer-motion"
-import { User, Settings, LogOut, Bell, HelpCircle } from "lucide-react"
+import { EnhancedThemeToggle } from "@/shared/components/ui/enhanced-theme-toggle"
 
 interface UserMenuProps {
   user: {
@@ -23,7 +23,7 @@ interface UserMenuProps {
     role: "ADMIN" | "MEMBER"
     avatar: string
     department?: string
-  }
+  } | null
   onNavigate: (page: string) => void
   onLogout: () => void
 }
@@ -34,6 +34,18 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
   const handleNavigate = (page: string) => {
     onNavigate(page)
     setIsOpen(false) // Close dropdown after navigation
+  }
+
+  // If user is null, don't render the menu
+  if (!user) {
+    return null
+  }
+
+  // Get initials safely
+  const getInitials = () => {
+    const firstInitial = user.firstName ? user.firstName[0] : ''
+    const lastInitial = user.lastName ? user.lastName[0] : ''
+    return `${firstInitial}${lastInitial}`.toUpperCase()
   }
 
   return (
@@ -49,7 +61,7 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
               <Avatar className="h-10 w-10 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
                 <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                  {`${user.firstName[0]}${user.lastName[0]}`}
+                  {getInitials()}
                 </AvatarFallback>
               </Avatar>
             </motion.div>
@@ -70,7 +82,7 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
             <Avatar className="h-8 w-8">
               <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
               <AvatarFallback>
-                {`${user.firstName[0]}${user.lastName[0]}`}
+                {getInitials()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">

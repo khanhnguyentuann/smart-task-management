@@ -50,7 +50,7 @@ export function Profile({ user }: ProfileProps) {
                       <Avatar className="h-20 w-20 ring-4 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
                         <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
                         <AvatarFallback className="text-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                          {`${user.firstName[0]}${user.lastName[0]}`}
+                          {`${user.firstName}${user.lastName}`}
                         </AvatarFallback>
                       </Avatar>
                     </motion.div>

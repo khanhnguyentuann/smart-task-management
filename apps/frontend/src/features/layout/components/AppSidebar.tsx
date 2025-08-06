@@ -1,28 +1,21 @@
 "use client"
 
-import { LayoutDashboard, FolderKanban, CheckSquare, User } from "lucide-react"
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarFooter,
-} from "@/shared/components/ui/sidebar"
-import { UserMenu } from "@/features/layout"
 import { motion } from "framer-motion"
+import { LayoutDashboard, FolderKanban, CheckSquare, User } from "lucide-react"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/shared/components/ui/sidebar"
 import { useSidebar } from "@/shared/components/ui/sidebar"
+import { UserMenu } from "./UserMenu"
 
 interface AppSidebarProps {
     user: {
         id: string
-        name: string
+        firstName: string
+        lastName: string
         email: string
-        role: "Admin" | "Member"
+        role: "ADMIN" | "MEMBER"
         avatar: string
         department?: string
-    }
+    } | null
     currentPage: string
     onNavigate: (page: string) => void
     onLogout: () => void

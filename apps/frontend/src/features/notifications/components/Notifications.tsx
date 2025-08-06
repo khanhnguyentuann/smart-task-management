@@ -23,9 +23,10 @@ import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 
 interface User {
   id: string
-  name: string
+  firstName: string
+  lastName: string
   email: string
-  role: "Admin" | "Member"
+  role: "ADMIN" | "MEMBER"
   avatar: string
   department?: string
 }
@@ -40,7 +41,7 @@ export function Notifications({ user }: NotificationsProps) {
       id: "1",
       type: "task_assigned",
       title: "New task assigned to you",
-      message: "Sarah Chen assigned you the task 'Update user authentication' in Website Redesign project",
+      message: "Team Lead assigned you the task 'Update user authentication' in Website Redesign project",
       time: "2 minutes ago",
       read: false,
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
@@ -62,7 +63,7 @@ export function Notifications({ user }: NotificationsProps) {
       id: "3",
       type: "team_invite",
       title: "New team member joined",
-      message: "Alex Rodriguez has joined your team",
+      message: "New team member has joined your team",
       time: "3 hours ago",
       read: true,
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
@@ -84,7 +85,7 @@ export function Notifications({ user }: NotificationsProps) {
       id: "5",
       type: "comment",
       title: "New comment on your task",
-      message: "Emily Johnson commented on 'Design new homepage layout'",
+      message: "Designer commented on 'Design new homepage layout'",
       time: "1 day ago",
       read: true,
       avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
