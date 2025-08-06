@@ -131,11 +131,15 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
         const user = await login(formData.email, formData.password)
         onLogin(user)
         onOpenChange(false)
+        // Reset form after successful login
+        setFormData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" })
       } else {
         // Use real API registration
         const user = await register(formData.firstName, formData.lastName, formData.email, formData.password)
         onLogin(user)
         onOpenChange(false)
+        // Reset form after successful registration
+        setFormData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" })
       }
     } catch (err: any) {
       console.error("Auth error:", err)
@@ -155,6 +159,8 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
       const loggedInUser = await login(user.email, defaultPassword)
       onLogin(loggedInUser)
       onOpenChange(false)
+      // Reset form after successful quick login
+      setFormData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" })
     } catch (err: any) {
       console.error("Quick login error:", err)
       setError("Quick login failed. Please use the form below.")
@@ -396,7 +402,11 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
           <div className="text-center">
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin)
+                // Reset form when switching modes
+                setFormData({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" })
+              }}
               className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
             >
               {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
