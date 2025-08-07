@@ -104,6 +104,10 @@ class ApiService {
     })
   }
 
+  async searchProjects(query: string) {
+    return this.request(`${API_ROUTES.PROJECTS.SEARCH}?q=${encodeURIComponent(query)}`)
+  }
+
   async deleteProject(id: string) {
     return this.request(API_ROUTES.PROJECTS.DELETE(id), {
       method: "DELETE",

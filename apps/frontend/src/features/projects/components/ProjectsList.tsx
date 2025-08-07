@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
@@ -24,14 +24,39 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const [projectToEdit, setProjectToEdit] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
-  const { projects, loading, error, createProject, deleteProject, updateProject } = useProjects()
+  const [isSearching, setIsSearching] = useState(false)
+  const { projects, loading, error, createProject, deleteProject, updateProject, searchProjects } = useProjects()
   const { toast } = useToast()
 
-  const filteredProjects = projects.filter(
-    (project) =>
-      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (project.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()),
-  )
+  // Store timeout reference
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+    setSearchQuery(query)
+    
+    // Clear previous timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    
+    if (query.length >= 3) {
+      timeoutRef.current = setTimeout(() => {
+        setIsSearching(true)
+        searchProjects(query).finally(() => setIsSearching(false))
+      }, 500)
+    }
+  }
+
+  // Client-side filter for short queries only
+  const filteredProjects = searchQuery.length < 3 
+    ? projects.filter(
+        (project) =>
+          project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (project.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()),
+      )
+    : projects // For server-side search, use all projects as they're already filtered
 
   const handleCreateProject = async (projectData: any) => {
     try {
@@ -204,9 +229,12 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
               <Input
                 placeholder="Search projects..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-10"
               />
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+              )}
             </div>
             <Button onClick={() => setShowCreateForm(true)}>
               <Plus className="h-4 w-4 mr-2" />

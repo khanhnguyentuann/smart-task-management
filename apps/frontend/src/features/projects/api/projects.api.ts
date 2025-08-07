@@ -44,6 +44,12 @@ class ProjectsApi {
         await apiService.deleteProject(id)
     }
 
+    async searchProjects(query: string): Promise<Project[]> {
+        const response = await apiService.searchProjects(query)
+        const projectsData = (response as any).data || response
+        return this.transformProjectsResponse(projectsData)
+    }
+
     private transformProjectsResponse(response: any): Project[] {
         return response.map((project: any) => this.transformProjectResponse(project))
     }

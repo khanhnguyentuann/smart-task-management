@@ -67,6 +67,18 @@ export const useProjects = () => {
     }
   }, [])
 
+  const searchProjects = async (query: string) => {
+    try {
+      setLoading(true)
+      const response = await projectsApi.searchProjects(query)
+      setProjects(response)
+    } catch (error: any) {
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchProjects()
   }, [fetchProjects])
@@ -79,6 +91,7 @@ export const useProjects = () => {
     createProject,
     updateProject,
     deleteProject,
-    getProject
+    getProject,
+    searchProjects,
   }
 } 
