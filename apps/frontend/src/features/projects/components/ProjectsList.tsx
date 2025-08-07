@@ -5,52 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Badge } from "@/shared/components/ui/badge"
-import { Search, Plus, Users, CheckSquare, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react'
+import { Search, Plus, Users, CheckSquare, MoreHorizontal, Edit, Trash2, Eye, Loader2 } from 'lucide-react'
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu"
 import { CreateProjectForm } from "@/features/projects/components/CreateProjectForm"
-
-interface User {
-  id: string
-  name: string
-  email: string
-  role: "Admin" | "Member"
-  avatar: string
-}
-
-interface Project {
-  id: string
-  name: string
-  description: string
-  members: number
-  tasks: {
-    todo: number
-    inProgress: number
-    done: number
-  }
-  userRole: "Admin" | "Member"
-  color: string
-}
-
-interface ProjectsListProps {
-  user: User
-  onProjectSelect: (id: string) => void
-}
+import { useProjects } from "@/features/projects/hooks/useProjects"
+import { useToast } from "@/shared/components/ui/use-toast"
+import type { ProjectsListProps } from "@/features/projects/types"
 
 export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [projects] = useState<Project[]>([
-    {
-      id: "1",
-      name: "Website Redesign",
-      description: "Complete overhaul of company website with modern design",
-      members: 5,
-      tasks: { todo: 8, inProgress: 3, done: 12 },
-      userRole: "Admin",
-      color: "bg-blue-500",
-    },
-  ])
+  const { projects, loading, error, createProject, deleteProject } = useProjects()
+  const { toast } = useToast()
 
   const filteredProjects = projects.filter(
     (project) =>
@@ -58,18 +25,92 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
       project.description.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
+  const handleCreateProject = async (projectData: any) => {
+    try {
+      await createProject(projectData)
+      setShowCreateForm(false)
+      toast({
+        title: "Project created successfully!",
+        description: `Project "${projectData.name}" has been created.`,
+        variant: "default",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Failed to create project",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDeleteProject = async (projectId: string, projectName: string) => {
+    try {
+      await deleteProject(projectId)
+      toast({
+        title: "Project deleted successfully!",
+        description: `Project "${projectName}" has been deleted.`,
+        variant: "default",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Failed to delete project",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
+  }
+
   if (showCreateForm) {
     return (
       <CreateProjectForm
         onBack={() => setShowCreateForm(false)}
-        onSave={(project: any) => {
-          // Here you would typically save to your backend
-          console.log("New project:", project)
-          setShowCreateForm(false)
-          // You could also update the projects list here
-        }}
+        onSave={handleCreateProject}
         currentUser={user}
       />
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-full">
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-14 items-center gap-4 px-6">
+            <SidebarTrigger />
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold">Projects</h1>
+            </div>
+          </div>
+        </header>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span>Loading projects...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-full">
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-14 items-center gap-4 px-6">
+            <SidebarTrigger />
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold">Projects</h1>
+            </div>
+          </div>
+        </header>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">Error loading projects: {error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
     )
   }
 
@@ -113,7 +154,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                       <div className={`w-3 h-3 rounded-full ${project.color}`} />
                       <div>
                         <CardTitle className="text-lg">{project.name}</CardTitle>
-                        <Badge variant={project.userRole === "Admin" ? "default" : "secondary"} className="mt-1">
+                        <Badge variant={project.userRole === "Owner" ? "default" : "secondary"} className="mt-1">
                           {project.userRole}
                         </Badge>
                       </div>
@@ -133,13 +174,16 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                           <Eye className="h-4 w-4 mr-2" />
                           View
                         </DropdownMenuItem>
-                        {project.userRole === "Admin" && (
+                        {project.userRole === "Owner" && (
                           <>
                             <DropdownMenuItem>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem 
+                              className="text-red-600"
+                              onClick={() => handleDeleteProject(project.id, project.name)}
+                            >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
@@ -155,11 +199,11 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Users className="h-4 w-4" />
-                      {project.members} members
+                      {project.memberCount} members
                     </div>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <CheckSquare className="h-4 w-4" />
-                      {project.tasks.todo + project.tasks.inProgress + project.tasks.done} tasks
+                      {project.taskStats.todo + project.taskStats.inProgress + project.taskStats.done} tasks
                     </div>
                   </div>
 
@@ -167,21 +211,21 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>Progress</span>
                       <span>
-                        {project.tasks.done}/{project.tasks.todo + project.tasks.inProgress + project.tasks.done}
+                        {project.taskStats.done}/{project.taskStats.todo + project.taskStats.inProgress + project.taskStats.done}
                       </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
                       <div
                         className="bg-blue-600 h-2 rounded-full transition-all"
                         style={{
-                          width: `${(project.tasks.done / (project.tasks.todo + project.tasks.inProgress + project.tasks.done)) * 100}%`,
+                          width: `${(project.taskStats.done / (project.taskStats.todo + project.taskStats.inProgress + project.taskStats.done)) * 100}%`,
                         }}
                       />
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-500">To Do: {project.tasks.todo}</span>
-                      <span className="text-blue-600">In Progress: {project.tasks.inProgress}</span>
-                      <span className="text-green-600">Done: {project.tasks.done}</span>
+                      <span className="text-gray-500">To Do: {project.taskStats.todo}</span>
+                      <span className="text-blue-600">In Progress: {project.taskStats.inProgress}</span>
+                      <span className="text-green-600">Done: {project.taskStats.done}</span>
                     </div>
                   </div>
 
@@ -202,7 +246,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
               <div className="text-muted-foreground">
                 {searchQuery ? "No projects found matching your search." : "No projects yet."}
               </div>
-              {user.role === "Admin" && !searchQuery && (
+              {!searchQuery && (
                 <Button className="mt-4" onClick={() => setShowCreateForm(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Project

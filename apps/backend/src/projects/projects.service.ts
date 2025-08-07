@@ -72,7 +72,7 @@ export class ProjectsService {
 
     async findAll(userId: string) {
         // Get all projects where user is a member or owner
-        return this.prisma.project.findMany({
+        const projects = await this.prisma.project.findMany({
             where: {
                 OR: [
                     { ownerId: userId },
@@ -89,19 +89,56 @@ export class ProjectsService {
                 owner: {
                     select: {
                         id: true,
+                        firstName: true,
+                        lastName: true,
                         email: true,
+                    },
+                },
+                projectUsers: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
+                tasks: {
+                    select: {
+                        id: true,
+                        title: true,
+                        description: true,
+                        status: true,
+                        priority: true,
+                        assigneeId: true,
+                        assignee: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                        createdAt: true,
+                        updatedAt: true,
                     },
                 },
                 _count: {
                     select: {
                         projectUsers: true,
+                        tasks: true,
                     },
                 },
             },
-            orderBy: {
-                createdAt: 'desc',
-            },
         });
+
+        // Add currentUserId to each project for frontend processing
+        return projects.map(project => ({
+            ...project,
+            currentUserId: userId
+        }));
     }
 
     async findOne(id: string, userId: string) {

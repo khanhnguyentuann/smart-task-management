@@ -2,43 +2,74 @@ export interface Project {
   id: string
   name: string
   description: string
-  status: "active" | "completed" | "on-hold"
-  progress: number
-  dueDate: string
+  ownerId: string
+  owner: {
+    id: string
+    firstName: string
+    lastName: string
+    email: string
+  }
   members: ProjectMember[]
   tasks: ProjectTask[]
   createdAt: string
   updatedAt: string
+  // Frontend-specific fields
+  userRole: 'Owner' | 'Member'
+  color: string
+  memberCount: number
+  taskStats: {
+    todo: number
+    inProgress: number
+    done: number
+  }
 }
 
 export interface ProjectMember {
-  id: string
-  name: string
-  email: string
-  role: "owner" | "admin" | "member"
-  avatar: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    email: string
+  }
+  joinedAt: string
 }
 
 export interface ProjectTask {
   id: string
   title: string
-  status: "todo" | "in-progress" | "completed"
-  priority: "low" | "medium" | "high"
-  assignee: string
-  dueDate: string
+  description: string
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE'
+  priority: 'LOW' | 'MEDIUM' | 'HIGH'
+  assigneeId?: string
+  assignee?: {
+    id: string
+    firstName: string
+    lastName: string
+  }
+  createdAt: string
+  updatedAt: string
 }
 
 export interface CreateProjectData {
   name: string
   description: string
-  dueDate: string
-  members: string[]
+  memberIds?: string[]
+}
+
+export interface UpdateProjectData {
+  name?: string
+  description?: string
+  memberIds?: string[]
 }
 
 export interface ProjectsListProps {
-  projects: Project[]
-  onProjectClick: (project: Project) => void
-  onCreateProject: () => void
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    email: string
+  }
+  onProjectSelect: (id: string) => void
 }
 
 export interface ProjectDetailProps {

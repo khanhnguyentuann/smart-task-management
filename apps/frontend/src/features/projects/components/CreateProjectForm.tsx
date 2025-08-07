@@ -45,10 +45,9 @@ interface CreateProjectFormProps {
   onSave: (project: any) => void
   currentUser: {
     id: string
-    name: string
+    firstName: string
+    lastName: string
     email: string
-    avatar: string
-    role: "Admin" | "Member"
   }
 }
 
@@ -208,9 +207,9 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
       teamMembers: [
         {
           id: currentUser.id,
-          name: currentUser.name,
+          name: `${currentUser.firstName} ${currentUser.lastName}`,
           email: currentUser.email,
-          avatar: currentUser.avatar,
+          avatar: "",
           role: "Admin" as const
         },
         ...selectedMembers
@@ -498,13 +497,13 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
               {/* Current user (always included) */}
               <div className="flex items-center gap-3 p-3 bg-green-100 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={currentUser.avatar || "/placeholder.svg"} alt={currentUser.name} />
+                  <AvatarImage src="/placeholder.svg" alt={`${currentUser.firstName} ${currentUser.lastName}`} />
                   <AvatarFallback>
-                    {currentUser.name.split(" ").map(n => n[0]).join("")}
+                    {(currentUser.firstName.charAt(0) + currentUser.lastName.charAt(0)).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p className="font-medium text-sm">{currentUser.name} (You)</p>
+                  <p className="font-medium text-sm">{`${currentUser.firstName} ${currentUser.lastName}`} (You)</p>
                   <p className="text-xs text-muted-foreground">{currentUser.email}</p>
                 </div>
                 <Badge>Admin</Badge>

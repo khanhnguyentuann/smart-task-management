@@ -1,4 +1,5 @@
 import { API_ROUTES } from "@/core/constants/routes"
+import { AUTH_CONSTANTS } from "@/features/auth/constants/auth.constants"
 
 class ApiService {
   private baseURL: string
@@ -22,7 +23,7 @@ class ApiService {
     }
 
     // Add auth token if available
-    const token = localStorage.getItem("authToken")
+    const token = localStorage.getItem(AUTH_CONSTANTS.TOKEN_KEY)
     if (token) {
       config.headers = {
         ...config.headers,
