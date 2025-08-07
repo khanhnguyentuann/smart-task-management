@@ -53,7 +53,7 @@ class ProjectsApi {
             if (!project.id) {
                 throw new Error('Project ID is missing')
             }
-            
+
             return {
                 id: project.id,
                 name: project.name,
@@ -112,11 +112,11 @@ class ProjectsApi {
             'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500',
             'bg-red-500', 'bg-indigo-500', 'bg-pink-500', 'bg-yellow-500'
         ]
-        
+
         if (!projectId || typeof projectId !== 'string') {
             return colors[0] // Default to first color
         }
-        
+
         const index = projectId.charCodeAt(0) % colors.length
         return colors[index]
     }

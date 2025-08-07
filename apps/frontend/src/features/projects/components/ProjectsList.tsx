@@ -9,6 +9,7 @@ import { Search, Plus, Users, CheckSquare, MoreHorizontal, Edit, Trash2, Eye, Lo
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu"
 import { CreateProjectForm } from "@/features/projects/components/CreateProjectForm"
+import { DeleteProjectDialog } from "@/features/projects/components/DeleteProjectDialog"
 import { useProjects } from "@/features/projects/hooks/useProjects"
 import { useToast } from "@/shared/components/ui/use-toast"
 import type { ProjectsListProps } from "@/features/projects/types"
@@ -16,6 +17,9 @@ import type { ProjectsListProps } from "@/features/projects/types"
 export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const { projects, loading, error, createProject, deleteProject } = useProjects()
   const { toast } = useToast()
 
@@ -44,11 +48,21 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   }
 
   const handleDeleteProject = async (projectId: string, projectName: string) => {
+    setProjectToDelete({ id: projectId, name: projectName })
+    setShowDeleteDialog(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return
+
     try {
-      await deleteProject(projectId)
+      setDeleteLoading(true)
+      await deleteProject(projectToDelete.id)
+      setShowDeleteDialog(false)
+      setProjectToDelete(null)
       toast({
         title: "Project deleted successfully!",
-        description: `Project "${projectName}" has been deleted.`,
+        description: `Project "${projectToDelete.name}" has been permanently deleted.`,
         variant: "default",
       })
     } catch (error: any) {
@@ -57,7 +71,14 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
         description: error.message,
         variant: "destructive",
       })
+    } finally {
+      setDeleteLoading(false)
     }
+  }
+
+  const handleCancelDelete = () => {
+    setShowDeleteDialog(false)
+    setProjectToDelete(null)
   }
 
   if (showCreateForm) {
@@ -180,7 +201,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="text-red-600"
                               onClick={() => handleDeleteProject(project.id, project.name)}
                             >
@@ -256,6 +277,13 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
           )}
         </div>
       </div>
+      <DeleteProjectDialog
+        isOpen={showDeleteDialog}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        loading={deleteLoading}
+        projectName={projectToDelete?.name || ""}
+      />
     </div>
   )
 } 

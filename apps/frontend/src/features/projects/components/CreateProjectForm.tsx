@@ -126,7 +126,7 @@ const projectTemplates: ProjectTemplate[] = [
 
 const availableColors = [
   "bg-blue-500",
-  "bg-green-500", 
+  "bg-green-500",
   "bg-purple-500",
   "bg-red-500",
   "bg-yellow-500",
@@ -173,7 +173,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
       email: user.email,
       role: "Member"
     }
-    
+
     setSelectedMembers(prev => {
       const exists = prev.find(m => m.id === member.id)
       if (exists) {
@@ -186,14 +186,14 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
 
   const handleSave = async () => {
     setLoading(true)
-    
+
     const projectData: CreateProjectData = {
       name: formData.name,
       description: formData.description,
       memberIds: selectedMembers.map(member => member.id),
       templateTasks: selectedTemplate?.tasks || []
     }
-    
+
     onSave(projectData)
     setLoading(false)
   }
@@ -211,13 +211,13 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
     }
   }
 
-  const filteredUsers = (users || []).filter(user => 
-    user.id !== currentUser.id && 
+  const filteredUsers = (users || []).filter(user =>
+    user.id !== currentUser.id &&
     !selectedMembers.find(member => member.id === user.id) &&
-    (memberSearch === "" || 
-     user.firstName.toLowerCase().includes(memberSearch.toLowerCase()) ||
-     user.lastName.toLowerCase().includes(memberSearch.toLowerCase()) ||
-     user.email.toLowerCase().includes(memberSearch.toLowerCase()))
+    (memberSearch === "" ||
+      user.firstName.toLowerCase().includes(memberSearch.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(memberSearch.toLowerCase()) ||
+      user.email.toLowerCase().includes(memberSearch.toLowerCase()))
   )
 
   const renderTemplateStep = () => (
@@ -239,12 +239,11 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <GlassmorphismCard 
-              className={`cursor-pointer transition-all hover:shadow-lg ${
-                selectedTemplate?.id === template.id 
-                  ? 'ring-2 ring-blue-500 shadow-lg' 
+            <GlassmorphismCard
+              className={`cursor-pointer transition-all hover:shadow-lg ${selectedTemplate?.id === template.id
+                  ? 'ring-2 ring-blue-500 shadow-lg'
                   : 'hover:shadow-md'
-              }`}
+                }`}
               onClick={() => handleTemplateSelect(template)}
             >
               <CardHeader className="pb-3">
@@ -334,7 +333,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
             <Label>Priority Level</Label>
             <Select
               value={formData.priority}
-              onValueChange={(value: "Low" | "Medium" | "High") => 
+              onValueChange={(value: "Low" | "Medium" | "High") =>
                 setFormData(prev => ({ ...prev, priority: value }))
               }
             >
@@ -358,9 +357,8 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                 <button
                   key={color}
                   type="button"
-                  className={`w-8 h-8 rounded-lg ${color} transition-all hover:scale-110 ${
-                    formData.color === color ? 'ring-2 ring-offset-2 ring-gray-400' : ''
-                  }`}
+                  className={`w-8 h-8 rounded-lg ${color} transition-all hover:scale-110 ${formData.color === color ? 'ring-2 ring-offset-2 ring-gray-400' : ''
+                    }`}
                   onClick={() => setFormData(prev => ({ ...prev, color }))}
                 />
               ))}
@@ -421,11 +419,11 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                       <p className="font-medium text-sm">{task.title}</p>
                       <p className="text-xs text-muted-foreground">{task.description}</p>
                     </div>
-                    <Badge 
+                    <Badge
                       className={
                         task.priority === "High" ? "bg-red-500 text-white" :
-                        task.priority === "Medium" ? "bg-yellow-500 text-white" :
-                        "bg-green-500 text-white"
+                          task.priority === "Medium" ? "bg-yellow-500 text-white" :
+                            "bg-green-500 text-white"
                       }
                     >
                       {task.priority}
@@ -487,19 +485,18 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                   {filteredUsers.map((user) => (
                     <div
                       key={user.id}
-                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedMembers.find(m => m.id === user.id)
+                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedMembers.find(m => m.id === user.id)
                           ? 'bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
                           : 'hover:bg-muted/50'
-                      }`}
+                        }`}
                       onClick={() => handleMemberToggle(user)}
                     >
-                                             <Avatar className="h-8 w-8">
-                         <AvatarImage src="/placeholder.svg" alt={`${user.firstName} ${user.lastName}`} />
-                         <AvatarFallback>
-                           {(user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase()}
-                         </AvatarFallback>
-                       </Avatar>
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src="/placeholder.svg" alt={`${user.firstName} ${user.lastName}`} />
+                        <AvatarFallback>
+                          {(user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex-1">
                         <p className="font-medium text-sm">{`${user.firstName} ${user.lastName}`}</p>
                         <p className="text-xs text-muted-foreground">{user.email}</p>
@@ -537,17 +534,17 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                   key={member.id}
                   className="flex items-center gap-3 p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
                 >
-                                     <Avatar className="h-8 w-8">
-                     <AvatarImage src="/placeholder.svg" alt={`${member.firstName} ${member.lastName}`} />
-                     <AvatarFallback>
-                       {(member.firstName.charAt(0) + member.lastName.charAt(0)).toUpperCase()}
-                     </AvatarFallback>
-                   </Avatar>
-                                   <div className="flex-1">
-                   <p className="font-medium text-sm">{`${member.firstName} ${member.lastName}`}</p>
-                   <p className="text-xs text-muted-foreground">{member.email}</p>
-                 </div>
-                 <Badge variant="outline">{member.role}</Badge>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="/placeholder.svg" alt={`${member.firstName} ${member.lastName}`} />
+                    <AvatarFallback>
+                      {(member.firstName.charAt(0) + member.lastName.charAt(0)).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{`${member.firstName} ${member.lastName}`}</p>
+                    <p className="text-xs text-muted-foreground">{member.email}</p>
+                  </div>
+                  <Badge variant="outline">{member.role}</Badge>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -595,23 +592,21 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
         {["template", "details", "team"].map((stepName, index) => (
           <div key={stepName} className="flex items-center gap-2">
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                step === stepName
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${step === stepName
                   ? "bg-blue-600 text-white"
                   : index < ["template", "details", "team"].indexOf(step)
-                  ? "bg-green-600 text-white"
-                  : "bg-muted text-muted-foreground"
-              }`}
+                    ? "bg-green-600 text-white"
+                    : "bg-muted text-muted-foreground"
+                }`}
             >
               {index + 1}
             </div>
             {index < 2 && (
               <div
-                className={`w-12 h-1 rounded transition-colors ${
-                  index < ["template", "details", "team"].indexOf(step)
+                className={`w-12 h-1 rounded transition-colors ${index < ["template", "details", "team"].indexOf(step)
                     ? "bg-green-600"
                     : "bg-muted"
-                }`}
+                  }`}
               />
             )}
           </div>
@@ -640,7 +635,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
             </Button>
           )}
         </div>
-        
+
         <div className="flex items-center gap-2">
           {step !== "team" ? (
             <EnhancedButton
