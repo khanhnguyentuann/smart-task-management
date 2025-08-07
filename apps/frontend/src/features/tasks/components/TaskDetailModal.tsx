@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Dialog, DialogContent } from "@/shared/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/shared/components/ui/drawer"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
@@ -734,6 +734,8 @@ export function TaskDetailModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+        <DialogTitle className="sr-only">Task Details</DialogTitle>
+        <DialogDescription className="sr-only">Detailed view of the selected task</DialogDescription>
         <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
           <h2 className="text-lg font-semibold">Task Details</h2>
           {/* Only one close button here */}

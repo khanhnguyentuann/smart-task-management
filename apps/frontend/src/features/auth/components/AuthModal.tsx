@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
@@ -152,6 +152,9 @@ export function AuthModal({ open, onOpenChange, onLogin }: AuthModalProps) {
               </span>
             </motion.div>
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {isLogin ? "Sign in to your Smart Task account" : "Create a new Smart Task account"}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

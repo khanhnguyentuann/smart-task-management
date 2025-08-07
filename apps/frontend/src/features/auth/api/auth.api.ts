@@ -30,7 +30,6 @@ class AuthApi {
                 firstName: response.user.firstName,
                 lastName: response.user.lastName,
                 email: response.user.email,
-                role: response.user.role,
                 createdAt: response.user.createdAt,
                 avatar: response.user.avatar,
                 department: response.user.department

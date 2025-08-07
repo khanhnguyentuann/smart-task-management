@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
@@ -72,6 +72,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId, user }: CreateT
             <Plus className="h-5 w-5" />
             Create New Task
           </DialogTitle>
+          <DialogDescription className="sr-only">Create a new task with title, description, priority, assignee, and deadline</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
