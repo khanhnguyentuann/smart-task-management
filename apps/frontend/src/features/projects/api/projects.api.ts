@@ -13,6 +13,10 @@ class ProjectsApi {
             const response = await apiService.createProject({
                 name: projectData.name,
                 description: projectData.description,
+                priority: projectData.priority,
+                color: projectData.color,
+                startDate: projectData.startDate,
+                endDate: projectData.endDate,
                 memberIds: projectData.memberIds,
                 templateTasks: projectData.templateTasks,
             })
@@ -53,11 +57,15 @@ class ProjectsApi {
             if (!project.id) {
                 throw new Error('Project ID is missing')
             }
-
+            
             return {
                 id: project.id,
                 name: project.name,
                 description: project.description,
+                priority: this.normalizePriorityForFrontend(project.priority) || 'Medium',
+                color: project.color || 'bg-blue-500',
+                startDate: project.startDate,
+                endDate: project.endDate,
                 ownerId: project.ownerId,
                 owner: project.owner ? {
                     id: project.owner.id,
@@ -98,7 +106,6 @@ class ProjectsApi {
                 updatedAt: project.updatedAt,
                 // Frontend-specific fields
                 userRole: project.ownerId === project.currentUserId ? 'Owner' : 'Member',
-                color: this.getProjectColor(project.id),
                 memberCount: project.projectUsers?.length || 0,
                 taskStats: this.calculateTaskStats(project.tasks || [])
             }
@@ -119,6 +126,15 @@ class ProjectsApi {
 
         const index = projectId.charCodeAt(0) % colors.length
         return colors[index]
+    }
+
+    private normalizePriorityForFrontend(priority: string): 'Low' | 'Medium' | 'High' {
+        if (!priority) return 'Medium'
+        const normalized = priority.toLowerCase()
+        if (normalized === 'low') return 'Low'
+        if (normalized === 'medium') return 'Medium'
+        if (normalized === 'high') return 'High'
+        return 'Medium'
     }
 
     private calculateTaskStats(tasks: any[]): { todo: number; inProgress: number; done: number } {

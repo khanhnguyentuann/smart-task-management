@@ -1,7 +1,11 @@
 export interface Project {
   id: string
   name: string
-  description: string
+  description?: string
+  priority: 'Low' | 'Medium' | 'High'
+  color: string
+  startDate?: string
+  endDate?: string
   ownerId: string
   owner: {
     id: string
@@ -15,7 +19,6 @@ export interface Project {
   updatedAt: string
   // Frontend-specific fields
   userRole: 'Owner' | 'Member'
-  color: string
   memberCount: number
   taskStats: {
     todo: number
@@ -53,6 +56,10 @@ export interface ProjectTask {
 export interface CreateProjectData {
   name: string
   description: string
+  priority?: 'Low' | 'Medium' | 'High'
+  color?: string
+  startDate?: string
+  endDate?: string
   memberIds?: string[]
   templateTasks?: Array<{
     title: string
@@ -62,9 +69,12 @@ export interface CreateProjectData {
 }
 
 export interface UpdateProjectData {
-  name?: string
+  name: string
   description?: string
-  memberIds?: string[]
+  priority?: 'Low' | 'Medium' | 'High'
+  color?: string
+  startDate?: string
+  endDate?: string
 }
 
 export interface ProjectsListProps {

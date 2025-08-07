@@ -11,8 +11,16 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 export class ProjectsService {
     constructor(private prisma: PrismaService) { }
 
+    private normalizePriority(priority: string): 'LOW' | 'MEDIUM' | 'HIGH' {
+        const normalized = priority.toLowerCase()
+        if (normalized === 'low') return 'LOW'
+        if (normalized === 'medium') return 'MEDIUM'
+        if (normalized === 'high') return 'HIGH'
+        return 'MEDIUM'
+    }
+
     async create(createProjectDto: CreateProjectDto, userId: string) {
-        const { name, description, memberIds = [], templateTasks = [] } = createProjectDto;
+        const { name, description, priority, color, startDate, endDate, memberIds = [], templateTasks = [] } = createProjectDto;
 
         // Check if project name already exists for this user
         const existingProject = await this.prisma.project.findFirst({
@@ -30,6 +38,10 @@ export class ProjectsService {
             data: {
                 name,
                 description,
+                priority: this.normalizePriority(priority),
+                color: color || 'bg-blue-500',
+                startDate: startDate ? new Date(startDate) : null,
+                endDate: endDate ? new Date(endDate) : null,
                 ownerId: userId,
                 projectUsers: {
                     create: [
@@ -232,7 +244,8 @@ export class ProjectsService {
             throw new NotFoundException('Project not found or access denied');
         }
 
-        return project;
+        // Add currentUserId to response for frontend processing
+        return { ...project, currentUserId: userId };
     }
 
     async update(id: string, updateProjectDto: UpdateProjectDto, userId: string) {
@@ -248,16 +261,22 @@ export class ProjectsService {
             throw new NotFoundException('Project not found or you are not the owner');
         }
 
-        return this.prisma.project.update({
+        const result = await this.prisma.project.update({
             where: { id },
             data: {
                 name: updateProjectDto.name,
                 description: updateProjectDto.description,
+                priority: this.normalizePriority(updateProjectDto.priority),
+                color: updateProjectDto.color,
+                startDate: updateProjectDto.startDate ? new Date(updateProjectDto.startDate) : null,
+                endDate: updateProjectDto.endDate ? new Date(updateProjectDto.endDate) : null,
             },
             include: {
                 owner: {
                     select: {
                         id: true,
+                        firstName: true,
+                        lastName: true,
                         email: true,
                     },
                 },
@@ -266,18 +285,43 @@ export class ProjectsService {
                         user: {
                             select: {
                                 id: true,
+                                firstName: true,
+                                lastName: true,
                                 email: true,
                             },
                         },
                     },
                 },
+                tasks: {
+                    select: {
+                        id: true,
+                        title: true,
+                        description: true,
+                        status: true,
+                        priority: true,
+                        assigneeId: true,
+                        assignee: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                        createdAt: true,
+                        updatedAt: true,
+                    },
+                },
                 _count: {
                     select: {
                         projectUsers: true,
+                        tasks: true,
                     },
                 },
             },
         });
+
+        // Add currentUserId to response for frontend processing
+        return { ...result, currentUserId: userId };
     }
 
     async remove(id: string, userId: string) {

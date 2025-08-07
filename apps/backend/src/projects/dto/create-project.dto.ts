@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MinLength, MaxLength, IsArray, IsUUID, ValidateNested } from 'class-validator';
+import { IsString, IsOptional, MinLength, MaxLength, IsArray, IsUUID, ValidateNested, IsDateString, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateTaskDto {
@@ -27,6 +27,22 @@ export class CreateProjectDto {
     @IsString()
     @MaxLength(500, { message: 'Description must not exceed 500 characters' })
     description?: string;
+
+    @IsOptional()
+    @IsEnum(['Low', 'Medium', 'High'])
+    priority?: 'Low' | 'Medium' | 'High';
+
+    @IsOptional()
+    @IsString()
+    color?: string;
+
+    @IsOptional()
+    @IsDateString()
+    startDate?: string;
+
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
 
     @IsOptional()
     @IsArray()

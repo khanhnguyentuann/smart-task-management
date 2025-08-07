@@ -34,6 +34,10 @@ model Project {
   id          String   @id @default(uuid())
   name        String
   description String?
+  priority    Priority @default(MEDIUM)
+  color       String?  @default("bg-blue-500")
+  startDate   DateTime?
+  endDate     DateTime?
   ownerId     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

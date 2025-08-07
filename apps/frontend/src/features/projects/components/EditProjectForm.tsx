@@ -50,9 +50,9 @@ export function EditProjectForm({ project, onBack, onSave, loading = false }: Ed
       name: project.name,
       description: project.description || "",
       color: project.color,
-      startDate: new Date(),
-      endDate: null,
-      priority: "Medium",
+      startDate: project.startDate ? new Date(project.startDate) : new Date(),
+      endDate: project.endDate ? new Date(project.endDate) : null,
+      priority: project.priority || "Medium",
     })
   }, [project])
 
@@ -60,6 +60,10 @@ export function EditProjectForm({ project, onBack, onSave, loading = false }: Ed
     const projectData: UpdateProjectData = {
       name: formData.name,
       description: formData.description,
+      priority: formData.priority,
+      color: formData.color,
+      startDate: formData.startDate.toISOString(),
+      endDate: formData.endDate?.toISOString(),
     }
     
     onSave(projectData)

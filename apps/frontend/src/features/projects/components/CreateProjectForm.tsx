@@ -186,14 +186,18 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
 
   const handleSave = async () => {
     setLoading(true)
-
+    
     const projectData: CreateProjectData = {
       name: formData.name,
       description: formData.description,
+      priority: formData.priority,
+      color: formData.color,
+      startDate: formData.startDate.toISOString(),
+      endDate: formData.endDate?.toISOString(),
       memberIds: selectedMembers.map(member => member.id),
       templateTasks: selectedTemplate?.tasks || []
     }
-
+    
     onSave(projectData)
     setLoading(false)
   }

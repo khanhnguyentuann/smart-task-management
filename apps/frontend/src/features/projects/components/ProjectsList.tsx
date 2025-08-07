@@ -30,7 +30,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const filteredProjects = projects.filter(
     (project) =>
       project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchQuery.toLowerCase()),
+      (project.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()),
   )
 
   const handleCreateProject = async (projectData: any) => {
