@@ -18,7 +18,6 @@ export class MembersService {
                     select: {
                         id: true,
                         email: true,
-                        role: true,
                         createdAt: true,
                     },
                 },
@@ -30,7 +29,6 @@ export class MembersService {
 
         return members.map(member => ({
             user: member.user,
-            projectRole: member.role,
             joinedAt: member.joinedAt,
         }));
     }
@@ -76,7 +74,6 @@ export class MembersService {
             data: newUserIds.map(userId => ({
                 projectId,
                 userId,
-                role: 'MEMBER',
             })),
         });
 

@@ -6,7 +6,6 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { ProjectRole, UserRole } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
@@ -34,15 +33,13 @@ export class ProjectsService {
                 ownerId: userId,
                 projectUsers: {
                     create: [
-                        // Auto-add owner as ADMIN
+                        // Auto-add owner as member
                         {
                             userId,
-                            role: ProjectRole.ADMIN,
                         },
                         // Add other members
                         ...memberIds.map((memberId) => ({
                             userId: memberId,
-                            role: ProjectRole.MEMBER,
                         })),
                     ],
                 },
@@ -52,7 +49,6 @@ export class ProjectsService {
                     select: {
                         id: true,
                         email: true,
-                        role: true,
                     },
                 },
                 projectUsers: {
@@ -61,7 +57,6 @@ export class ProjectsService {
                             select: {
                                 id: true,
                                 email: true,
-                                role: true,
                             },
                         },
                     },
@@ -75,8 +70,7 @@ export class ProjectsService {
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async findAll(userId: string, _userRole: UserRole) { // Required for future role-based filtering
+    async findAll(userId: string) {
         // Get all projects where user is a member or owner
         return this.prisma.project.findMany({
             where: {
@@ -96,7 +90,6 @@ export class ProjectsService {
                     select: {
                         id: true,
                         email: true,
-                        role: true,
                     },
                 },
                 _count: {
@@ -131,7 +124,6 @@ export class ProjectsService {
                     select: {
                         id: true,
                         email: true,
-                        role: true,
                     },
                 },
                 projectUsers: {
@@ -140,7 +132,6 @@ export class ProjectsService {
                             select: {
                                 id: true,
                                 email: true,
-                                role: true,
                             },
                         },
                     },
@@ -187,7 +178,6 @@ export class ProjectsService {
                     select: {
                         id: true,
                         email: true,
-                        role: true,
                     },
                 },
                 projectUsers: {
@@ -196,7 +186,6 @@ export class ProjectsService {
                             select: {
                                 id: true,
                                 email: true,
-                                role: true,
                             },
                         },
                     },
@@ -241,15 +230,15 @@ export class ProjectsService {
         return !!projectUser;
     }
 
-    async getProjectRole(projectId: string, userId: string): Promise<ProjectRole | null> {
-        const projectUser = await this.prisma.projectUser.findFirst({
+    async isProjectOwner(projectId: string, userId: string): Promise<boolean> {
+        const project = await this.prisma.project.findFirst({
             where: {
-                projectId,
-                userId,
+                id: projectId,
+                ownerId: userId,
             },
         });
 
-        return projectUser?.role || null;
+        return !!project;
     }
 
     async searchProjects(userId: string, query: string) {
@@ -291,7 +280,6 @@ export class ProjectsService {
                     select: {
                         id: true,
                         email: true,
-                        role: true,
                     },
                 },
                 _count: {

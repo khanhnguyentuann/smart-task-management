@@ -178,14 +178,12 @@ export class TasksService {
                     select: {
                         id: true,
                         email: true,
-                        role: true,
                     },
                 },
                 createdBy: {
                     select: {
                         id: true,
                         email: true,
-                        role: true,
                     },
                 },
                 project: {
@@ -210,13 +208,12 @@ export class TasksService {
         const task = await this.findOne(id, userId);
 
         // Check permissions
-        const userRole = await this.getUserRoleInProject(task.projectId, userId);
-        const isProjectAdmin = userRole === 'ADMIN' || task.project.ownerId === userId;
+        const isProjectOwner = task.project.ownerId === userId;
         const isAssignee = task.assigneeId === userId;
         const isCreator = task.createdById === userId;
 
         // Members can only update tasks assigned to them or created by them
-        if (!isProjectAdmin && !isAssignee && !isCreator) {
+        if (!isProjectOwner && !isAssignee && !isCreator) {
             throw new ForbiddenException('You can only update tasks assigned to you or created by you');
         }
 
@@ -265,13 +262,12 @@ export class TasksService {
     async remove(id: string, userId: string) {
         const task = await this.findOne(id, userId);
 
-        // Only project ADMIN or task creator can delete
-        const userRole = await this.getUserRoleInProject(task.projectId, userId);
-        const isProjectAdmin = userRole === 'ADMIN' || task.project.ownerId === userId;
+        // Only project owner or task creator can delete
+        const isProjectOwner = task.project.ownerId === userId;
         const isCreator = task.createdById === userId;
 
-        if (!isProjectAdmin && !isCreator) {
-            throw new ForbiddenException('Only project admin or task creator can delete tasks');
+        if (!isProjectOwner && !isCreator) {
+            throw new ForbiddenException('Only project owner or task creator can delete tasks');
         }
 
         await this.prisma.task.delete({
@@ -324,16 +320,5 @@ export class TasksService {
         });
 
         return tasks;
-    }
-
-    private async getUserRoleInProject(projectId: string, userId: string) {
-        const projectUser = await this.prisma.projectUser.findFirst({
-            where: {
-                projectId,
-                userId,
-            },
-        });
-
-        return projectUser?.role || null;
     }
 }

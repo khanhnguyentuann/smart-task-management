@@ -34,7 +34,7 @@ export class ProjectsController {
     @Get()
     @SkipResponseWrapper()
     findAll(@CurrentUser() user: User) {
-        return this.projectsService.findAll(user.id, user.role);
+        return this.projectsService.findAll(user.id);
     }
 
     @Get('search')

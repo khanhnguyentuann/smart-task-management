@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import * as argon2 from 'argon2';
 import * as dotenv from 'dotenv';
 
@@ -11,19 +11,18 @@ async function main() {
     process.stdout.write('🌱 Starting database seed...\n');
     process.stdout.write(`📍 Database URL: ${process.env.DATABASE_URL?.replace(/:[^:]*@/, ':****@')}\n`);
 
-    // Create a test admin user
-    const adminUser = await prisma.user.upsert({
-        where: { email: 'admin@test.com' },
+    // Create a test user
+    const testUser = await prisma.user.upsert({
+        where: { email: 'test@test.com' },
         update: {},
         create: {
-            firstName: 'Admin',
+            firstName: 'Test',
             lastName: 'User',
-            email: 'admin@test.com',
-            passwordHash: await argon2.hash('admin123'),
-            role: UserRole.ADMIN,
+            email: 'test@test.com',
+            passwordHash: await argon2.hash('test123'),
         },
     });
-    process.stdout.write(`✅ Created/Updated admin user: ${adminUser.email}\n`);
+    process.stdout.write(`✅ Created/Updated test user: ${testUser.email}\n`);
 
     process.stdout.write('✅ Database seed completed!\n');
 }

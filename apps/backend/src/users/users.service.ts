@@ -18,7 +18,6 @@ export class UsersService {
             select: {
                 id: true,
                 email: true,
-                role: true,
                 createdAt: true,
             },
             orderBy: {
@@ -34,7 +33,6 @@ export class UsersService {
             select: {
                 id: true,
                 email: true,
-                role: true,
                 createdAt: true,
             },
         });

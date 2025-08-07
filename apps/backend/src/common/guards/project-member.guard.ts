@@ -1,25 +1,20 @@
-import {
-    Injectable,
-    CanActivate,
-    ExecutionContext,
-    NotFoundException,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
 export class ProjectMemberGuard implements CanActivate {
-    constructor(private prisma: PrismaService) { }
+    constructor(private prisma: PrismaService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        const projectId = request.params.projectId;
+        const projectId = request.params.projectId || request.body.projectId;
 
-        if (!projectId) {
-            return true; // No project ID in route, skip this guard
+        if (!user || !projectId) {
+            throw new ForbiddenException('Access denied');
         }
 
-        // Check if user is owner or member
+        // Check if user is project owner or member
         const project = await this.prisma.project.findFirst({
             where: {
                 id: projectId,
@@ -37,11 +32,8 @@ export class ProjectMemberGuard implements CanActivate {
         });
 
         if (!project) {
-            throw new NotFoundException('Project not found or access denied');
+            throw new ForbiddenException('You are not a member of this project');
         }
-
-        // Attach project to request for use in controllers
-        request.project = project;
 
         return true;
     }

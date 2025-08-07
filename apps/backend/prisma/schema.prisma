@@ -10,14 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model - basic auth với role
+// User model - basic auth không có role
 model User {
   id           String   @id @default(uuid())
   firstName    String
   lastName     String
   email        String   @unique
   passwordHash String
-  role         UserRole @default(MEMBER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -28,11 +27,6 @@ model User {
   createdTasks  Task[]        @relation("TaskCreator")
 
   @@map("users")
-}
-
-enum UserRole {
-  ADMIN
-  MEMBER
 }
 
 // Project model
@@ -53,12 +47,11 @@ model Project {
   @@map("projects")
 }
 
-// ProjectUser model - many-to-many relation
+// ProjectUser model - many-to-many relation (không có role)
 model ProjectUser {
   userId    String
   projectId String
-  role      ProjectRole @default(MEMBER)
-  joinedAt  DateTime    @default(now())
+  joinedAt  DateTime @default(now())
 
   // Relations
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -68,11 +61,6 @@ model ProjectUser {
   @@index([projectId])
   @@index([userId])
   @@map("project_users")
-}
-
-enum ProjectRole {
-  ADMIN
-  MEMBER
 }
 
 // Task model

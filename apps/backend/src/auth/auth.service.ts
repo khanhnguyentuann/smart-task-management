@@ -34,11 +34,10 @@ export class AuthService {
                 lastName,
                 email,
                 passwordHash: hashedPassword,
-                role: 'MEMBER', // Always set role as MEMBER for new registrations
             },
         });
 
-        const tokens = await this.generateTokens(user.id, user.email, user.role);
+        const tokens = await this.generateTokens(user.id, user.email);
 
         return {
             ...tokens,
@@ -47,7 +46,6 @@ export class AuthService {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                role: user.role,
                 createdAt: user.createdAt,
             },
         };
@@ -70,7 +68,7 @@ export class AuthService {
             throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
         }
 
-        const tokens = await this.generateTokens(user.id, user.email, user.role);
+        const tokens = await this.generateTokens(user.id, user.email);
 
         return {
             ...tokens,
@@ -79,7 +77,6 @@ export class AuthService {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                role: user.role,
                 createdAt: user.createdAt,
             },
         };
@@ -97,7 +94,7 @@ export class AuthService {
             }
 
             const accessToken = await this.jwtService.signAsync(
-                { sub: user.id, email: user.email, role: user.role },
+                { sub: user.id, email: user.email },
                 {
                     expiresIn: this.configService.get('jwt.expiresIn'),
                     secret: this.configService.get('jwt.secret'),
@@ -117,8 +114,8 @@ export class AuthService {
         return;
     }
 
-    private async generateTokens(userId: string, email: string, role: string) {
-        const payload = { sub: userId, email, role };
+    private async generateTokens(userId: string, email: string) {
+        const payload = { sub: userId, email };
 
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
@@ -140,7 +137,6 @@ export class AuthService {
             select: {
                 id: true,
                 email: true,
-                role: true,
                 createdAt: true,
                 updatedAt: true,
             },
