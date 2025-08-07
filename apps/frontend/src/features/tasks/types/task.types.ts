@@ -1,15 +1,17 @@
+import { PROJECTS_CONSTANTS } from "@/features/projects"
+
 export interface Task {
   id: string
   title: string
-  description: string
-  status: "todo" | "in-progress" | "completed"
-  priority: "low" | "medium" | "high"
-  assignee: string
-  assigneeAvatar: string
+  aiSummary: string
+  priority: typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]
+  assignee: {
+    name: string
+    avatar: string
+  }
+  deadline: string
+  status: typeof PROJECTS_CONSTANTS.TASK_STATUS[keyof typeof PROJECTS_CONSTANTS.TASK_STATUS]
   project: string
-  dueDate: string
-  createdAt: string
-  updatedAt: string
 }
 
 export interface TaskFilters {

@@ -10,33 +10,10 @@ import { ArrowLeft, Plus, Users, Settings, CheckSquare, Clock, AlertTriangle, Sp
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal"
 import { AnimatedTaskCard } from "@/shared/components/ui/animated-task-card"
-
-interface User {
-  name: string
-  email: string
-  role: "Admin" | "Member"
-  avatar: string
-}
-
-interface Task {
-  id: string
-  title: string
-  aiSummary: string
-  priority: "Low" | "Medium" | "High"
-  assignee: {
-    name: string
-    avatar: string
-  }
-  deadline: string
-  status: "todo" | "inProgress" | "done"
-  project: string
-}
-
-interface ProjectDetailProps {
-  projectId: string | null
-  user: User
-  onBack: () => void
-}
+import { PROJECTS_CONSTANTS } from "../constants"
+import { getPriorityColor, getDeadlineStatus } from "../utils"
+import { ProjectDetailProps } from "../types"
+import { Task } from "@/features/tasks/types/task.types"
 
 export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
   const [showCreateTask, setShowCreateTask] = useState(false)
@@ -45,9 +22,9 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
     name: "Website Redesign",
     description: "Complete overhaul of company website with modern design and improved user experience",
     members: [
-      { name: "John Doe", avatar: "/placeholder.svg?height=32&width=32", role: "Admin" },
-      { name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32", role: "Member" },
-      { name: "Mike Johnson", avatar: "/placeholder.svg?height=32&width=32", role: "Member" },
+      { name: "John Doe", avatar: "/placeholder.svg?height=32&width=32", role: PROJECTS_CONSTANTS.ROLES.ADMIN },
+      { name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32", role: PROJECTS_CONSTANTS.ROLES.MEMBER },
+      { name: "Mike Johnson", avatar: "/placeholder.svg?height=32&width=32", role: PROJECTS_CONSTANTS.ROLES.MEMBER },
     ],
   })
 
@@ -57,58 +34,33 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
       title: "Design new homepage layout",
       aiSummary:
         "Create modern, responsive homepage with hero section, feature highlights, and improved navigation structure",
-      priority: "High",
+      priority: PROJECTS_CONSTANTS.PRIORITY.HIGH,
       assignee: { name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32" },
       deadline: "2024-02-15",
-      status: "inProgress",
+      status: PROJECTS_CONSTANTS.TASK_STATUS.IN_PROGRESS,
       project: "Website Redesign",
     },
     {
       id: "2",
       title: "Implement user authentication",
       aiSummary: "Develop secure login/signup system with password reset functionality and social media integration",
-      priority: "Medium",
+      priority: PROJECTS_CONSTANTS.PRIORITY.MEDIUM,
       assignee: { name: "Mike Johnson", avatar: "/placeholder.svg?height=32&width=32" },
       deadline: "2024-02-20",
-      status: "todo",
+      status: PROJECTS_CONSTANTS.TASK_STATUS.TODO,
       project: "Website Redesign",
     },
     {
       id: "3",
       title: "Optimize page loading speed",
       aiSummary: "Improve website performance through image optimization, code splitting, and caching strategies",
-      priority: "Low",
+      priority: PROJECTS_CONSTANTS.PRIORITY.LOW,
       assignee: { name: "John Doe", avatar: "/placeholder.svg?height=32&width=32" },
       deadline: "2024-02-10",
-      status: "done",
+      status: PROJECTS_CONSTANTS.TASK_STATUS.DONE,
       project: "Website Redesign",
     },
   ])
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "High":
-        return "bg-red-500"
-      case "Medium":
-        return "bg-yellow-500"
-      case "Low":
-        return "bg-green-500"
-      default:
-        return "bg-gray-500"
-    }
-  }
-
-  const getDeadlineStatus = (deadline: string) => {
-    const today = new Date()
-    const deadlineDate = new Date(deadline)
-    const diffTime = deadlineDate.getTime() - today.getTime()
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-    if (diffDays < 0) return { color: "text-red-600", label: "Overdue" }
-    if (diffDays === 0) return { color: "text-yellow-600", label: "Due today" }
-    if (diffDays <= 3) return { color: "text-yellow-600", label: `Due in ${diffDays} days` }
-    return { color: "text-muted-foreground", label: `Due in ${diffDays} days` }
-  }
 
   const TaskCard = ({ task }: { task: Task }) => {
     const deadlineStatus = getDeadlineStatus(task.deadline)
@@ -152,9 +104,9 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
   }
 
   const tasksByStatus = {
-    todo: tasks.filter((task) => task.status === "todo"),
-    inProgress: tasks.filter((task) => task.status === "inProgress"),
-    done: tasks.filter((task) => task.status === "done"),
+    todo: tasks.filter((task) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.TODO),
+    inProgress: tasks.filter((task) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.IN_PROGRESS),
+    done: tasks.filter((task) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.DONE),
   }
 
   return (
@@ -240,7 +192,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.todo.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={task} />
+                      <AnimatedTaskCard key={task.id} task={task as any} />
                     ))}
                   </div>
                 </div>
@@ -255,7 +207,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.inProgress.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={task} />
+                      <AnimatedTaskCard key={task.id} task={task as any} />
                     ))}
                   </div>
                 </div>
@@ -270,7 +222,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.done.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={task} />
+                      <AnimatedTaskCard key={task.id} task={task as any} />
                     ))}
                   </div>
                 </div>
@@ -298,7 +250,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                           </Avatar>
                           <div>
                             <p className="font-medium">{member.name}</p>
-                            <Badge variant={member.role === "Admin" ? "default" : "secondary"}>{member.role}</Badge>
+                            <Badge variant={member.role === PROJECTS_CONSTANTS.ROLES.ADMIN ? "default" : "secondary"}>{member.role}</Badge>
                           </div>
                         </div>
                       </div>

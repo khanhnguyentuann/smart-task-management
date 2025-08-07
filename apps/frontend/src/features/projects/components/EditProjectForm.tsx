@@ -12,36 +12,22 @@ import { motion } from "framer-motion"
 import { format } from "date-fns"
 import { Save, ArrowLeft, CalendarIcon } from 'lucide-react'
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
-import type { Project, UpdateProjectData } from "@/features/projects/types"
+import { PROJECTS_CONSTANTS } from "../constants"
+import { validateUpdateProject } from "../validation"
+import { useToast } from "@/shared/components/ui/use-toast"
+import type { EditProjectFormProps, UpdateProjectData } from "@/features/projects/types"
 
-interface EditProjectFormProps {
-  project: Project
-  onBack: () => void
-  onSave: (projectData: UpdateProjectData) => void
-  loading?: boolean
-}
-
-const availableColors = [
-  "bg-blue-500",
-  "bg-green-500", 
-  "bg-purple-500",
-  "bg-red-500",
-  "bg-yellow-500",
-  "bg-pink-500",
-  "bg-indigo-500",
-  "bg-orange-500",
-  "bg-teal-500",
-  "bg-cyan-500"
-]
+const availableColors = PROJECTS_CONSTANTS.COLORS
 
 export function EditProjectForm({ project, onBack, onSave, loading = false }: EditProjectFormProps) {
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: project.name,
     description: project.description || "",
     color: project.color,
     startDate: new Date(),
     endDate: null as Date | null,
-    priority: "Medium" as "Low" | "Medium" | "High",
+    priority: PROJECTS_CONSTANTS.PRIORITY.MEDIUM as typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY],
   })
 
   useEffect(() => {
@@ -52,7 +38,7 @@ export function EditProjectForm({ project, onBack, onSave, loading = false }: Ed
       color: project.color,
       startDate: project.startDate ? new Date(project.startDate) : new Date(),
       endDate: project.endDate ? new Date(project.endDate) : null,
-      priority: project.priority || "Medium",
+      priority: project.priority || PROJECTS_CONSTANTS.PRIORITY.MEDIUM,
     })
   }, [project])
 
@@ -65,7 +51,19 @@ export function EditProjectForm({ project, onBack, onSave, loading = false }: Ed
       startDate: formData.startDate.toISOString(),
       endDate: formData.endDate?.toISOString(),
     }
-    
+
+    // Validate project data
+    const validation = validateUpdateProject(projectData)
+    if (!validation.success) {
+      console.error('Validation failed:', validation.error)
+      toast({
+        title: PROJECTS_CONSTANTS.MESSAGES.VALIDATION_ERROR,
+        description: validation.error.errors?.[0]?.message || PROJECTS_CONSTANTS.MESSAGES.VALIDATION_GENERIC,
+        variant: "destructive",
+      })
+      return
+    }
+
     onSave(projectData)
   }
 
@@ -135,7 +133,7 @@ export function EditProjectForm({ project, onBack, onSave, loading = false }: Ed
               <Label>Priority Level</Label>
               <Select
                 value={formData.priority}
-                onValueChange={(value: "Low" | "Medium" | "High") => 
+                onValueChange={(value: typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]) =>
                   setFormData(prev => ({ ...prev, priority: value }))
                 }
               >
@@ -143,9 +141,9 @@ export function EditProjectForm({ project, onBack, onSave, loading = false }: Ed
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Low">Low Priority</SelectItem>
-                  <SelectItem value="Medium">Medium Priority</SelectItem>
-                  <SelectItem value="High">High Priority</SelectItem>
+                  <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.LOW}>Low Priority</SelectItem>
+                  <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.MEDIUM}>Medium Priority</SelectItem>
+                  <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.HIGH}>High Priority</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -159,9 +157,8 @@ export function EditProjectForm({ project, onBack, onSave, loading = false }: Ed
                   <button
                     key={color}
                     type="button"
-                    className={`w-8 h-8 rounded-lg ${color} transition-all hover:scale-110 ${
-                      formData.color === color ? 'ring-2 ring-offset-2 ring-gray-400' : ''
-                    }`}
+                    className={`w-8 h-8 rounded-lg ${color} transition-all hover:scale-110 ${formData.color === color ? 'ring-2 ring-offset-2 ring-gray-400' : ''
+                      }`}
                     onClick={() => setFormData(prev => ({ ...prev, color }))}
                   />
                 ))}
@@ -218,7 +215,7 @@ export function EditProjectForm({ project, onBack, onSave, loading = false }: Ed
             Cancel
           </Button>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <EnhancedButton
             onClick={handleSave}

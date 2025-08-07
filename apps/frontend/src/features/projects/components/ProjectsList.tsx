@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
@@ -14,6 +14,9 @@ import { EditProjectForm } from "@/features/projects/components/EditProjectForm"
 import { useProjects } from "@/features/projects/hooks/useProjects"
 import { useToast } from "@/shared/components/ui/use-toast"
 import type { ProjectsListProps } from "@/features/projects/types"
+import { PROJECTS_CONSTANTS } from "../constants"
+import { validateSearchQuery } from "../validation"
+import { filterProjectsByQuery, formatProjectError } from "../utils"
 
 export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const [searchQuery, setSearchQuery] = useState("")
@@ -35,27 +38,30 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value
     setSearchQuery(query)
-    
+
     // Clear previous timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
-    
-    if (query.length >= 3) {
+
+    if (query.length >= PROJECTS_CONSTANTS.LIMITS.SEARCH_MIN_LENGTH) {
+      // Validate search query
+      const validation = validateSearchQuery(query)
+      if (!validation.success) {
+        console.error('Search validation failed:', validation.error)
+        return
+      }
+
       timeoutRef.current = setTimeout(() => {
         setIsSearching(true)
         searchProjects(query).finally(() => setIsSearching(false))
-      }, 500)
+      }, PROJECTS_CONSTANTS.LIMITS.SEARCH_DEBOUNCE_MS)
     }
   }
 
   // Client-side filter for short queries only
-  const filteredProjects = searchQuery.length < 3 
-    ? projects.filter(
-        (project) =>
-          project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (project.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()),
-      )
+  const filteredProjects = searchQuery.length < PROJECTS_CONSTANTS.LIMITS.SEARCH_MIN_LENGTH
+    ? filterProjectsByQuery(projects, searchQuery)
     : projects // For server-side search, use all projects as they're already filtered
 
   const handleCreateProject = async (projectData: any) => {
@@ -63,14 +69,14 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
       await createProject(projectData)
       setShowCreateForm(false)
       toast({
-        title: "Project created successfully!",
+        title: PROJECTS_CONSTANTS.MESSAGES.CREATE_SUCCESS,
         description: `Project "${projectData.name}" has been created.`,
         variant: "default",
       })
     } catch (error: any) {
       toast({
-        title: "Failed to create project",
-        description: error.message,
+        title: PROJECTS_CONSTANTS.MESSAGES.CREATE_FAILED,
+        description: formatProjectError(error),
         variant: "destructive",
       })
     }
@@ -95,14 +101,14 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
       setShowEditForm(false)
       setProjectToEdit(null)
       toast({
-        title: "Project updated successfully!",
+        title: PROJECTS_CONSTANTS.MESSAGES.UPDATE_SUCCESS,
         description: `Project "${projectData.name}" has been updated.`,
         variant: "default",
       })
     } catch (error: any) {
       toast({
-        title: "Failed to update project",
-        description: error.message,
+        title: PROJECTS_CONSTANTS.MESSAGES.UPDATE_FAILED,
+        description: formatProjectError(error),
         variant: "destructive",
       })
     } finally {
@@ -124,14 +130,14 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
       setShowDeleteDialog(false)
       setProjectToDelete(null)
       toast({
-        title: "Project deleted successfully!",
+        title: PROJECTS_CONSTANTS.MESSAGES.DELETE_SUCCESS,
         description: `Project "${projectToDelete.name}" has been permanently deleted.`,
         variant: "default",
       })
     } catch (error: any) {
       toast({
-        title: "Failed to delete project",
-        description: error.message,
+        title: PROJECTS_CONSTANTS.MESSAGES.DELETE_FAILED,
+        description: formatProjectError(error),
         variant: "destructive",
       })
     } finally {
@@ -252,7 +258,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                       <div className={`w-3 h-3 rounded-full ${project.color}`} />
                       <div>
                         <CardTitle className="text-lg">{project.name}</CardTitle>
-                        <Badge variant={project.userRole === "Owner" ? "default" : "secondary"} className="mt-1">
+                        <Badge variant={project.userRole === PROJECTS_CONSTANTS.ROLES.OWNER ? "default" : "secondary"} className="mt-1">
                           {project.userRole}
                         </Badge>
                       </div>
@@ -272,7 +278,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                           <Eye className="h-4 w-4 mr-2" />
                           View
                         </DropdownMenuItem>
-                        {project.userRole === "Owner" && (
+                        {project.userRole === PROJECTS_CONSTANTS.ROLES.OWNER && (
                           <>
                             <DropdownMenuItem onClick={() => handleEditProject(project)}>
                               <Edit className="h-4 w-4 mr-2" />

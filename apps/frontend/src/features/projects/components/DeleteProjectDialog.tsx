@@ -14,14 +14,7 @@ import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { AlertTriangle, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/shared/components/ui/alert"
-
-interface DeleteProjectDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => void
-  projectName: string
-  loading?: boolean
-}
+import { DeleteProjectDialogProps } from "../types"
 
 export function DeleteProjectDialog({
   isOpen,

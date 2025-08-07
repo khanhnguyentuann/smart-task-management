@@ -15,11 +15,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus, Sparkles, CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/shared/lib/utils"
+import { PROJECTS_CONSTANTS } from "@/features/projects/constants"
 
 interface User {
   name: string
   email: string
-  role: "Admin" | "Member"
+  role: typeof PROJECTS_CONSTANTS.ROLES[keyof typeof PROJECTS_CONSTANTS.ROLES]
   avatar: string
 }
 
@@ -33,7 +34,7 @@ interface CreateTaskModalProps {
 export function CreateTaskModal({ open, onOpenChange, projectId, user }: CreateTaskModalProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [priority, setPriority] = useState("Medium")
+  const [priority, setPriority] = useState<typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]>(PROJECTS_CONSTANTS.PRIORITY.MEDIUM)
   const [assignee, setAssignee] = useState("")
   const [deadline, setDeadline] = useState<Date>()
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
@@ -103,14 +104,14 @@ export function CreateTaskModal({ open, onOpenChange, projectId, user }: CreateT
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="priority">Priority</Label>
-                <Select value={priority} onValueChange={setPriority}>
+                <Select value={priority} onValueChange={(value: typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]) => setPriority(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Low">Low</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="High">High</SelectItem>
+                    <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.LOW}>Low</SelectItem>
+                    <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.MEDIUM}>Medium</SelectItem>
+                    <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.HIGH}>High</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

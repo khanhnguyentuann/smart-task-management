@@ -8,134 +8,37 @@ import { Textarea } from "@/shared/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
 import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
-import { Separator } from "@/shared/components/ui/separator"
+import { CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { ScrollArea } from "@/shared/components/ui/scroll-area"
 import { Calendar } from "@/shared/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover"
 import { motion } from "framer-motion"
 import { format } from "date-fns"
-import { Plus, X, Users, CalendarIcon, Tag, Palette, Save, ArrowLeft, FolderPlus, Target, Clock, Star, Search } from 'lucide-react'
+import { X, Users, CalendarIcon, Save, ArrowLeft, FolderPlus, Search } from 'lucide-react'
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
 import { useUsers } from "@/features/projects/hooks/useUsers"
-import type { CreateProjectData } from "@/features/projects/types"
+import { useToast } from "@/shared/components/ui/use-toast"
+import { PROJECTS_CONSTANTS } from "../constants"
+import { validateCreateProject } from "../validation"
+import { getTemplateById, formatProjectError } from "../utils"
+import type { CreateProjectData, CreateProjectFormProps, ProjectTemplate, TeamMember } from "../types"
 
-interface TeamMember {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  role: "Admin" | "Member" | "Viewer"
+// Get all available templates using the utils function
+const getProjectTemplates = (): ProjectTemplate[] => {
+  return Object.values(PROJECTS_CONSTANTS.TEMPLATES).map(templateId =>
+    getTemplateById(templateId) || {
+      id: PROJECTS_CONSTANTS.TEMPLATES.EMPTY,
+      name: "Empty Project",
+      description: "Start with a blank canvas and create your own tasks",
+      color: "bg-gray-500",
+      icon: FolderPlus,
+      tasks: []
+    }
+  )
 }
 
-interface ProjectTemplate {
-  id: string
-  name: string
-  description: string
-  color: string
-  icon: any
-  tasks: Array<{
-    title: string
-    description: string
-    priority: "Low" | "Medium" | "High"
-  }>
-}
-
-interface CreateProjectFormProps {
-  onBack: () => void
-  onSave: (project: CreateProjectData) => void
-  currentUser: {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-  }
-}
-
-const projectTemplates: ProjectTemplate[] = [
-  {
-    id: "empty",
-    name: "Empty Project",
-    description: "Start with a blank canvas and create your own tasks",
-    color: "bg-gray-500",
-    icon: FolderPlus,
-    tasks: []
-  },
-  {
-    id: "web-dev",
-    name: "Web Development",
-    description: "Complete web application development project",
-    color: "bg-blue-500",
-    icon: FolderPlus,
-    tasks: [
-      { title: "Setup development environment", description: "Configure tools and dependencies", priority: "High" },
-      { title: "Design system creation", description: "Create UI components and style guide", priority: "Medium" },
-      { title: "Frontend development", description: "Build user interface", priority: "High" },
-      { title: "Backend API development", description: "Create server-side functionality", priority: "High" },
-      { title: "Testing and QA", description: "Test application functionality", priority: "Medium" },
-      { title: "Deployment setup", description: "Configure production environment", priority: "High" },
-    ]
-  },
-  {
-    id: "marketing",
-    name: "Marketing Campaign",
-    description: "Launch and manage marketing campaigns",
-    color: "bg-green-500",
-    icon: Target,
-    tasks: [
-      { title: "Market research", description: "Analyze target audience and competitors", priority: "High" },
-      { title: "Content creation", description: "Create marketing materials", priority: "Medium" },
-      { title: "Campaign launch", description: "Execute marketing campaign", priority: "High" },
-      { title: "Performance tracking", description: "Monitor and analyze results", priority: "Medium" },
-      { title: "A/B testing", description: "Test different campaign variations", priority: "Low" },
-      { title: "Report generation", description: "Create campaign performance reports", priority: "Medium" },
-    ]
-  },
-  {
-    id: "product-launch",
-    name: "Product Launch",
-    description: "Plan and execute product launch strategy",
-    color: "bg-purple-500",
-    icon: Star,
-    tasks: [
-      { title: "Product roadmap", description: "Define product features and timeline", priority: "High" },
-      { title: "Beta testing", description: "Test product with select users", priority: "Medium" },
-      { title: "Launch preparation", description: "Prepare marketing and support materials", priority: "High" },
-      { title: "Go-to-market execution", description: "Execute launch strategy", priority: "High" },
-      { title: "Customer feedback collection", description: "Gather user feedback and reviews", priority: "Medium" },
-      { title: "Post-launch optimization", description: "Optimize based on user feedback", priority: "Medium" },
-    ]
-  },
-  {
-    id: "event-planning",
-    name: "Event Planning",
-    description: "Organize and manage events or conferences",
-    color: "bg-orange-500",
-    icon: CalendarIcon,
-    tasks: [
-      { title: "Event concept and planning", description: "Define event goals and structure", priority: "High" },
-      { title: "Venue selection and booking", description: "Find and secure event location", priority: "High" },
-      { title: "Speaker and content coordination", description: "Manage speakers and presentations", priority: "Medium" },
-      { title: "Marketing and promotion", description: "Promote event to target audience", priority: "Medium" },
-      { title: "Logistics coordination", description: "Arrange catering, equipment, and services", priority: "High" },
-      { title: "Event execution and follow-up", description: "Run event and gather feedback", priority: "High" },
-    ]
-  }
-]
-
-const availableColors = [
-  "bg-blue-500",
-  "bg-green-500",
-  "bg-purple-500",
-  "bg-red-500",
-  "bg-yellow-500",
-  "bg-pink-500",
-  "bg-indigo-500",
-  "bg-orange-500",
-  "bg-teal-500",
-  "bg-cyan-500"
-]
+const availableColors = PROJECTS_CONSTANTS.COLORS
 
 export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProjectFormProps) {
   const [step, setStep] = useState<"template" | "details" | "team">("template")
@@ -146,13 +49,14 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
     color: "bg-blue-500",
     startDate: new Date(),
     endDate: null as Date | null,
-    priority: "Medium" as "Low" | "Medium" | "High",
+    priority: PROJECTS_CONSTANTS.PRIORITY.MEDIUM as typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY],
     isPublic: false
   })
   const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(false)
   const [memberSearch, setMemberSearch] = useState("")
-  const { users, loading: usersLoading, fetchUsers } = useUsers()
+  const { users, loading: usersLoading } = useUsers()
+  const { toast } = useToast()
 
   const handleTemplateSelect = (template: ProjectTemplate) => {
     setSelectedTemplate(template)
@@ -171,7 +75,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      role: "Member"
+      role: PROJECTS_CONSTANTS.ROLES.MEMBER
     }
 
     setSelectedMembers(prev => {
@@ -186,7 +90,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
 
   const handleSave = async () => {
     setLoading(true)
-    
+
     const projectData: CreateProjectData = {
       name: formData.name,
       description: formData.description,
@@ -197,7 +101,20 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
       memberIds: selectedMembers.map(member => member.id),
       templateTasks: selectedTemplate?.tasks || []
     }
-    
+
+    // Validate project data
+    const validation = validateCreateProject(projectData)
+    if (!validation.success) {
+      console.error('Validation failed:', validation.error)
+      toast({
+        title: PROJECTS_CONSTANTS.MESSAGES.VALIDATION_ERROR,
+        description: validation.error.errors?.[0]?.message || PROJECTS_CONSTANTS.MESSAGES.VALIDATION_GENERIC,
+        variant: "destructive",
+      })
+      setLoading(false)
+      return
+    }
+
     onSave(projectData)
     setLoading(false)
   }
@@ -236,7 +153,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {projectTemplates.map((template, index) => (
+        {getProjectTemplates().map((template: ProjectTemplate, index: number) => (
           <motion.div
             key={template.id}
             initial={{ opacity: 0, y: 20 }}
@@ -245,8 +162,8 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
           >
             <GlassmorphismCard
               className={`cursor-pointer transition-all hover:shadow-lg ${selectedTemplate?.id === template.id
-                  ? 'ring-2 ring-blue-500 shadow-lg'
-                  : 'hover:shadow-md'
+                ? 'ring-2 ring-blue-500 shadow-lg'
+                : 'hover:shadow-md'
                 }`}
               onClick={() => handleTemplateSelect(template)}
             >
@@ -268,7 +185,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Includes {template.tasks.length} tasks:</p>
                     <div className="space-y-1">
-                      {template.tasks.slice(0, 3).map((task, idx) => (
+                      {template.tasks.slice(0, 3).map((task: any, idx: number) => (
                         <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
                           <div className="w-1 h-1 bg-muted-foreground rounded-full" />
                           {task.title}
@@ -337,7 +254,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
             <Label>Priority Level</Label>
             <Select
               value={formData.priority}
-              onValueChange={(value: "Low" | "Medium" | "High") =>
+              onValueChange={(value: typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]) =>
                 setFormData(prev => ({ ...prev, priority: value }))
               }
             >
@@ -345,9 +262,9 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Low">Low Priority</SelectItem>
-                <SelectItem value="Medium">Medium Priority</SelectItem>
-                <SelectItem value="High">High Priority</SelectItem>
+                <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.LOW}>Low Priority</SelectItem>
+                <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.MEDIUM}>Medium Priority</SelectItem>
+                <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.HIGH}>High Priority</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -417,7 +334,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
           <GlassmorphismCard>
             <CardContent className="p-4">
               <div className="space-y-2">
-                {selectedTemplate.tasks.map((task, idx) => (
+                {selectedTemplate.tasks.map((task: any, idx: number) => (
                   <div key={idx} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg">
                     <div>
                       <p className="font-medium text-sm">{task.title}</p>
@@ -425,8 +342,8 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                     </div>
                     <Badge
                       className={
-                        task.priority === "High" ? "bg-red-500 text-white" :
-                          task.priority === "Medium" ? "bg-yellow-500 text-white" :
+                        task.priority === PROJECTS_CONSTANTS.PRIORITY.HIGH ? "bg-red-500 text-white" :
+                          task.priority === PROJECTS_CONSTANTS.PRIORITY.MEDIUM ? "bg-yellow-500 text-white" :
                             "bg-green-500 text-white"
                       }
                     >
@@ -490,8 +407,8 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                     <div
                       key={user.id}
                       className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedMembers.find(m => m.id === user.id)
-                          ? 'bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-                          : 'hover:bg-muted/50'
+                        ? 'bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+                        : 'hover:bg-muted/50'
                         }`}
                       onClick={() => handleMemberToggle(user)}
                     >
@@ -597,10 +514,10 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
           <div key={stepName} className="flex items-center gap-2">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${step === stepName
-                  ? "bg-blue-600 text-white"
-                  : index < ["template", "details", "team"].indexOf(step)
-                    ? "bg-green-600 text-white"
-                    : "bg-muted text-muted-foreground"
+                ? "bg-blue-600 text-white"
+                : index < ["template", "details", "team"].indexOf(step)
+                  ? "bg-green-600 text-white"
+                  : "bg-muted text-muted-foreground"
                 }`}
             >
               {index + 1}
@@ -608,8 +525,8 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
             {index < 2 && (
               <div
                 className={`w-12 h-1 rounded transition-colors ${index < ["template", "details", "team"].indexOf(step)
-                    ? "bg-green-600"
-                    : "bg-muted"
+                  ? "bg-green-600"
+                  : "bg-muted"
                   }`}
               />
             )}
