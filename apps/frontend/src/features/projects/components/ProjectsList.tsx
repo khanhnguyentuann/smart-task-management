@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Badge } from "@/shared/components/ui/badge"
-import { Search, Plus, Users, CheckSquare, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react"
+import { Search, Plus, Users, CheckSquare, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react'
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu"
-import { CreateProjectModal } from "@/features/projects/components/CreateProjectModal"
+import { CreateProjectForm } from "@/features/projects/components/CreateProjectForm"
 
 interface User {
+  id: string
   name: string
   email: string
   role: "Admin" | "Member"
@@ -38,7 +39,7 @@ interface ProjectsListProps {
 
 export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const [searchQuery, setSearchQuery] = useState("")
-  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showCreateForm, setShowCreateForm] = useState(false)
   const [projects] = useState<Project[]>([
     {
       id: "1",
@@ -49,24 +50,6 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
       userRole: "Admin",
       color: "bg-blue-500",
     },
-    {
-      id: "2",
-      name: "Mobile App Development",
-      description: "Native iOS and Android app for customer engagement",
-      members: 8,
-      tasks: { todo: 15, inProgress: 7, done: 23 },
-      userRole: "Member",
-      color: "bg-green-500",
-    },
-    {
-      id: "3",
-      name: "Database Migration",
-      description: "Migrate legacy database to cloud infrastructure",
-      members: 3,
-      tasks: { todo: 4, inProgress: 2, done: 8 },
-      userRole: "Admin",
-      color: "bg-purple-500",
-    },
   ])
 
   const filteredProjects = projects.filter(
@@ -74,6 +57,21 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
       project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.description.toLowerCase().includes(searchQuery.toLowerCase()),
   )
+
+  if (showCreateForm) {
+    return (
+      <CreateProjectForm
+        onBack={() => setShowCreateForm(false)}
+        onSave={(project: any) => {
+          // Here you would typically save to your backend
+          console.log("New project:", project)
+          setShowCreateForm(false)
+          // You could also update the projects list here
+        }}
+        currentUser={user}
+      />
+    )
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -99,12 +97,10 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                 className="pl-10"
               />
             </div>
-            {user.role === "Admin" && (
-              <Button onClick={() => setShowCreateModal(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create New Project
-              </Button>
-            )}
+            <Button onClick={() => setShowCreateForm(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create New Project
+            </Button>
           </div>
 
           {/* Projects Grid */}
@@ -207,7 +203,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                 {searchQuery ? "No projects found matching your search." : "No projects yet."}
               </div>
               {user.role === "Admin" && !searchQuery && (
-                <Button className="mt-4" onClick={() => setShowCreateModal(true)}>
+                <Button className="mt-4" onClick={() => setShowCreateForm(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Project
                 </Button>
@@ -216,8 +212,6 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
           )}
         </div>
       </div>
-
-      <CreateProjectModal open={showCreateModal} onOpenChange={setShowCreateModal} user={user} />
     </div>
   )
 } 

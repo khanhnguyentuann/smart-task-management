@@ -54,4 +54,81 @@ export interface TaskFiltersProps {
   onFiltersChange: (filters: TaskFilters) => void
   projects: Array<{ id: string; name: string }>
   members: Array<{ id: string; name: string }>
+}
+
+export interface TaskDetail {
+  id: string
+  title: string
+  description: string
+  status: "todo" | "inProgress" | "done"
+  priority: "Low" | "Medium" | "High"
+  assignees: Array<{
+    id: string
+    name: string
+    avatar: string
+    email: string
+  }>
+  dueDate: Date | null
+  labels: Array<{
+    id: string
+    name: string
+    color: string
+  }>
+  subtasks: Array<{
+    id: string
+    title: string
+    completed: boolean
+  }>
+  attachments: Array<{
+    id: string
+    name: string
+    size: string
+    type: string
+    url: string
+    uploadedBy: string
+    uploadedAt: Date
+  }>
+  comments: Array<{
+    id: string
+    content: string
+    author: {
+      id: string
+      name: string
+      avatar: string
+    }
+    createdAt: Date
+    mentions: string[]
+  }>
+  activities: Array<{
+    id: string
+    type: string
+    description: string
+    user: {
+      id: string
+      name: string
+      avatar: string
+    }
+    timestamp: Date
+  }>
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface TaskDetailModalProps {
+  task: any | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSave?: (task: any) => void
+  onDelete?: (taskId: string) => void
+  teamMembers?: Array<{
+    id: string
+    name: string
+    avatar: string
+    email: string
+  }>
+  currentUser?: {
+    id: string
+    name: string
+    avatar: string
+  }
 } 

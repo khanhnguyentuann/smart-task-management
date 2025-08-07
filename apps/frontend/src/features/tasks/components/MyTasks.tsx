@@ -4,12 +4,14 @@ import type React from "react"
 
 import { useState } from "react"
 import { Input } from "@/shared/components/ui/input"
-import { Search, CheckSquare, Clock, AlertTriangle, Calendar } from "lucide-react"
+import { Search, CheckSquare, Clock, AlertTriangle, Calendar } from 'lucide-react'
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { AnimatedTaskCard } from "@/shared/components/ui/animated-task-card"
+import { AnimatedTaskCard } from "./AnimatedTaskCard"
+import { TaskDetailModal } from "./TaskDetailModal"
 
 interface User {
+  id: string
   name: string
   email: string
   role: "Admin" | "Member"
@@ -51,37 +53,31 @@ export function MyTasks({ user }: MyTasksProps) {
       deadline: "2024-02-15",
       assignee: { name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32" },
     },
-    {
-      id: "2",
-      title: "Update user authentication",
-      aiSummary: "Implement secure login system with multi-factor authentication and password reset functionality",
-      priority: "High",
-      status: "todo",
-      project: "Security Updates",
-      deadline: "2024-02-12",
-      assignee: { name: "John Doe", avatar: "/placeholder.svg?height=32&width=32" },
-    },
-    {
-      id: "3",
-      title: "Database optimization",
-      aiSummary: "Optimize database queries and implement caching strategies to improve application performance",
-      priority: "Medium",
-      status: "todo",
-      project: "Performance Improvements",
-      deadline: "2024-02-20",
-      assignee: { name: "John Doe", avatar: "/placeholder.svg?height=32&width=32" },
-    },
-    {
-      id: "4",
-      title: "Write API documentation",
-      aiSummary: "Create comprehensive API documentation with examples and integration guides for developers",
-      priority: "Low",
-      status: "done",
-      project: "Documentation",
-      deadline: "2024-02-08",
-      assignee: { name: "John Doe", avatar: "/placeholder.svg?height=32&width=32" },
-    },
   ])
+
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [showTaskDetail, setShowTaskDetail] = useState(false)
+
+  const teamMembers = [
+    { id: "1", name: "John Doe", avatar: "/placeholder.svg?height=32&width=32", email: "john@company.com" },
+    { id: "2", name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32", email: "sarah@company.com" },
+    { id: "3", name: "Mike Johnson", avatar: "/placeholder.svg?height=32&width=32", email: "mike@company.com" },
+  ]
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task)
+    setShowTaskDetail(true)
+  }
+
+  const handleTaskSave = (updatedTask: Task) => {
+    console.log("Task updated:", updatedTask)
+    setShowTaskDetail(false)
+  }
+
+  const handleTaskDelete = (taskId: string) => {
+    console.log("Task deleted:", taskId)
+    setShowTaskDetail(false)
+  }
 
   const getDeadlineStatus = (deadline: string) => {
     const today = new Date()
@@ -136,7 +132,11 @@ export function MyTasks({ user }: MyTasksProps) {
         </h3>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {tasks.map((task) => (
-            <AnimatedTaskCard key={task.id} task={task} />
+            <AnimatedTaskCard
+              key={task.id}
+              task={task}
+              onClick={() => handleTaskClick(task)}
+            />
           ))}
         </div>
       </div>
@@ -228,6 +228,19 @@ export function MyTasks({ user }: MyTasksProps) {
           )}
         </div>
       </div>
+      <TaskDetailModal
+        task={selectedTask}
+        open={showTaskDetail}
+        onOpenChange={setShowTaskDetail}
+        onSave={handleTaskSave}
+        onDelete={handleTaskDelete}
+        teamMembers={teamMembers}
+        currentUser={{
+          id: user.id,
+          name: user.name,
+          avatar: user.avatar,
+        }}
+      />
     </div>
   )
 } 
