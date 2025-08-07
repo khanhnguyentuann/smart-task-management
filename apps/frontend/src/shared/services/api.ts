@@ -99,7 +99,7 @@ class ApiService {
 
   async updateProject(id: string, projectData: any) {
     return this.request(API_ROUTES.PROJECTS.UPDATE(id), {
-      method: "PUT",
+      method: "PATCH",
       body: JSON.stringify(projectData),
     })
   }

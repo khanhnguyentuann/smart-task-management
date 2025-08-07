@@ -10,6 +10,7 @@ import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu"
 import { CreateProjectForm } from "@/features/projects/components/CreateProjectForm"
 import { DeleteProjectDialog } from "@/features/projects/components/DeleteProjectDialog"
+import { EditProjectForm } from "@/features/projects/components/EditProjectForm"
 import { useProjects } from "@/features/projects/hooks/useProjects"
 import { useToast } from "@/shared/components/ui/use-toast"
 import type { ProjectsListProps } from "@/features/projects/types"
@@ -18,9 +19,12 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<{ id: string; name: string } | null>(null)
+  const [projectToEdit, setProjectToEdit] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
-  const { projects, loading, error, createProject, deleteProject } = useProjects()
+  const [editLoading, setEditLoading] = useState(false)
+  const { projects, loading, error, createProject, deleteProject, updateProject } = useProjects()
   const { toast } = useToast()
 
   const filteredProjects = projects.filter(
@@ -50,6 +54,40 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const handleDeleteProject = async (projectId: string, projectName: string) => {
     setProjectToDelete({ id: projectId, name: projectName })
     setShowDeleteDialog(true)
+  }
+
+  const handleEditProject = (project: any) => {
+    setProjectToEdit(project)
+    setShowEditForm(true)
+  }
+
+  const handleUpdateProject = async (projectData: any) => {
+    if (!projectToEdit) return
+
+    try {
+      setEditLoading(true)
+      await updateProject(projectToEdit.id, projectData)
+      setShowEditForm(false)
+      setProjectToEdit(null)
+      toast({
+        title: "Project updated successfully!",
+        description: `Project "${projectData.name}" has been updated.`,
+        variant: "default",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Failed to update project",
+        description: error.message,
+        variant: "destructive",
+      })
+    } finally {
+      setEditLoading(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setShowEditForm(false)
+    setProjectToEdit(null)
   }
 
   const handleConfirmDelete = async () => {
@@ -87,6 +125,17 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
         onBack={() => setShowCreateForm(false)}
         onSave={handleCreateProject}
         currentUser={user}
+      />
+    )
+  }
+
+  if (showEditForm && projectToEdit) {
+    return (
+      <EditProjectForm
+        project={projectToEdit}
+        onBack={handleCancelEdit}
+        onSave={handleUpdateProject}
+        loading={editLoading}
       />
     )
   }
@@ -197,7 +246,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                         </DropdownMenuItem>
                         {project.userRole === "Owner" && (
                           <>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditProject(project)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
