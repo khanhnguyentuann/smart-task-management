@@ -31,7 +31,9 @@ export const API_ROUTES = {
     DELETE: (id: string) => `/api/tasks/${id}`,
   },
   USERS: {
+    LIST: "/api/users",
     PROFILE: "/api/users/profile",
     UPDATE: "/api/users/profile",
+    DETAIL: (id: string) => `/api/users/${id}`,
   },
 } as const 

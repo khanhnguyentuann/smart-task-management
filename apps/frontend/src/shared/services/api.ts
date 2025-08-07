@@ -140,6 +140,11 @@ class ApiService {
   }
 
   // User endpoints
+  async getUsers(search?: string) {
+    const url = search ? `${API_ROUTES.USERS.LIST}?search=${encodeURIComponent(search)}` : API_ROUTES.USERS.LIST
+    return this.request(url)
+  }
+
   async getUserProfile() {
     return this.request(API_ROUTES.USERS.PROFILE)
   }

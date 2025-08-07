@@ -1,4 +1,21 @@
-import { IsString, IsOptional, MinLength, MaxLength, IsArray, IsUUID } from 'class-validator';
+import { IsString, IsOptional, MinLength, MaxLength, IsArray, IsUUID, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class CreateTaskDto {
+    @IsString()
+    @MinLength(3, { message: 'Task title must be at least 3 characters long' })
+    @MaxLength(100, { message: 'Task title must not exceed 100 characters' })
+    title: string;
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(500, { message: 'Task description must not exceed 500 characters' })
+    description?: string;
+
+    @IsOptional()
+    @IsString()
+    priority?: 'Low' | 'Medium' | 'High';
+}
 
 export class CreateProjectDto {
     @IsString()
@@ -15,4 +32,10 @@ export class CreateProjectDto {
     @IsArray()
     @IsUUID('4', { each: true })
     memberIds?: string[];
+
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateTaskDto)
+    templateTasks?: CreateTaskDto[];
 }

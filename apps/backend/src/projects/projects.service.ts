@@ -12,7 +12,7 @@ export class ProjectsService {
     constructor(private prisma: PrismaService) { }
 
     async create(createProjectDto: CreateProjectDto, userId: string) {
-        const { name, description, memberIds = [] } = createProjectDto;
+        const { name, description, memberIds = [], templateTasks = [] } = createProjectDto;
 
         // Check if project name already exists for this user
         const existingProject = await this.prisma.project.findFirst({
@@ -26,7 +26,7 @@ export class ProjectsService {
             throw new ConflictException('Project with this name already exists');
         }
 
-        return this.prisma.project.create({
+        const result = await this.prisma.project.create({
             data: {
                 name,
                 description,
@@ -43,11 +43,23 @@ export class ProjectsService {
                         })),
                     ],
                 },
+                // Create tasks from template if provided
+                tasks: templateTasks.length > 0 ? {
+                    create: templateTasks.map((task: any) => ({
+                        title: task.title,
+                        description: task.description,
+                        status: 'TODO',
+                        priority: task.priority === 'High' ? 'HIGH' : task.priority === 'Medium' ? 'MEDIUM' : 'LOW',
+                        createdById: userId,
+                    }))
+                } : undefined,
             },
             include: {
                 owner: {
                     select: {
                         id: true,
+                        firstName: true,
+                        lastName: true,
                         email: true,
                     },
                 },
@@ -56,18 +68,46 @@ export class ProjectsService {
                         user: {
                             select: {
                                 id: true,
+                                firstName: true,
+                                lastName: true,
                                 email: true,
                             },
                         },
                     },
                 },
+                tasks: {
+                    select: {
+                        id: true,
+                        title: true,
+                        description: true,
+                        status: true,
+                        priority: true,
+                        assigneeId: true,
+                        assignee: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                        createdAt: true,
+                        updatedAt: true,
+                    },
+                },
                 _count: {
                     select: {
                         projectUsers: true,
+                        tasks: true,
                     },
                 },
             },
         });
+
+        // Add currentUserId to response for frontend processing
+        return {
+            ...result,
+            currentUserId: userId
+        };
     }
 
     async findAll(userId: string) {
@@ -160,6 +200,8 @@ export class ProjectsService {
                 owner: {
                     select: {
                         id: true,
+                        firstName: true,
+                        lastName: true,
                         email: true,
                     },
                 },
@@ -168,6 +210,8 @@ export class ProjectsService {
                         user: {
                             select: {
                                 id: true,
+                                firstName: true,
+                                lastName: true,
                                 email: true,
                             },
                         },

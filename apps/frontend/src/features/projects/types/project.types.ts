@@ -54,6 +54,11 @@ export interface CreateProjectData {
   name: string
   description: string
   memberIds?: string[]
+  templateTasks?: Array<{
+    title: string
+    description: string
+    priority: 'Low' | 'Medium' | 'High'
+  }>
 }
 
 export interface UpdateProjectData {

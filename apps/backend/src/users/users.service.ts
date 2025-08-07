@@ -6,25 +6,45 @@ export class UsersService {
     constructor(private prisma: PrismaService) { }
 
     async findAll(search?: string) {
-        return this.prisma.user.findMany({
+        const users = await this.prisma.user.findMany({
             where: search
                 ? {
-                    email: {
-                        contains: search,
-                        mode: 'insensitive',
-                    },
+                    OR: [
+                        {
+                            email: {
+                                contains: search,
+                                mode: 'insensitive',
+                            },
+                        },
+                        {
+                            firstName: {
+                                contains: search,
+                                mode: 'insensitive',
+                            },
+                        },
+                        {
+                            lastName: {
+                                contains: search,
+                                mode: 'insensitive',
+                            },
+                        },
+                    ],
                 }
                 : undefined,
             select: {
                 id: true,
+                firstName: true,
+                lastName: true,
                 email: true,
                 createdAt: true,
             },
             orderBy: {
-                email: 'asc',
+                firstName: 'asc',
             },
             take: 50, // Limit results
         });
+        
+        return users;
     }
 
     async findById(id: string) {
@@ -32,6 +52,8 @@ export class UsersService {
             where: { id },
             select: {
                 id: true,
+                firstName: true,
+                lastName: true,
                 email: true,
                 createdAt: true,
             },

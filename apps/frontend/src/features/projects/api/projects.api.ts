@@ -4,22 +4,36 @@ import type { Project, CreateProjectData, UpdateProjectData } from '../types'
 class ProjectsApi {
     async getProjects(): Promise<Project[]> {
         const response = await apiService.getProjects()
-        return this.transformProjectsResponse(response)
+        const projectsData = (response as any).data || response
+        return this.transformProjectsResponse(projectsData)
     }
 
     async createProject(projectData: CreateProjectData): Promise<Project> {
-        const response = await apiService.createProject(projectData)
-        return this.transformProjectResponse(response)
+        try {
+            const response = await apiService.createProject({
+                name: projectData.name,
+                description: projectData.description,
+                memberIds: projectData.memberIds,
+                templateTasks: projectData.templateTasks,
+            })
+            // Backend wraps response in { success: true, data: ..., timestamp: ... }
+            const actualProjectData = (response as any).data || response
+            return this.transformProjectResponse(actualProjectData)
+        } catch (error) {
+            throw new Error(`Failed to transform project data: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        }
     }
 
     async getProject(id: string): Promise<Project> {
         const response = await apiService.getProject(id)
-        return this.transformProjectResponse(response)
+        const projectData = (response as any).data || response
+        return this.transformProjectResponse(projectData)
     }
 
     async updateProject(id: string, projectData: UpdateProjectData): Promise<Project> {
         const response = await apiService.updateProject(id, projectData)
-        return this.transformProjectResponse(response)
+        const actualProjectData = (response as any).data || response
+        return this.transformProjectResponse(actualProjectData)
     }
 
     async deleteProject(id: string): Promise<void> {
@@ -31,48 +45,65 @@ class ProjectsApi {
     }
 
     private transformProjectResponse(project: any): Project {
-        return {
-            id: project.id,
-            name: project.name,
-            description: project.description,
-            ownerId: project.ownerId,
-            owner: {
-                id: project.owner.id,
-                firstName: project.owner.firstName,
-                lastName: project.owner.lastName,
-                email: project.owner.email,
-            },
-            members: project.projectUsers?.map((pu: any) => ({
-                user: {
-                    id: pu.user.id,
-                    firstName: pu.user.firstName,
-                    lastName: pu.user.lastName,
-                    email: pu.user.email,
+        if (!project) {
+            throw new Error('Invalid project data received')
+        }
+
+        try {
+            if (!project.id) {
+                throw new Error('Project ID is missing')
+            }
+            
+            return {
+                id: project.id,
+                name: project.name,
+                description: project.description,
+                ownerId: project.ownerId,
+                owner: project.owner ? {
+                    id: project.owner.id,
+                    firstName: project.owner.firstName,
+                    lastName: project.owner.lastName,
+                    email: project.owner.email,
+                } : {
+                    id: '',
+                    firstName: '',
+                    lastName: '',
+                    email: '',
                 },
-                joinedAt: pu.joinedAt,
-            })) || [],
-            tasks: project.tasks?.map((task: any) => ({
-                id: task.id,
-                title: task.title,
-                description: task.description,
-                status: task.status,
-                priority: task.priority,
-                assigneeId: task.assigneeId,
-                assignee: task.assignee ? {
-                    id: task.assignee.id,
-                    firstName: task.assignee.firstName,
-                    lastName: task.assignee.lastName,
-                } : undefined,
-                createdAt: task.createdAt,
-                updatedAt: task.updatedAt,
-            })) || [],
-            createdAt: project.createdAt,
-            updatedAt: project.updatedAt,
-            // Frontend-specific fields
-            userRole: project.ownerId === project.currentUserId ? 'Owner' : 'Member',
-            color: this.getProjectColor(project.id),
-            memberCount: project.projectUsers?.length || 0,
-            taskStats: this.calculateTaskStats(project.tasks || [])
+                members: project.projectUsers?.map((pu: any) => ({
+                    user: {
+                        id: pu.user?.id || '',
+                        firstName: pu.user?.firstName || '',
+                        lastName: pu.user?.lastName || '',
+                        email: pu.user?.email || '',
+                    },
+                    joinedAt: pu.joinedAt,
+                })) || [],
+                tasks: project.tasks?.map((task: any) => ({
+                    id: task.id,
+                    title: task.title,
+                    description: task.description,
+                    status: task.status,
+                    priority: task.priority,
+                    assigneeId: task.assigneeId,
+                    assignee: task.assignee ? {
+                        id: task.assignee.id,
+                        firstName: task.assignee.firstName,
+                        lastName: task.assignee.lastName,
+                    } : undefined,
+                    createdAt: task.createdAt,
+                    updatedAt: task.updatedAt,
+                })) || [],
+                createdAt: project.createdAt,
+                updatedAt: project.updatedAt,
+                // Frontend-specific fields
+                userRole: project.ownerId === project.currentUserId ? 'Owner' : 'Member',
+                color: this.getProjectColor(project.id),
+                memberCount: project.projectUsers?.length || 0,
+                taskStats: this.calculateTaskStats(project.tasks || [])
+            }
+        } catch (error) {
+            throw new Error(`Failed to transform project data: ${error instanceof Error ? error.message : 'Unknown error'}`)
         }
     }
 
@@ -81,6 +112,11 @@ class ProjectsApi {
             'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500',
             'bg-red-500', 'bg-indigo-500', 'bg-pink-500', 'bg-yellow-500'
         ]
+        
+        if (!projectId || typeof projectId !== 'string') {
+            return colors[0] // Default to first color
+        }
+        
         const index = projectId.charCodeAt(0) % colors.length
         return colors[index]
     }

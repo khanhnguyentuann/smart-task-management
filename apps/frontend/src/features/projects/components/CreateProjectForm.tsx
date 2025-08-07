@@ -15,15 +15,17 @@ import { Calendar } from "@/shared/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover"
 import { motion } from "framer-motion"
 import { format } from "date-fns"
-import { Plus, X, Users, CalendarIcon, Tag, Palette, Save, ArrowLeft, FolderPlus, Target, Clock, Star } from 'lucide-react'
+import { Plus, X, Users, CalendarIcon, Tag, Palette, Save, ArrowLeft, FolderPlus, Target, Clock, Star, Search } from 'lucide-react'
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
+import { useUsers } from "@/features/projects/hooks/useUsers"
+import type { CreateProjectData } from "@/features/projects/types"
 
 interface TeamMember {
   id: string
-  name: string
+  firstName: string
+  lastName: string
   email: string
-  avatar: string
   role: "Admin" | "Member" | "Viewer"
 }
 
@@ -42,7 +44,7 @@ interface ProjectTemplate {
 
 interface CreateProjectFormProps {
   onBack: () => void
-  onSave: (project: any) => void
+  onSave: (project: CreateProjectData) => void
   currentUser: {
     id: string
     firstName: string
@@ -52,6 +54,14 @@ interface CreateProjectFormProps {
 }
 
 const projectTemplates: ProjectTemplate[] = [
+  {
+    id: "empty",
+    name: "Empty Project",
+    description: "Start with a blank canvas and create your own tasks",
+    color: "bg-gray-500",
+    icon: FolderPlus,
+    tasks: []
+  },
   {
     id: "web-dev",
     name: "Web Development",
@@ -64,6 +74,7 @@ const projectTemplates: ProjectTemplate[] = [
       { title: "Frontend development", description: "Build user interface", priority: "High" },
       { title: "Backend API development", description: "Create server-side functionality", priority: "High" },
       { title: "Testing and QA", description: "Test application functionality", priority: "Medium" },
+      { title: "Deployment setup", description: "Configure production environment", priority: "High" },
     ]
   },
   {
@@ -77,6 +88,8 @@ const projectTemplates: ProjectTemplate[] = [
       { title: "Content creation", description: "Create marketing materials", priority: "Medium" },
       { title: "Campaign launch", description: "Execute marketing campaign", priority: "High" },
       { title: "Performance tracking", description: "Monitor and analyze results", priority: "Medium" },
+      { title: "A/B testing", description: "Test different campaign variations", priority: "Low" },
+      { title: "Report generation", description: "Create campaign performance reports", priority: "Medium" },
     ]
   },
   {
@@ -90,15 +103,24 @@ const projectTemplates: ProjectTemplate[] = [
       { title: "Beta testing", description: "Test product with select users", priority: "Medium" },
       { title: "Launch preparation", description: "Prepare marketing and support materials", priority: "High" },
       { title: "Go-to-market execution", description: "Execute launch strategy", priority: "High" },
+      { title: "Customer feedback collection", description: "Gather user feedback and reviews", priority: "Medium" },
+      { title: "Post-launch optimization", description: "Optimize based on user feedback", priority: "Medium" },
     ]
   },
   {
-    id: "blank",
-    name: "Blank Project",
-    description: "Start from scratch with a custom project",
-    color: "bg-gray-500",
-    icon: FolderPlus,
-    tasks: []
+    id: "event-planning",
+    name: "Event Planning",
+    description: "Organize and manage events or conferences",
+    color: "bg-orange-500",
+    icon: CalendarIcon,
+    tasks: [
+      { title: "Event concept and planning", description: "Define event goals and structure", priority: "High" },
+      { title: "Venue selection and booking", description: "Find and secure event location", priority: "High" },
+      { title: "Speaker and content coordination", description: "Manage speakers and presentations", priority: "Medium" },
+      { title: "Marketing and promotion", description: "Promote event to target audience", priority: "Medium" },
+      { title: "Logistics coordination", description: "Arrange catering, equipment, and services", priority: "High" },
+      { title: "Event execution and follow-up", description: "Run event and gather feedback", priority: "High" },
+    ]
   }
 ]
 
@@ -115,37 +137,6 @@ const availableColors = [
   "bg-cyan-500"
 ]
 
-const mockTeamMembers: TeamMember[] = [
-  {
-    id: "1",
-    name: "Sarah Wilson",
-    email: "sarah@company.com",
-    avatar: "/placeholder.svg?height=32&width=32",
-    role: "Admin"
-  },
-  {
-    id: "2", 
-    name: "Mike Johnson",
-    email: "mike@company.com",
-    avatar: "/placeholder.svg?height=32&width=32",
-    role: "Member"
-  },
-  {
-    id: "3",
-    name: "Emily Chen",
-    email: "emily@company.com", 
-    avatar: "/placeholder.svg?height=32&width=32",
-    role: "Member"
-  },
-  {
-    id: "4",
-    name: "David Brown",
-    email: "david@company.com",
-    avatar: "/placeholder.svg?height=32&width=32", 
-    role: "Viewer"
-  }
-]
-
 export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProjectFormProps) {
   const [step, setStep] = useState<"template" | "details" | "team">("template")
   const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate | null>(null)
@@ -160,6 +151,8 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
   })
   const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(false)
+  const [memberSearch, setMemberSearch] = useState("")
+  const { users, loading: usersLoading, fetchUsers } = useUsers()
 
   const handleTemplateSelect = (template: ProjectTemplate) => {
     setSelectedTemplate(template)
@@ -172,7 +165,15 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
     setStep("details")
   }
 
-  const handleMemberToggle = (member: TeamMember) => {
+  const handleMemberToggle = (user: any) => {
+    const member: TeamMember = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: "Member"
+    }
+    
     setSelectedMembers(prev => {
       const exists = prev.find(m => m.id === member.id)
       if (exists) {
@@ -186,38 +187,14 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
   const handleSave = async () => {
     setLoading(true)
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    const newProject = {
-      id: Date.now().toString(),
+    const projectData: CreateProjectData = {
       name: formData.name,
       description: formData.description,
-      color: formData.color,
-      members: selectedMembers.length + 1, // +1 for current user
-      tasks: {
-        todo: selectedTemplate?.tasks.length || 0,
-        inProgress: 0,
-        done: 0
-      },
-      userRole: "Admin" as const,
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      priority: formData.priority,
-      teamMembers: [
-        {
-          id: currentUser.id,
-          name: `${currentUser.firstName} ${currentUser.lastName}`,
-          email: currentUser.email,
-          avatar: "",
-          role: "Admin" as const
-        },
-        ...selectedMembers
-      ],
+      memberIds: selectedMembers.map(member => member.id),
       templateTasks: selectedTemplate?.tasks || []
     }
     
-    onSave(newProject)
+    onSave(projectData)
     setLoading(false)
   }
 
@@ -233,6 +210,15 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
         return false
     }
   }
+
+  const filteredUsers = (users || []).filter(user => 
+    user.id !== currentUser.id && 
+    !selectedMembers.find(member => member.id === user.id) &&
+    (memberSearch === "" || 
+     user.firstName.toLowerCase().includes(memberSearch.toLowerCase()) ||
+     user.lastName.toLowerCase().includes(memberSearch.toLowerCase()) ||
+     user.email.toLowerCase().includes(memberSearch.toLowerCase()))
+  )
 
   const renderTemplateStep = () => (
     <div className="space-y-6">
@@ -274,8 +260,8 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                {template.tasks.length > 0 && (
+              <CardContent className="min-h-[120px]">
+                {template.tasks.length > 0 ? (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Includes {template.tasks.length} tasks:</p>
                     <div className="space-y-1">
@@ -291,6 +277,13 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                         </div>
                       )}
                     </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-blue-600">Custom Project</p>
+                    <p className="text-xs text-muted-foreground">
+                      Start with a blank canvas and create your own tasks from scratch
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -463,29 +456,59 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
           <Label>Available Team Members</Label>
           <ScrollArea className="h-64 border rounded-lg p-4">
             <div className="space-y-2">
-              {mockTeamMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedMembers.find(m => m.id === member.id)
-                      ? 'bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-                      : 'hover:bg-muted/50'
-                  }`}
-                  onClick={() => handleMemberToggle(member)}
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
-                    <AvatarFallback>
-                      {member.name.split(" ").map(n => n[0]).join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">{member.email}</p>
-                  </div>
-                  <Badge variant="outline">{member.role}</Badge>
+              <div className="flex items-center gap-2 mb-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search members..."
+                  value={memberSearch}
+                  onChange={(e) => setMemberSearch(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+              {usersLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2" />
+                  Loading members...
                 </div>
-              ))}
+              ) : !Array.isArray(users) ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Unable to load members</p>
+                  <p className="text-xs">Please try refreshing the page</p>
+                </div>
+              ) : filteredUsers.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No members found matching your search.</p>
+                  <p className="text-xs">Try a different search term or invite someone directly.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredUsers.map((user) => (
+                    <div
+                      key={user.id}
+                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                        selectedMembers.find(m => m.id === user.id)
+                          ? 'bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+                          : 'hover:bg-muted/50'
+                      }`}
+                      onClick={() => handleMemberToggle(user)}
+                    >
+                                             <Avatar className="h-8 w-8">
+                         <AvatarImage src="/placeholder.svg" alt={`${user.firstName} ${user.lastName}`} />
+                         <AvatarFallback>
+                           {(user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase()}
+                         </AvatarFallback>
+                       </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{`${user.firstName} ${user.lastName}`}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                      </div>
+                      <Badge variant="outline">Member</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </ScrollArea>
         </div>
@@ -514,17 +537,17 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                   key={member.id}
                   className="flex items-center gap-3 p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
                 >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
-                    <AvatarFallback>
-                      {member.name.split(" ").map(n => n[0]).join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">{member.email}</p>
-                  </div>
-                  <Badge variant="outline">{member.role}</Badge>
+                                     <Avatar className="h-8 w-8">
+                     <AvatarImage src="/placeholder.svg" alt={`${member.firstName} ${member.lastName}`} />
+                     <AvatarFallback>
+                       {(member.firstName.charAt(0) + member.lastName.charAt(0)).toUpperCase()}
+                     </AvatarFallback>
+                   </Avatar>
+                                   <div className="flex-1">
+                   <p className="font-medium text-sm">{`${member.firstName} ${member.lastName}`}</p>
+                   <p className="text-xs text-muted-foreground">{member.email}</p>
+                 </div>
+                 <Badge variant="outline">{member.role}</Badge>
                   <Button
                     variant="ghost"
                     size="sm"

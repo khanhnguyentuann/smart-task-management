@@ -11,18 +11,53 @@ async function main() {
     process.stdout.write('🌱 Starting database seed...\n');
     process.stdout.write(`📍 Database URL: ${process.env.DATABASE_URL?.replace(/:[^:]*@/, ':****@')}\n`);
 
-    // Create a test user
-    const testUser = await prisma.user.upsert({
-        where: { email: 'test@test.com' },
-        update: {},
-        create: {
+    // Create test users
+    const users = [
+        {
+            email: 'test@test.com',
             firstName: 'Test',
             lastName: 'User',
-            email: 'test@test.com',
-            passwordHash: await argon2.hash('test123'),
+            password: 'test123'
         },
-    });
-    process.stdout.write(`✅ Created/Updated test user: ${testUser.email}\n`);
+        {
+            email: 'john@example.com',
+            firstName: 'John',
+            lastName: 'Doe',
+            password: 'password123'
+        },
+        {
+            email: 'jane@example.com',
+            firstName: 'Jane',
+            lastName: 'Smith',
+            password: 'password123'
+        },
+        {
+            email: 'mike@example.com',
+            firstName: 'Mike',
+            lastName: 'Johnson',
+            password: 'password123'
+        },
+        {
+            email: 'sarah@example.com',
+            firstName: 'Sarah',
+            lastName: 'Wilson',
+            password: 'password123'
+        }
+    ];
+
+    for (const userData of users) {
+        const user = await prisma.user.upsert({
+            where: { email: userData.email },
+            update: {},
+            create: {
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                email: userData.email,
+                passwordHash: await argon2.hash(userData.password),
+            },
+        });
+        process.stdout.write(`✅ Created/Updated user: ${user.email}\n`);
+    }
 
     process.stdout.write('✅ Database seed completed!\n');
 }
