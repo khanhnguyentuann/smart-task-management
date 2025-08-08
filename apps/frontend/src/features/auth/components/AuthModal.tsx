@@ -2,13 +2,13 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog/Dialog"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { motion, AnimatePresence } from "framer-motion"
 import { Eye, EyeOff, Mail, Lock, User, Sparkles, CheckCircle, XCircle } from "lucide-react"
-import { useToast } from "@/shared/components/ui/use-toast"
+import { useToast } from "@/shared/hooks/useToast"
 
 import { useAuth } from '../hooks'
 import { validatePassword, type RegisterFormData } from '../validation'

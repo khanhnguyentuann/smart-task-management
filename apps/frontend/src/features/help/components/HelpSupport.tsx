@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card/Card"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { HelpCircle, BookOpen, MessageCircle, Mail, Phone, FileText, Video, Users } from "lucide-react"
 import { motion } from "framer-motion"

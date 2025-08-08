@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card"
+import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card/Card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { FolderKanban, CheckSquare, Clock, AlertTriangle, Plus, Activity, TrendingUp, Users, Star } from "lucide-react"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"

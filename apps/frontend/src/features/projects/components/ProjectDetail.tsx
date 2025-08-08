@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useState, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
-import { Button } from "@/shared/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card/Card"
+import { Button } from "@/shared/components/ui/button/Button"
 import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
@@ -15,7 +15,7 @@ import { AddMemberModal } from "./AddMemberModal"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/shared/components/ui/alert-dialog"
 import { PROJECTS_CONSTANTS } from "../constants"
 import { ProjectDetailProps } from "../types"
-import { apiService } from "@/shared/services/api"
+import { apiService } from "@/core/services/api"
 
 export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
   const [showCreateTask, setShowCreateTask] = useState(false)

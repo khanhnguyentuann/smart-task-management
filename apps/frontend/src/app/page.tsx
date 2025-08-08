@@ -10,10 +10,9 @@ import { Profile } from "@/features/user"
 import { Settings } from "@/features/settings"
 import { Notifications } from "@/features/notifications"
 import { HelpSupport } from "@/features/help"
-import { useToast } from "@/shared/components/ui/use-toast"
-
-import { AnimatedBackground } from "@/shared/components/ui/AnimatedBackground"
-import { TaskBot } from "@/shared/components/ui/TaskBot"
+import { useToast } from "@/shared/hooks/useToast"
+import { AnimatedBackground } from "@/shared/components/ui/animated-background"
+import { TaskBot } from "@/shared/components/ui/task-bot"
 import { WelcomeScreen } from "@/features/welcome"
 import { AuthModal } from "@/features/auth"
 import { motion, AnimatePresence } from "framer-motion"
@@ -51,7 +50,7 @@ export default function Home() {
     setShowWelcome(true)
     setCurrentPage("dashboard")
     setSelectedProject(null)
-    
+
     // Show logout success toast
     toast({
       title: "👋 See you soon!",
@@ -67,7 +66,7 @@ export default function Home() {
   const renderContent = () => {
     console.log("Current page:", currentPage)
     console.log("User data:", user)
-    
+
     switch (currentPage) {
       case "dashboard":
         return <EnhancedDashboardContent user={user} onNavigate={setCurrentPage} />
@@ -174,7 +173,6 @@ export default function Home() {
                 if (currentPage !== "projects") {
                   setCurrentPage("projects")
                 }
-                // Additional create task logic can be added here
               }}
               onNavigate={setCurrentPage}
             />

@@ -1,4 +1,4 @@
-import { apiService } from '@/shared/services/api'
+import { apiService } from '@/core/services/api'
 import type { AuthResponse, LoginCredentials, RegisterCredentials } from '../types'
 
 class AuthApi {

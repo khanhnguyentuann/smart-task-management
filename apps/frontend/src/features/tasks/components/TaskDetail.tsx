@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState, useRef, useMemo, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
-import { Button } from "@/shared/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card/Card"
+import { Button } from "@/shared/components/ui/button/Button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Textarea } from "@/shared/components/ui/textarea"
@@ -131,7 +131,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
             try {
                 setLoading(true)
                 setError(null)
-                const { apiService } = await import("@/shared/services/api")
+                const { apiService } = await import("@/core/services/api")
                 const resp = await apiService.getTask(taskId)
                 const taskData = (resp as any).data || resp
 
@@ -160,7 +160,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
     const handleSave = useCallback(async () => {
         if (editedTask) {
             try {
-                const { apiService } = await import("@/shared/services/api")
+                const { apiService } = await import("@/core/services/api")
                 const statusMap: Record<string, string> = { TODO: 'TODO', IN_PROGRESS: 'IN_PROGRESS', DONE: 'DONE' }
                 const priorityMap: Record<string, string> = { LOW: 'LOW', MEDIUM: 'MEDIUM', HIGH: 'HIGH' }
 
@@ -191,7 +191,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
         if (!currentTask) return
 
         try {
-            const { apiService } = await import("@/shared/services/api")
+            const { apiService } = await import("@/core/services/api")
             await apiService.deleteTask(currentTask.id)
 
             // Close dialog and go back

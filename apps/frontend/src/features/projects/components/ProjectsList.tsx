@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
-import { Button } from "@/shared/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card/Card"
+import { Button } from "@/shared/components/ui/button/Button"
 import { Input } from "@/shared/components/ui/input"
 import { Badge } from "@/shared/components/ui/badge"
 import { Search, Plus, Users, CheckSquare, MoreHorizontal, Edit, Trash2, Eye, Loader2 } from 'lucide-react'
@@ -12,7 +12,7 @@ import { CreateProjectForm } from "@/features/projects/components/CreateProjectF
 import { DeleteProjectDialog } from "@/features/projects/components/DeleteProjectDialog"
 import { EditProjectForm } from "@/features/projects/components/EditProjectForm"
 import { useProjects } from "@/features/projects/hooks/useProjects"
-import { useToast } from "@/shared/components/ui/use-toast"
+import { useToast } from "@/shared/hooks/useToast"
 import type { ProjectsListProps } from "@/features/projects/types"
 import { PROJECTS_CONSTANTS } from "../constants"
 import { validateSearchQuery } from "../validation"

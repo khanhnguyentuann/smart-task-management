@@ -3,8 +3,8 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog"
-import { Button } from "@/shared/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog/Dialog"
+import { Button } from "@/shared/components/ui/button/Button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Textarea } from "@/shared/components/ui/textarea"
@@ -14,9 +14,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
 import { Loader2, Plus, Sparkles, CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
-import { cn } from "@/shared/lib/utils"
+import { cn } from "@/shared/lib/utils/cn"
 import { PROJECTS_CONSTANTS } from "@/features/projects/constants"
-import { apiService } from "@/shared/services/api"
+import { apiService } from "@/core/services/api"
 
 interface User {
   name: string

@@ -9,7 +9,7 @@ import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
 import { AnimatedTaskCard } from "./AnimatedTaskCard"
 import { TaskDetail } from "./TaskDetail"
-import { Button } from "@/shared/components/ui/button"
+import { Button } from "@/shared/components/ui/button/Button"
 import { Task } from "../types/task.types"
 
 interface User {
@@ -54,7 +54,7 @@ export function MyTasks({ user }: MyTasksProps) {
       try {
         setLoading(true)
         setError(null)
-        const { apiService } = await import("@/shared/services/api")
+        const { apiService } = await import("@/core/services/api")
         const resp = await apiService.getTasks()
         const tasksData = (resp as any).data || resp
         const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
@@ -90,7 +90,7 @@ export function MyTasks({ user }: MyTasksProps) {
 
   const refreshTasks = useCallback(async () => {
     try {
-      const { apiService } = await import("@/shared/services/api")
+      const { apiService } = await import("@/core/services/api")
       const resp = await apiService.getTasks()
       const tasksData = (resp as any).data || resp
       const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks

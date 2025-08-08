@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { apiService } from '@/shared/services/api'
+import { apiService } from '@/core/services/api'
 
 export interface User {
   id: string

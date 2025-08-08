@@ -35,7 +35,7 @@ export const useAuth = () => {
       try {
         const refreshToken = authService.getRefreshToken()
         if (refreshToken) {
-          const { apiService } = await import('@/shared/services/api')
+          const { apiService } = await import('@/core/services/api')
           const response = await apiService.refreshToken(refreshToken)
           const newToken = (response as any).accessToken || (response as any).token
           if (newToken) {

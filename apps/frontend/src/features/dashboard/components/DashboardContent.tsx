@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { CardHeader, CardTitle, CardContent, Card } from "@/shared/components/ui/card"
+import { CardHeader, CardTitle, CardContent, Card } from "@/shared/components/ui/card/Card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { FolderKanban, CheckSquare, Clock, AlertTriangle, Plus, Activity } from "lucide-react"
-import { Button } from "@/shared/components/ui/button"
+import { Button } from "@/shared/components/ui/button/Button"
 import { motion } from "framer-motion"
 import { DashboardContentProps, DashboardStats, RecentActivity } from "../types/dashboard.types"
 

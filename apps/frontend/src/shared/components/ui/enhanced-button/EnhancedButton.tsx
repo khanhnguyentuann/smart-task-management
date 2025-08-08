@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { Button } from "@/shared/components/ui/button"
-import { cn } from "@/shared/lib/utils"
+import { Button } from "@/shared/components/ui/button/Button"
+import { cn } from "@/shared/lib/utils/cn"
 import { motion } from "framer-motion"
 import { forwardRef } from "react"
 

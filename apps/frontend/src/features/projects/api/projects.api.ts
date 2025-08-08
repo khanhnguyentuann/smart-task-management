@@ -1,4 +1,4 @@
-import { apiService } from '@/shared/services/api'
+import { apiService } from '@/core/services/api'
 import type { Project, CreateProjectData, UpdateProjectData } from '../types'
 
 class ProjectsApi {

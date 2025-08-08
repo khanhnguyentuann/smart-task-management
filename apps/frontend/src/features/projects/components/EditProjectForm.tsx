@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/shared/components/ui/button"
+import { Button } from "@/shared/components/ui/button/Button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Textarea } from "@/shared/components/ui/textarea"
@@ -14,7 +14,7 @@ import { Save, ArrowLeft, CalendarIcon } from 'lucide-react'
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { PROJECTS_CONSTANTS } from "../constants"
 import { validateUpdateProject } from "../validation"
-import { useToast } from "@/shared/components/ui/use-toast"
+import { useToast } from "@/shared/hooks/useToast"
 import type { EditProjectFormProps, UpdateProjectData } from "@/features/projects/types"
 
 const availableColors = PROJECTS_CONSTANTS.COLORS
