@@ -45,15 +45,15 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
     // Convert simple task to detailed task format
     const convertToDetailedTask = useCallback((simpleTask: any): TaskDetailType => {
         // Map backend enums to UI format
-        const priorityMap: Record<string, string> = { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High' }
-        const statusMap: Record<string, string> = { TODO: 'todo', IN_PROGRESS: 'inProgress', DONE: 'done' }
+        const priorityMap: Record<string, string> = { LOW: 'LOW', MEDIUM: 'MEDIUM', HIGH: 'HIGH' }
+        const statusMap: Record<string, string> = { TODO: 'TODO', IN_PROGRESS: 'IN_PROGRESS', DONE: 'DONE' }
 
         return {
             id: simpleTask.id,
             title: simpleTask.title,
             description: simpleTask.description || simpleTask.aiSummary || "",
-            status: statusMap[simpleTask.status] as 'todo' | 'inProgress' | 'done' || 'todo',
-            priority: priorityMap[simpleTask.priority] as 'Low' | 'Medium' | 'High' || 'Medium',
+            status: statusMap[simpleTask.status] as 'TODO' | 'IN_PROGRESS' | 'DONE' || 'TODO',
+            priority: priorityMap[simpleTask.priority] as 'LOW' | 'MEDIUM' | 'HIGH' || 'MEDIUM',
             assignees: simpleTask.assignee ? [{
                 id: simpleTask.assignee.id || "1",
                 name: simpleTask.assignee.name || simpleTask.assignee.email || "Unassigned",
@@ -161,8 +161,8 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
         if (editedTask) {
             try {
                 const { apiService } = await import("@/shared/services/api")
-                const statusMap: Record<string, string> = { todo: 'TODO', inProgress: 'IN_PROGRESS', done: 'DONE' }
-                const priorityMap: Record<string, string> = { Low: 'LOW', Medium: 'MEDIUM', High: 'HIGH' }
+                const statusMap: Record<string, string> = { TODO: 'TODO', IN_PROGRESS: 'IN_PROGRESS', DONE: 'DONE' }
+                const priorityMap: Record<string, string> = { LOW: 'LOW', MEDIUM: 'MEDIUM', HIGH: 'HIGH' }
 
                 const payload: any = {
                     title: editedTask.title,
@@ -276,11 +276,11 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
 
     const getPriorityColor = useCallback((priority: string) => {
         switch (priority) {
-            case "High":
+            case "HIGH":
                 return "bg-red-500 text-white"
-            case "Medium":
+            case "MEDIUM":
                 return "bg-yellow-500 text-white"
-            case "Low":
+            case "LOW":
                 return "bg-green-500 text-white"
             default:
                 return "bg-gray-500 text-white"
@@ -289,11 +289,11 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
 
     const getStatusColor = useCallback((status: string) => {
         switch (status) {
-            case "todo":
+            case "TODO":
                 return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-            case "inProgress":
+            case "IN_PROGRESS":
                 return "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
-            case "done":
+            case "DONE":
                 return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
             default:
                 return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
@@ -401,16 +401,16 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="Low">Low</SelectItem>
-                                                        <SelectItem value="Medium">Medium</SelectItem>
-                                                        <SelectItem value="High">High</SelectItem>
+                                                        <SelectItem value="LOW">Low</SelectItem>
+                                                        <SelectItem value="MEDIUM">Medium</SelectItem>
+                                                        <SelectItem value="HIGH">High</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </>
                                         ) : (
                                             <Badge className={getPriorityColor(currentTask?.priority)}>
                                                 <Flag className="h-3 w-3 mr-1" />
-                                                {currentTask?.priority}
+                                                {currentTask?.priority === "HIGH" ? "High" : currentTask?.priority === "MEDIUM" ? "Medium" : "Low"}
                                             </Badge>
                                         )}
 
@@ -425,17 +425,17 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="todo">To Do</SelectItem>
-                                                    <SelectItem value="inProgress">In Progress</SelectItem>
-                                                    <SelectItem value="done">Done</SelectItem>
+                                                    <SelectItem value="TODO">To Do</SelectItem>
+                                                    <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                                                    <SelectItem value="DONE">Done</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         ) : (
                                             <Badge className={getStatusColor(currentTask?.status)}>
-                                                {currentTask?.status === "todo" && <Square className="h-3 w-3 mr-1" />}
-                                                {currentTask?.status === "inProgress" && <Clock className="h-3 w-3 mr-1" />}
-                                                {currentTask?.status === "done" && <CheckSquare className="h-3 w-3 mr-1" />}
-                                                {currentTask?.status?.replace(/([A-Z])/g, " $1").trim()}
+                                                {currentTask?.status === "TODO" && <Square className="h-3 w-3 mr-1" />}
+                                                {currentTask?.status === "IN_PROGRESS" && <Clock className="h-3 w-3 mr-1" />}
+                                                {currentTask?.status === "DONE" && <CheckSquare className="h-3 w-3 mr-1" />}
+                                                {currentTask?.status === "TODO" ? "To Do" : currentTask?.status === "IN_PROGRESS" ? "In Progress" : "Done"}
                                             </Badge>
                                         )}
                                     </div>
@@ -866,7 +866,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>Delete Task</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            Are you sure you want to delete "{currentTask?.title}"? This action cannot be undone.
+                                                                                         Are you sure you want to delete &quot;{currentTask?.title}&quot;? This action cannot be undone.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>

@@ -6,12 +6,13 @@ import { Button } from "@/shared/components/ui/button"
 import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
-import { ArrowLeft, Plus, Users, Settings, CheckSquare, Clock, AlertTriangle, Sparkles } from "lucide-react"
+import { ArrowLeft, Plus, Users, Settings, CheckSquare, Clock, AlertTriangle, Sparkles, UserPlus, UserMinus } from "lucide-react"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal"
 import { AnimatedTaskCard } from "@/shared/components/ui/animated-task-card"
 import { TaskDetail } from "@/features/tasks/components/TaskDetail"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/shared/components/ui/alert-dialog"
+import { AddMemberModal } from "./AddMemberModal"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/shared/components/ui/alert-dialog"
 import { PROJECTS_CONSTANTS } from "../constants"
 import { ProjectDetailProps } from "../types"
 import { apiService } from "@/shared/services/api"
@@ -24,6 +25,8 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
   const [tasks, setTasks] = useState<any[]>([])
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; taskId?: string }>({ open: false })
+  const [showAddMember, setShowAddMember] = useState(false)
+  const [confirmKickMember, setConfirmKickMember] = useState<{ open: boolean; memberId?: string; memberName?: string | null }>({ open: false })
 
   useEffect(() => {
     let isMounted = true
@@ -95,6 +98,28 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
       console.error("Failed to refresh tasks:", error)
     }
   }, [projectId])
+
+  const refreshProject = useCallback(async () => {
+    if (!projectId) return
+    try {
+      const projResp = await apiService.getProject(projectId)
+      const projData = (projResp as any).data || projResp
+      setProject(projData)
+    } catch (error) {
+      console.error("Failed to refresh project:", error)
+    }
+  }, [projectId])
+
+  const handleKickMember = useCallback(async (memberId: string) => {
+    if (!projectId) return
+    try {
+      await apiService.removeProjectMember(projectId, memberId)
+      await refreshProject()
+      setConfirmKickMember({ open: false })
+    } catch (error) {
+      console.error("Failed to kick member:", error)
+    }
+  }, [projectId, refreshProject])
 
   if (selectedTaskId) {
     return (
@@ -271,7 +296,15 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
             <TabsContent value="members" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Project Members</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Project Members</CardTitle>
+                    {project.ownerId === project.currentUserId && (
+                      <Button onClick={() => setShowAddMember(true)} size="sm">
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Add Member
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -287,9 +320,30 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                           </Avatar>
                           <div>
                             <p className="font-medium">{pu.user?.firstName} {pu.user?.lastName}</p>
-                            <Badge variant={"secondary"}>Member</Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={pu.user?.id === project.ownerId ? "default" : "secondary"}>
+                                {pu.user?.id === project.ownerId ? "Owner" : "Member"}
+                              </Badge>
+                              {pu.user?.email && (
+                                <span className="text-xs text-muted-foreground">{pu.user.email}</span>
+                              )}
+                            </div>
                           </div>
                         </div>
+                        {project.ownerId === project.currentUserId && pu.user?.id !== project.ownerId && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setConfirmKickMember({ 
+                              open: true, 
+                              memberId: pu.user?.id, 
+                              memberName: `${pu.user?.firstName} ${pu.user?.lastName}` 
+                            })}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <UserMinus className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -327,6 +381,37 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
           } catch {}
         }}
       />
+
+      {/* Add Member Modal */}
+      {projectId && (
+        <AddMemberModal
+          open={showAddMember}
+          onOpenChange={setShowAddMember}
+          projectId={projectId}
+          onAdded={refreshProject}
+        />
+      )}
+
+      {/* Confirm Kick Member Dialog */}
+      <AlertDialog open={confirmKickMember.open} onOpenChange={(open) => setConfirmKickMember({ open, memberId: undefined, memberName: undefined })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Member</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {confirmKickMember.memberName ? `"${confirmKickMember.memberName}"` : 'this member'} from this project? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => confirmKickMember.memberId && handleKickMember(confirmKickMember.memberId)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 } 

@@ -10,8 +10,8 @@ interface Task {
   id: string
   title: string
   aiSummary: string
-  priority: "Low" | "Medium" | "High"
-  status: "todo" | "inProgress" | "done"
+  priority: "LOW" | "MEDIUM" | "HIGH"
+  status: "TODO" | "IN_PROGRESS" | "DONE"
   project: string
   deadline: string
   assignee: {
@@ -29,11 +29,11 @@ interface AnimatedTaskCardProps {
 export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "High":
+      case "HIGH":
         return "bg-red-500"
-      case "Medium":
+      case "MEDIUM":
         return "bg-yellow-500"
-      case "Low":
+      case "LOW":
         return "bg-green-500"
       default:
         return "bg-gray-500"
@@ -70,7 +70,7 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${getPriorityColor(task.priority)}`} />
               <Badge variant="outline" className="text-xs">
-                {task.priority}
+                {task.priority === "HIGH" ? "High" : task.priority === "MEDIUM" ? "Medium" : "Low"}
               </Badge>
             </div>
           </div>
@@ -102,10 +102,10 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>{task.project}</span>
             <Badge
-              variant={task.status === "done" ? "default" : "secondary"}
+              variant={task.status === "DONE" ? "default" : "secondary"}
               className="text-xs capitalize"
             >
-              {task.status}
+              {task.status === "TODO" ? "To Do" : task.status === "IN_PROGRESS" ? "In Progress" : "Done"}
             </Badge>
           </div>
         </div>

@@ -62,8 +62,8 @@ export interface TaskDetail {
   id: string
   title: string
   description: string
-  status: "todo" | "inProgress" | "done"
-  priority: "Low" | "Medium" | "High"
+  status: "TODO" | "IN_PROGRESS" | "DONE"
+  priority: "LOW" | "MEDIUM" | "HIGH"
   assignees: Array<{
     id: string
     name: string
@@ -133,4 +133,10 @@ export interface TaskDetailModalProps {
     name: string
     avatar: string
   }
-} 
+}
+
+export interface AnimatedTaskCardProps {
+  task: Task
+  className?: string
+  onClick?: () => void
+}

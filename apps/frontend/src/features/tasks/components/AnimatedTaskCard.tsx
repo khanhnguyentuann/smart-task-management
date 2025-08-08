@@ -6,25 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { Calendar } from 'lucide-react'
 import { motion } from "framer-motion"
 import { cn } from "@/shared/lib/utils"
-
-interface Task {
-  id: string
-  title: string
-  aiSummary: string
-  priority: "Low" | "Medium" | "High"
-  assignee: {
-    name: string
-    avatar: string
-  }
-  deadline: string
-  status: "todo" | "inProgress" | "done"
-}
-
-interface AnimatedTaskCardProps {
-  task: Task
-  className?: string
-  onClick?: () => void
-}
+import { AnimatedTaskCardProps } from "../types/task.types"
+import { getPriorityColor } from "@/features/projects"
 
 export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
   const getPriorityAnimation = (priority: string) => {
@@ -37,19 +20,6 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
         return "animate-breathe" // Soft breathing animation 🌱
       default:
         return ""
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "High":
-        return "bg-red-500"
-      case "Medium":
-        return "bg-yellow-500"
-      case "Low":
-        return "bg-green-500"
-      default:
-        return "bg-gray-500"
     }
   }
 
@@ -74,7 +44,7 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
       transition={{ duration: 0.3 }}
       className={cn(
         getPriorityAnimation(task.priority),
-        task.status === "done" && "animate-sparkle", // Sparkle animation for completed tasks ✨
+        task.status === "DONE" && "animate-sparkle", // Sparkle animation for completed tasks ✨
         className,
       )}
       onClick={onClick}
@@ -140,7 +110,7 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
           </div>
 
           {/* Completed task celebration */}
-          {task.status === "done" && (
+          {task.status === "DONE" && (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-2 -right-2 text-2xl">
               ✨
             </motion.div>

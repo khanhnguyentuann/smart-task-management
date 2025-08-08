@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AnimatedTaskCard } from "./AnimatedTaskCard"
 import { TaskDetail } from "./TaskDetail"
 import { Button } from "@/shared/components/ui/button"
+import { Task } from "../types/task.types"
 
 interface User {
   id: string
@@ -17,20 +18,6 @@ interface User {
   email: string
   role: "Admin" | "Member"
   avatar: string
-}
-
-interface Task {
-  id: string
-  title: string
-  aiSummary: string
-  priority: "Low" | "Medium" | "High"
-  status: "todo" | "inProgress" | "done"
-  project: string
-  deadline: string
-  assignee: {
-    name: string
-    avatar: string
-  }
 }
 
 interface MyTasksProps {
@@ -49,13 +36,13 @@ export function MyTasks({ user }: MyTasksProps) {
   // Map backend task to UI task shape
   const toUiTask = React.useCallback((t: any): Task => {
     const priorityMap: Record<string, Task["priority"]> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High" }
-    const statusMap: Record<string, Task["status"]> = { TODO: "todo", IN_PROGRESS: "inProgress", DONE: "done" }
+    const statusMap: Record<string, Task["status"]> = { TODO: "TODO", IN_PROGRESS: "IN_PROGRESS", DONE: "DONE" }
     return {
       id: t.id,
       title: t.title,
       aiSummary: t.summary || "",
       priority: priorityMap[t.priority] || "Medium",
-      status: statusMap[t.status] || "todo",
+      status: statusMap[t.status] || "TODO",
       project: t.project?.name || "",
       deadline: t.deadline || new Date().toISOString(),
       assignee: { name: t.assignee?.email || user.email, avatar: user.avatar },
@@ -107,11 +94,11 @@ export function MyTasks({ user }: MyTasksProps) {
       const resp = await apiService.getTasks()
       const tasksData = (resp as any).data || resp
       const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
-      setTasks(Array.isArray(tasksArray) ? tasksArray : [])
+      setTasks(Array.isArray(tasksArray) ? tasksArray.map(toUiTask) : [])
     } catch (error) {
       console.error("Failed to refresh tasks:", error)
     }
-  }, [])
+  }, [toUiTask])
 
   if (selectedTaskId) {
     return (
@@ -174,11 +161,11 @@ export function MyTasks({ user }: MyTasksProps) {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "High":
+      case "HIGH":
         return "bg-red-500"
-      case "Medium":
+      case "MEDIUM":
         return "bg-yellow-500"
-      case "Low":
+      case "LOW":
         return "bg-green-500"
       default:
         return "bg-gray-500"
@@ -253,9 +240,9 @@ export function MyTasks({ user }: MyTasksProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="inProgress">In Progress</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
+                  <SelectItem value="TODO">To Do</SelectItem>
+                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                  <SelectItem value="DONE">Done</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>

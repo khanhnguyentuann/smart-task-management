@@ -207,6 +207,19 @@ class ApiService {
     })
   }
 
+  async removeProjectMember(projectId: string, memberId: string) {
+    return this.request(API_ROUTES.PROJECTS.MEMBERS.REMOVE(projectId, memberId), {
+      method: "DELETE",
+    })
+  }
+
+  async addProjectMembers(projectId: string, memberIds: string[]) {
+    return this.request(API_ROUTES.PROJECTS.MEMBERS.ADD(projectId), {
+      method: "POST",
+      body: JSON.stringify({ userIds: memberIds }),
+    })
+  }
+
   // Tasks endpoints
   async getTasks(params?: Record<string, string | number | boolean>) {
     const query = params
