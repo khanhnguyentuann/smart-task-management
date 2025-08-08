@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { authService } from '../services'
 import { formatAuthError } from '../utils'
 import type { User, AuthState, LoginCredentials, RegisterCredentials } from '../types'
+import { AUTH_CONSTANTS } from '../constants'
 
 export const useAuth = () => {
   const [state, setState] = useState<AuthState>({
@@ -25,6 +26,30 @@ export const useAuth = () => {
 
     initAuth()
   }, [])
+
+  // Auto refresh token every 4 minutes
+  useEffect(() => {
+    if (!state.isAuthenticated) return
+
+    const interval = setInterval(async () => {
+      try {
+        const refreshToken = authService.getRefreshToken()
+        if (refreshToken) {
+          const { apiService } = await import('@/shared/services/api')
+          const response = await apiService.refreshToken(refreshToken)
+          const newToken = (response as any).accessToken || (response as any).token
+          if (newToken) {
+            localStorage.setItem(AUTH_CONSTANTS.TOKEN_KEY, newToken)
+          }
+        }
+      } catch (error) {
+        console.error('Auto refresh token failed:', error)
+        // Don't logout on auto refresh failure, let the API handle it
+      }
+    }, 4 * 60 * 1000) // 4 minutes
+
+    return () => clearInterval(interval)
+  }, [state.isAuthenticated])
 
   const login = useCallback(async (credentials: LoginCredentials): Promise<User> => {
     setState(prev => ({ ...prev, loading: true }))

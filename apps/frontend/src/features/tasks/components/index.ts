@@ -1,4 +1,4 @@
-export { TaskDetailModal } from './TaskDetailModal'
+export { AnimatedTaskCard } from './AnimatedTaskCard'
 export { CreateTaskModal } from './CreateTaskModal'
 export { MyTasks } from './MyTasks'
-export { AnimatedTaskCard } from './AnimatedTaskCard' 
+export { TaskDetail } from './TaskDetail' 

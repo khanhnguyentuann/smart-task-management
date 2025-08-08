@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useCallback } from "react"
 
 import { useState } from "react"
 import { Input } from "@/shared/components/ui/input"
@@ -8,7 +8,8 @@ import { Search, CheckSquare, Clock, AlertTriangle, Calendar } from 'lucide-reac
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
 import { AnimatedTaskCard } from "./AnimatedTaskCard"
-import { TaskDetailModal } from "./TaskDetailModal"
+import { TaskDetail } from "./TaskDetail"
+import { Button } from "@/shared/components/ui/button"
 
 interface User {
   id: string
@@ -43,6 +44,7 @@ export function MyTasks({ user }: MyTasksProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   // Map backend task to UI task shape
   const toUiTask = React.useCallback((t: any): Task => {
@@ -61,31 +63,29 @@ export function MyTasks({ user }: MyTasksProps) {
   }, [user.email, user.avatar])
 
   React.useEffect(() => {
-    let mounted = true
-    const load = async () => {
+    const fetchTasks = async () => {
       try {
         setLoading(true)
         setError(null)
         const { apiService } = await import("@/shared/services/api")
         const resp = await apiService.getTasks()
-        const data: any = (resp as any).data || resp
-        const list: any[] = Array.isArray(data) ? data : data?.tasks || []
-        if (!mounted) return
-        setTasks(list.map(toUiTask))
+        const tasksData = (resp as any).data || resp
+        const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
+        setTasks(Array.isArray(tasksArray) ? tasksArray.map(toUiTask) : [])
       } catch (e: any) {
-        if (!mounted) return
-        setError(e.message || "Failed to load tasks")
+        console.error("Failed to fetch tasks:", e)
+        if (e.message?.includes('Authentication') || e.message?.includes('Unauthorized')) {
+          setError("Authentication required. Please login again.")
+        } else {
+          setError(e.message || "Failed to load tasks")
+        }
       } finally {
-        if (!mounted) return
         setLoading(false)
       }
     }
-    load()
-    return () => { mounted = false }
-  }, [toUiTask])
 
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-  const [showTaskDetail, setShowTaskDetail] = useState(false)
+    fetchTasks()
+  }, [user.email, user.avatar, toUiTask])
 
   const teamMembers = [
     { id: "1", name: "John Doe", avatar: "/placeholder.svg?height=32&width=32", email: "john@company.com" },
@@ -94,18 +94,70 @@ export function MyTasks({ user }: MyTasksProps) {
   ]
 
   const handleTaskClick = (task: Task) => {
-    setSelectedTask(task)
-    setShowTaskDetail(true)
+    setSelectedTaskId(task.id)
   }
 
-  const handleTaskSave = (updatedTask: Task) => {
-    console.log("Task updated:", updatedTask)
-    setShowTaskDetail(false)
+  const handleBackFromTask = () => {
+    setSelectedTaskId(null)
   }
 
-  const handleTaskDelete = (taskId: string) => {
-    console.log("Task deleted:", taskId)
-    setShowTaskDetail(false)
+  const refreshTasks = useCallback(async () => {
+    try {
+      const { apiService } = await import("@/shared/services/api")
+      const resp = await apiService.getTasks()
+      const tasksData = (resp as any).data || resp
+      const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
+      setTasks(Array.isArray(tasksArray) ? tasksArray : [])
+    } catch (error) {
+      console.error("Failed to refresh tasks:", error)
+    }
+  }, [])
+
+  if (selectedTaskId) {
+    return (
+      <TaskDetail
+        taskId={selectedTaskId}
+        user={user}
+        onBack={handleBackFromTask}
+        onDelete={refreshTasks}
+      />
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-full">
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-14 items-center gap-4 px-6">
+            <SidebarTrigger />
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold">My Tasks</h1>
+            </div>
+          </div>
+        </header>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            {error.includes('Authentication') ? (
+              <div className="space-y-4">
+                <p className="text-red-600 text-lg font-medium">Authentication Required</p>
+                <p className="text-muted-foreground">Your session has expired. Please login again.</p>
+                <Button onClick={() => window.location.href = '/login'}>
+                  Go to Login
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-red-600 text-lg font-medium">Error Loading Tasks</p>
+                <p className="text-muted-foreground">{error}</p>
+                <Button onClick={() => window.location.reload()}>
+                  Try Again
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const getDeadlineStatus = (deadline: string) => {
@@ -255,15 +307,6 @@ export function MyTasks({ user }: MyTasksProps) {
           )}
         </div>
       </div>
-      <TaskDetailModal
-        task={selectedTask}
-        open={showTaskDetail}
-        onOpenChange={setShowTaskDetail}
-        onSave={handleTaskSave}
-        onDelete={handleTaskDelete}
-        teamMembers={teamMembers}
-        currentUser={{ id: user.id, name: user.name, avatar: user.avatar }}
-      />
     </div>
   )
 } 

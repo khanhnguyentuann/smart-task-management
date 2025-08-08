@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
 import { Badge } from "@/shared/components/ui/badge"
@@ -10,7 +10,7 @@ import { ArrowLeft, Plus, Users, Settings, CheckSquare, Clock, AlertTriangle, Sp
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal"
 import { AnimatedTaskCard } from "@/shared/components/ui/animated-task-card"
-import { TaskDetailModal } from "@/features/tasks/components/TaskDetailModal"
+import { TaskDetail } from "@/features/tasks/components/TaskDetail"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/shared/components/ui/alert-dialog"
 import { PROJECTS_CONSTANTS } from "../constants"
 import { ProjectDetailProps } from "../types"
@@ -22,8 +22,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
   const [error, setError] = useState<string | null>(null)
   const [project, setProject] = useState<any | null>(null)
   const [tasks, setTasks] = useState<any[]>([])
-  const [selectedTask, setSelectedTask] = useState<any | null>(null)
-  const [openTaskDetail, setOpenTaskDetail] = useState(false)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; taskId?: string }>({ open: false })
 
   useEffect(() => {
@@ -75,6 +74,37 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
         avatar: '',
       },
     }
+  }
+
+  const handleTaskClick = (task: any) => {
+    setSelectedTaskId(task.id)
+  }
+
+  const handleBackFromTask = () => {
+    setSelectedTaskId(null)
+  }
+
+  const refreshTasks = useCallback(async () => {
+    if (!projectId) return
+    try {
+      const tasksResp = await apiService.getProjectTasks(projectId)
+      const tasksData = (tasksResp as any).data || tasksResp
+      const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
+      setTasks(Array.isArray(tasksArray) ? tasksArray : [])
+    } catch (error) {
+      console.error("Failed to refresh tasks:", error)
+    }
+  }, [projectId])
+
+  if (selectedTaskId) {
+    return (
+      <TaskDetail 
+        taskId={selectedTaskId} 
+        user={user} 
+        onBack={handleBackFromTask}
+        onDelete={refreshTasks}
+      />
+    )
   }
 
   if (loading) {
@@ -201,7 +231,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.todo.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => { setSelectedTask(toUiTask(task)); setOpenTaskDetail(true) }} />
+                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
                     ))}
                   </div>
                 </div>
@@ -216,7 +246,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.inProgress.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => { setSelectedTask(toUiTask(task)); setOpenTaskDetail(true) }} />
+                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
                     ))}
                   </div>
                 </div>
@@ -231,7 +261,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.done.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => { setSelectedTask(toUiTask(task)); setOpenTaskDetail(true) }} />
+                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
                     ))}
                   </div>
                 </div>
@@ -297,68 +327,6 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
           } catch {}
         }}
       />
-
-      <TaskDetailModal
-        task={selectedTask}
-        open={openTaskDetail}
-        onOpenChange={setOpenTaskDetail}
-        onSave={project?.ownerId === project?.currentUserId ? async (updated: any) => {
-          try {
-            const statusMap: Record<string, string> = { todo: 'TODO', inProgress: 'IN_PROGRESS', done: 'DONE' }
-            const priorityMap: Record<string, string> = { Low: 'LOW', Medium: 'MEDIUM', High: 'HIGH' }
-            const payload: any = {
-              title: updated.title,
-              description: updated.description,
-              status: statusMap[updated.status] || 'TODO',
-              priority: priorityMap[updated.priority] || 'MEDIUM',
-              deadline: updated.dueDate ? new Date(updated.dueDate).toISOString() : undefined,
-            }
-            await apiService.updateTask(updated.id, payload)
-            // refresh tasks after update
-            if (projectId) {
-              const tasksResp = await apiService.getProjectTasks(projectId)
-              const tasksData = (tasksResp as any).data || tasksResp
-              const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
-              setTasks(Array.isArray(tasksArray) ? tasksArray : [])
-            }
-          } finally {
-            setOpenTaskDetail(false)
-          }
-        } : undefined}
-        onDelete={project?.ownerId === project?.currentUserId ? (taskId) => { setConfirmDelete({ open: true, taskId }) } : undefined}
-      />
-
-      {/* Confirm Delete Dialog */}
-      <AlertDialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete(s => ({ ...s, open }))}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this task?</AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                if (!confirmDelete.taskId) return
-                try {
-                  await apiService.deleteTask(confirmDelete.taskId)
-                  // Refresh tasks
-                  if (projectId) {
-                    const tasksResp = await apiService.getProjectTasks(projectId)
-                    const tasksData = (tasksResp as any).data || tasksResp
-                    const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
-                    setTasks(Array.isArray(tasksArray) ? tasksArray : [])
-                  }
-                } finally {
-                  setConfirmDelete({ open: false })
-                  setOpenTaskDetail(false)
-                }
-              }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 } 

@@ -8,10 +8,51 @@ class ApiService {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
   }
 
+  // Check if token is about to expire (within 5 minutes)
+  private isTokenExpiringSoon(): boolean {
+    const token = localStorage.getItem(AUTH_CONSTANTS.TOKEN_KEY)
+    if (!token) return false
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const exp = payload.exp * 1000 // Convert to milliseconds
+      const now = Date.now()
+      const fiveMinutes = 5 * 60 * 1000
+      
+      return (exp - now) < fiveMinutes
+    } catch {
+      return false
+    }
+  }
+
+  // Proactively refresh token if needed
+  private async refreshTokenIfNeeded(): Promise<void> {
+    if (this.isTokenExpiringSoon()) {
+      const refreshToken = localStorage.getItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)
+      if (refreshToken) {
+        try {
+          const response = await this.refreshToken(refreshToken)
+          const newToken = (response as any).accessToken || (response as any).token
+          if (newToken) {
+            localStorage.setItem(AUTH_CONSTANTS.TOKEN_KEY, newToken)
+          }
+        } catch (error) {
+          // If refresh fails, clear tokens
+          localStorage.removeItem(AUTH_CONSTANTS.TOKEN_KEY)
+          localStorage.removeItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)
+          throw error
+        }
+      }
+    }
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    // Proactively refresh token if needed
+    await this.refreshTokenIfNeeded()
+    
     const url = `${this.baseURL}${endpoint}`
     
     const config: RequestInit = {
@@ -35,6 +76,41 @@ class ApiService {
       const response = await fetch(url, config)
       
       if (!response.ok) {
+        // Handle 401 Unauthorized - try to refresh token
+        if (response.status === 401) {
+          const refreshToken = localStorage.getItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)
+          if (refreshToken) {
+            try {
+              const refreshResponse = await this.refreshToken(refreshToken)
+              const newToken = (refreshResponse as any).accessToken || (refreshResponse as any).token
+              if (newToken) {
+                localStorage.setItem(AUTH_CONSTANTS.TOKEN_KEY, newToken)
+                // Retry the original request with new token
+                config.headers = {
+                  ...config.headers,
+                  Authorization: `Bearer ${newToken}`,
+                }
+                const retryResponse = await fetch(url, config)
+                if (!retryResponse.ok) {
+                  throw new Error(`HTTP error! status: ${retryResponse.status}`)
+                }
+                return await retryResponse.json()
+              }
+            } catch (refreshError) {
+              // Refresh failed, clear tokens and redirect to login
+              localStorage.removeItem(AUTH_CONSTANTS.TOKEN_KEY)
+              localStorage.removeItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)
+              window.location.href = '/login'
+              throw new Error('Authentication expired. Please login again.')
+            }
+          } else {
+            // No refresh token, redirect to login
+            localStorage.removeItem(AUTH_CONSTANTS.TOKEN_KEY)
+            window.location.href = '/login'
+            throw new Error('Authentication required. Please login.')
+          }
+        }
+        
         // Try to get error message from response
         let errorMessage = `HTTP error! status: ${response.status}`
         try {
