@@ -23,9 +23,10 @@ interface Task {
 interface AnimatedTaskCardProps {
   task: Task
   className?: string
+  onClick?: () => void
 }
 
-export function AnimatedTaskCard({ task, className }: AnimatedTaskCardProps) {
+export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "High":
@@ -60,6 +61,7 @@ export function AnimatedTaskCard({ task, className }: AnimatedTaskCardProps) {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
       className={className}
+      onClick={onClick}
     >
       <GlassmorphismCard className="hover:shadow-lg transition-all duration-300">
         <div className="p-4 space-y-3">

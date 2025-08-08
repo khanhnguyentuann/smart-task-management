@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useMemo } from "react"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/shared/components/ui/drawer"
 import { Button } from "@/shared/components/ui/button"
@@ -17,10 +17,9 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area"
 import { Separator } from "@/shared/components/ui/separator"
 import { Progress } from "@/shared/components/ui/progress"
 import { useMobile } from "@/shared/hooks/use-mobile"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { format } from "date-fns"
-import { X, Edit3, Save, Trash2, Archive, Share2, CalendarIcon, Clock, User, Tag, Paperclip, MessageCircle, Activity, Plus, Check, AlertCircle, Star, Flag, Users, Upload, Download, Eye, Send, AtSign, MoreHorizontal, CheckSquare, Square } from 'lucide-react'
-import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
+import { X, Edit3, Save, Trash2, Archive, Share2, CalendarIcon, Clock, Tag, Paperclip, Plus, Flag, Users, Upload, Download, Eye, Send, CheckSquare, Square } from 'lucide-react'
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { TaskDetail } from "../types/task.types"
 
@@ -60,8 +59,6 @@ export function TaskDetailModal({
   const [newLabel, setNewLabel] = useState("")
   const [activeTab, setActiveTab] = useState("details")
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  if (!task) return null
 
   // Convert simple task to detailed task format
   const convertToDetailedTask = (simpleTask: any): TaskDetail => {
@@ -140,11 +137,12 @@ export function TaskDetailModal({
     }
   }
 
-  const detailedTask = convertToDetailedTask(task)
+  const detailedTask = useMemo<TaskDetail | null>(() => (task ? convertToDetailedTask(task) : null), [task, currentUser])
   const currentTask = editedTask || detailedTask
+  if (!currentTask) return null
 
   const handleEdit = () => {
-    setEditedTask({ ...detailedTask })
+    setEditedTask({ ...currentTask })
     setIsEditing(true)
   }
 
@@ -178,11 +176,8 @@ export function TaskDetailModal({
         ...editedTask,
         comments: [...(editedTask.comments || []), comment],
       })
-    } else {
-      // For non-editing mode, we'll simulate adding the comment
-      detailedTask.comments = [...(detailedTask.comments || []), comment]
     }
-    
+
     setNewComment("")
   }
 
@@ -268,9 +263,9 @@ export function TaskDetailModal({
           <div className="flex-1 space-y-2">
             {isEditing ? (
               <Input
-                value={editedTask?.title || ""}
+                value={editedTask?.title ?? ""}
                 onChange={(e) =>
-                  setEditedTask(editedTask ? { ...editedTask, title: e.target.value } : null)
+                  setEditedTask((prev: any) => (prev ? { ...prev, title: e.target.value } : prev))
                 }
                 className="text-2xl font-bold border-0 bg-transparent p-0 focus-visible:ring-0"
                 placeholder="Task title..."
@@ -280,18 +275,38 @@ export function TaskDetailModal({
                 {currentTask.title}
               </h1>
             )}
-            
+
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge className={getPriorityColor(currentTask.priority)}>
-                <Flag className="h-3 w-3 mr-1" />
-                {currentTask.priority}
-              </Badge>
-              
+              {isEditing ? (
+                <>
+                  <Select
+                    value={editedTask?.priority}
+                    onValueChange={(value) =>
+                      setEditedTask((prev: any) => (prev ? { ...prev, priority: value } : prev))
+                    }
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Low">Low</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </>
+              ) : (
+                <Badge className={getPriorityColor(currentTask.priority)}>
+                  <Flag className="h-3 w-3 mr-1" />
+                  {currentTask.priority}
+                </Badge>
+              )}
+
               {isEditing ? (
                 <Select
                   value={editedTask?.status}
                   onValueChange={(value) =>
-                    setEditedTask(editedTask ? { ...editedTask, status: value as any } : null)
+                    setEditedTask((prev: any) => (prev ? { ...prev, status: value as any } : prev))
                   }
                 >
                   <SelectTrigger className="w-32">
@@ -327,10 +342,12 @@ export function TaskDetailModal({
               </>
             ) : (
               <>
-                <EnhancedButton onClick={handleEdit} variant="outline" size="sm">
-                  <Edit3 className="h-4 w-4 mr-2" />
-                  Edit
-                </EnhancedButton>
+                {onSave && (
+                  <EnhancedButton onClick={handleEdit} variant="outline" size="sm">
+                    <Edit3 className="h-4 w-4 mr-2" />
+                    Edit
+                  </EnhancedButton>
+                )}
                 <EnhancedButton variant="outline" size="sm">
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
@@ -369,9 +386,9 @@ export function TaskDetailModal({
             </Label>
             {isEditing ? (
               <Textarea
-                value={editedTask?.description || ""}
+                value={editedTask?.description ?? ""}
                 onChange={(e) =>
-                  setEditedTask(editedTask ? { ...editedTask, description: e.target.value } : null)
+                  setEditedTask((prev: any) => (prev ? { ...prev, description: e.target.value } : prev))
                 }
                 placeholder="Add a description..."
                 rows={4}
@@ -438,7 +455,7 @@ export function TaskDetailModal({
                     mode="single"
                     selected={editedTask?.dueDate || undefined}
                     onSelect={(date) =>
-                      setEditedTask(editedTask ? { ...editedTask, dueDate: date || null } : null)
+                      setEditedTask((prev: any) => (prev ? { ...prev, dueDate: date || null } : prev))
                     }
                     initialFocus
                   />
@@ -582,14 +599,14 @@ export function TaskDetailModal({
                 className="flex items-start gap-3"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={comment.author.avatar || "/placeholder.svg"} alt={comment.author.name} />
+                  <AvatarImage src={comment.author?.avatar || "/placeholder.svg"} alt={comment.author?.name || "User"} />
                   <AvatarFallback>
-                    {comment.author.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
+                    {(comment.author?.name || "U").split(" ").map((n: string) => n?.[0] || "").join("") || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{comment.author.name}</span>
+                    <span className="font-medium text-sm">{comment.author?.name || 'User'}</span>
                     <span className="text-xs text-muted-foreground">
                       {format(comment.createdAt, "MMM d, yyyy 'at' h:mm a")}
                     </span>
@@ -661,9 +678,9 @@ export function TaskDetailModal({
                 className="flex items-start gap-3"
               >
                 <Avatar className="h-6 w-6">
-                  <AvatarImage src={activity.user.avatar || "/placeholder.svg"} alt={activity.user.name} />
+                  <AvatarImage src={activity.user?.avatar || "/placeholder.svg"} alt={activity.user?.name || "User"} />
                   <AvatarFallback className="text-xs">
-                    {activity.user.name.split(" ").map((n: string) => n[0]).join("")}
+                    {(activity.user?.name || "U").split(" ").map((n: string) => n?.[0] || "").join("") || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -689,18 +706,20 @@ export function TaskDetailModal({
             <Archive className="h-4 w-4 mr-2" />
             Archive
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="text-red-600 hover:text-red-700"
-            onClick={() => onDelete?.(currentTask.id)}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
+          {onDelete && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-600 hover:text-red-700"
+              onClick={() => onDelete?.(currentTask.id)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          )}
         </div>
         <div className="text-xs text-muted-foreground">
-          Created {format(currentTask.createdAt, "MMM d, yyyy")} • 
+          Created {format(currentTask.createdAt, "MMM d, yyyy")} •
           Updated {format(currentTask.updatedAt, "MMM d, yyyy")}
         </div>
       </div>

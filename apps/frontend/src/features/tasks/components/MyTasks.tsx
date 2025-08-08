@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { useState } from "react"
 import { Input } from "@/shared/components/ui/input"
@@ -40,20 +40,49 @@ export function MyTasks({ user }: MyTasksProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [priorityFilter, setPriorityFilter] = useState("all")
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const [tasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Design new homepage layout",
-      aiSummary:
-        "Create modern, responsive homepage with hero section, feature highlights, and improved navigation structure",
-      priority: "High",
-      status: "inProgress",
-      project: "Website Redesign",
-      deadline: "2024-02-15",
-      assignee: { name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32" },
-    },
-  ])
+  // Map backend task to UI task shape
+  const toUiTask = React.useCallback((t: any): Task => {
+    const priorityMap: Record<string, Task["priority"]> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High" }
+    const statusMap: Record<string, Task["status"]> = { TODO: "todo", IN_PROGRESS: "inProgress", DONE: "done" }
+    return {
+      id: t.id,
+      title: t.title,
+      aiSummary: t.summary || "",
+      priority: priorityMap[t.priority] || "Medium",
+      status: statusMap[t.status] || "todo",
+      project: t.project?.name || "",
+      deadline: t.deadline || new Date().toISOString(),
+      assignee: { name: t.assignee?.email || user.email, avatar: user.avatar },
+    }
+  }, [user.email, user.avatar])
+
+  React.useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const { apiService } = await import("@/shared/services/api")
+        const resp = await apiService.getTasks()
+        const data: any = (resp as any).data || resp
+        const list: any[] = Array.isArray(data) ? data : data?.tasks || []
+        if (!mounted) return
+        setTasks(list.map(toUiTask))
+      } catch (e: any) {
+        if (!mounted) return
+        setError(e.message || "Failed to load tasks")
+      } finally {
+        if (!mounted) return
+        setLoading(false)
+      }
+    }
+    load()
+    return () => { mounted = false }
+  }, [toUiTask])
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [showTaskDetail, setShowTaskDetail] = useState(false)
@@ -132,11 +161,7 @@ export function MyTasks({ user }: MyTasksProps) {
         </h3>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {tasks.map((task) => (
-            <AnimatedTaskCard
-              key={task.id}
-              task={task}
-              onClick={() => handleTaskClick(task)}
-            />
+            <AnimatedTaskCard key={task.id} task={task} onClick={() => handleTaskClick(task)} />
           ))}
         </div>
       </div>
@@ -156,6 +181,8 @@ export function MyTasks({ user }: MyTasksProps) {
 
       <div className="flex-1 overflow-auto p-6">
         <div className="space-y-6">
+          {loading && <div className="text-center text-sm">Loading tasks...</div>}
+          {error && <div className="text-center text-sm text-red-600">{error}</div>}
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1 max-w-md">
@@ -235,11 +262,7 @@ export function MyTasks({ user }: MyTasksProps) {
         onSave={handleTaskSave}
         onDelete={handleTaskDelete}
         teamMembers={teamMembers}
-        currentUser={{
-          id: user.id,
-          name: user.name,
-          avatar: user.avatar,
-        }}
+        currentUser={{ id: user.id, name: user.name, avatar: user.avatar }}
       />
     </div>
   )

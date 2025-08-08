@@ -16,6 +16,7 @@ import { Loader2, Plus, Sparkles, CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/shared/lib/utils"
 import { PROJECTS_CONSTANTS } from "@/features/projects/constants"
+import { apiService } from "@/shared/services/api"
 
 interface User {
   name: string
@@ -29,9 +30,11 @@ interface CreateTaskModalProps {
   onOpenChange: (open: boolean) => void
   projectId: string | null
   user: User
+  members?: Array<{ id: string; name: string }>
+  onCreated?: () => void
 }
 
-export function CreateTaskModal({ open, onOpenChange, projectId, user }: CreateTaskModalProps) {
+export function CreateTaskModal({ open, onOpenChange, projectId, user, members = [], onCreated }: CreateTaskModalProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [priority, setPriority] = useState<typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]>(PROJECTS_CONSTANTS.PRIORITY.MEDIUM)
@@ -40,11 +43,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId, user }: CreateT
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
   const [aiSummary, setAiSummary] = useState("")
 
-  const teamMembers = [
-    { id: "1", name: "John Doe", avatar: "/placeholder.svg?height=32&width=32" },
-    { id: "2", name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32" },
-    { id: "3", name: "Mike Johnson", avatar: "/placeholder.svg?height=32&width=32" },
-  ]
+  const teamMembers = members.map(m => ({ id: m.id, name: m.name, avatar: "/placeholder.svg?height=32&width=32" }))
 
   const generateAISummary = async () => {
     if (!title || !description) return
@@ -60,9 +59,28 @@ export function CreateTaskModal({ open, onOpenChange, projectId, user }: CreateT
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle task creation logic here
-    console.log("Creating task:", { title, description, priority, assignee, deadline, aiSummary })
-    onOpenChange(false)
+    if (!projectId) return
+    try {
+      const payload: any = {
+        title,
+        description,
+        priority: priority === PROJECTS_CONSTANTS.PRIORITY.HIGH ? 'HIGH' : priority === PROJECTS_CONSTANTS.PRIORITY.LOW ? 'LOW' : 'MEDIUM',
+        assigneeId: assignee || undefined,
+        deadline: deadline ? deadline.toISOString() : undefined,
+        // status is optional; backend defaults to TODO
+      }
+      await apiService.createProjectTask(projectId, payload)
+      onOpenChange(false)
+      setTitle("")
+      setDescription("")
+      setPriority(PROJECTS_CONSTANTS.PRIORITY.MEDIUM)
+      setAssignee("")
+      setDeadline(undefined)
+      setAiSummary("")
+      onCreated?.()
+    } catch (err) {
+      console.error('Failed to create task', err)
+    }
   }
 
   return (

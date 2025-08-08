@@ -320,12 +320,14 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                       </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all"
-                        style={{
-                          width: `${(project.taskStats.done / (project.taskStats.todo + project.taskStats.inProgress + project.taskStats.done)) * 100}%`,
-                        }}
-                      />
+                      {(project.taskStats.todo + project.taskStats.inProgress + project.taskStats.done) > 0 && (
+                        <div
+                          className="bg-blue-600 h-2 rounded-full transition-all"
+                          style={{
+                            width: `${(project.taskStats.done / (project.taskStats.todo + project.taskStats.inProgress + project.taskStats.done)) * 100}%`,
+                          }}
+                        />
+                      )}
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-500">To Do: {project.taskStats.todo}</span>

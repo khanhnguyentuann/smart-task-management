@@ -26,7 +26,7 @@ export const API_ROUTES = {
     TASKS: (projectId: string) => `/api/projects/${projectId}/tasks`,
   },
   TASKS: {
-    LIST: "/api/tasks",
+    LIST: "/api/users/me/tasks",
     CREATE: "/api/tasks",
     DETAIL: (id: string) => `/api/tasks/${id}`,
     UPDATE: (id: string) => `/api/tasks/${id}`,
