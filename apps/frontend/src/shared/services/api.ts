@@ -1,11 +1,35 @@
 import { API_ROUTES } from "@/core/constants/routes"
 import { AUTH_CONSTANTS } from "@/features/auth/constants/auth.constants"
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios"
 
 class ApiService {
   private baseURL: string
+  private axiosInstance: AxiosInstance
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+    this.axiosInstance = axios.create({
+      baseURL: this.baseURL,
+      headers: { "Content-Type": "application/json" },
+      withCredentials: false,
+    })
+
+    // Attach token + log requests
+    this.axiosInstance.interceptors.request.use((config) => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_CONSTANTS.TOKEN_KEY) : null
+        if (token) {
+          if (!config.headers) config.headers = new (axios.AxiosHeaders || (class {} as any))()
+          // Normalize to plain object for compatibility
+          const hdrs: Record<string, string> = typeof config.headers === 'object' ? (config.headers as any) : {}
+          hdrs['Authorization'] = `Bearer ${token}`
+          config.headers = hdrs as any
+        }
+        // eslint-disable-next-line no-console
+        console.log('[API request]', { method: (config.method || 'GET').toUpperCase(), url: config.url })
+      } catch {}
+      return config
+    })
   }
 
   // Check if token is about to expire (within 5 minutes)
@@ -50,82 +74,89 @@ class ApiService {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    // Proactively refresh token if needed
-    await this.refreshTokenIfNeeded()
-    
-    const url = `${this.baseURL}${endpoint}`
-    
-    const config: RequestInit = {
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-      ...options,
+    const isAuthEndpoint = endpoint.startsWith('/api/auth/')
+    // Proactively refresh token if needed (skip for auth endpoints to avoid loops)
+    if (!isAuthEndpoint) {
+      await this.refreshTokenIfNeeded()
     }
 
-    // Add auth token if available
-    const token = localStorage.getItem(AUTH_CONSTANTS.TOKEN_KEY)
-    if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`,
+    const method = (options.method || 'GET').toUpperCase()
+    const axiosConfig: AxiosRequestConfig = {
+      url: endpoint,
+      method: method as AxiosRequestConfig['method'],
+      headers: undefined,
+      data: undefined,
+    }
+    // Build headers safely for Axios typing
+    const builtHeaders: Record<string, string> = { "Content-Type": "application/json" }
+    if (options.headers) {
+      for (const [k, v] of Object.entries(options.headers)) {
+        if (typeof v === 'string') builtHeaders[k] = v
+      }
+    }
+    axiosConfig.headers = builtHeaders
+    const rawBody = (options as any).body
+    if (rawBody) {
+      try {
+        axiosConfig.data = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody
+      } catch {
+        axiosConfig.data = rawBody
       }
     }
 
     try {
-      const response = await fetch(url, config)
-      
-      if (!response.ok) {
-        // Handle 401 Unauthorized - try to refresh token
-        if (response.status === 401) {
-          const refreshToken = localStorage.getItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)
-          if (refreshToken) {
-            try {
-              const refreshResponse = await this.refreshToken(refreshToken)
-              const newToken = (refreshResponse as any).accessToken || (refreshResponse as any).token
-              if (newToken) {
-                localStorage.setItem(AUTH_CONSTANTS.TOKEN_KEY, newToken)
-                // Retry the original request with new token
-                config.headers = {
-                  ...config.headers,
+      const res = await this.axiosInstance.request<T>(axiosConfig)
+      // eslint-disable-next-line no-console
+      console.log('[API response:ok]', { method, endpoint })
+      return res.data as T
+    } catch (err) {
+      const error = err as AxiosError
+      const status = error.response?.status
+      // eslint-disable-next-line no-console
+      console.warn('[API response:error]', { method, endpoint, status })
+
+      if (status === 401) {
+        // Auth endpoints: surface backend message
+        if (isAuthEndpoint) {
+          const authMsg = (error.response?.data as any)?.message || 'Unauthorized'
+          throw new Error(authMsg)
+        }
+
+        // Non-auth endpoints: try refresh once then retry
+        const refreshToken = typeof window !== 'undefined' ? localStorage.getItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY) : null
+        if (refreshToken) {
+          try {
+            const refreshRes = await this.axiosInstance.post(API_ROUTES.AUTH.REFRESH, { refreshToken })
+            const newToken = (refreshRes.data as any)?.accessToken || (refreshRes.data as any)?.token
+            if (newToken) {
+              localStorage.setItem(AUTH_CONSTANTS.TOKEN_KEY, newToken)
+              const retryConfig: AxiosRequestConfig = {
+                ...axiosConfig,
+                headers: {
+                  ...(axiosConfig.headers || {}),
                   Authorization: `Bearer ${newToken}`,
-                }
-                const retryResponse = await fetch(url, config)
-                if (!retryResponse.ok) {
-                  throw new Error(`HTTP error! status: ${retryResponse.status}`)
-                }
-                return await retryResponse.json()
+                },
               }
-            } catch (refreshError) {
-              // Refresh failed, clear tokens and redirect to login
-              localStorage.removeItem(AUTH_CONSTANTS.TOKEN_KEY)
-              localStorage.removeItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)
-              window.location.href = '/login'
-              throw new Error('Authentication expired. Please login again.')
+              // eslint-disable-next-line no-console
+              console.log('[API retry after refresh]', { method, endpoint })
+              const retryRes = await this.axiosInstance.request<T>(retryConfig)
+              return retryRes.data as T
             }
-          } else {
-            // No refresh token, redirect to login
+          } catch (refreshError) {
             localStorage.removeItem(AUTH_CONSTANTS.TOKEN_KEY)
-            window.location.href = '/login'
-            throw new Error('Authentication required. Please login.')
+            localStorage.removeItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)
+            throw new Error('Authentication expired. Please login again.')
           }
+        } else {
+          localStorage.removeItem(AUTH_CONSTANTS.TOKEN_KEY)
+          throw new Error('Authentication required. Please login.')
         }
-        
-        // Try to get error message from response
-        let errorMessage = `HTTP error! status: ${response.status}`
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.message || errorData.error || errorMessage
-        } catch {
-          // If we can't parse JSON, use default message
-        }
-        throw new Error(errorMessage)
       }
-      
-      return await response.json()
-    } catch (error) {
-      console.error("API request failed:", error)
-      throw error
+
+      const fallbackMessage = (error.response?.data as any)?.message || error.message || 'Network error'
+      // eslint-disable-next-line no-console
+      console.error('[API error]', { method, endpoint, message: fallbackMessage })
+      throw new Error(fallbackMessage)
     }
   }
 
