@@ -107,6 +107,7 @@ class ProjectsApi {
                     } : undefined,
                     createdAt: task.createdAt,
                     updatedAt: task.updatedAt,
+                    deadline: task.deadline,
                 })) || [],
                 createdAt: project.createdAt,
                 updatedAt: project.updatedAt,

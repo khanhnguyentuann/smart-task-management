@@ -4,6 +4,7 @@ import type { Project, CreateProjectData, UpdateProjectData } from '../types'
 
 export const useProjects = () => {
   const [projects, setProjects] = useState<Project[]>([])
+  const [allProjects, setAllProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -12,6 +13,7 @@ export const useProjects = () => {
       setLoading(true)
       setError(null)
       const data = await projectsApi.getProjects()
+      setAllProjects(data)
       setProjects(data)
     } catch (err: any) {
       setError(err.message || 'Failed to fetch projects')
@@ -24,6 +26,7 @@ export const useProjects = () => {
     try {
       setError(null)
       const newProject = await projectsApi.createProject(projectData)
+      setAllProjects(prev => [...prev, newProject])
       setProjects(prev => [...prev, newProject])
       return newProject
     } catch (err: any) {
@@ -36,7 +39,10 @@ export const useProjects = () => {
     try {
       setError(null)
       const updatedProject = await projectsApi.updateProject(id, projectData)
-      setProjects(prev => prev.map(project => 
+      setAllProjects(prev => prev.map(project =>
+        project.id === id ? updatedProject : project
+      ))
+      setProjects(prev => prev.map(project =>
         project.id === id ? updatedProject : project
       ))
       return updatedProject
@@ -50,6 +56,7 @@ export const useProjects = () => {
     try {
       setError(null)
       await projectsApi.deleteProject(id)
+      setAllProjects(prev => prev.filter(project => project.id !== id))
       setProjects(prev => prev.filter(project => project.id !== id))
     } catch (err: any) {
       setError(err.message || 'Failed to delete project')
@@ -85,6 +92,7 @@ export const useProjects = () => {
 
   return {
     projects,
+    allProjects,
     loading,
     error,
     fetchProjects,

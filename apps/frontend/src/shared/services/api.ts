@@ -104,6 +104,16 @@ class ApiService {
     })
   }
 
+  async getProjectTasks(projectId: string, params?: Record<string, string | number | boolean>) {
+    const query = params
+      ? "?" + new URLSearchParams(Object.entries(params).reduce((acc, [k, v]) => {
+          acc[k] = String(v)
+          return acc
+        }, {} as Record<string, string>)).toString()
+      : ""
+    return this.request(`${API_ROUTES.PROJECTS.TASKS(projectId)}${query}`)
+  }
+
   async searchProjects(query: string) {
     return this.request(`${API_ROUTES.PROJECTS.SEARCH}?q=${encodeURIComponent(query)}`)
   }

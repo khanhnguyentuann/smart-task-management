@@ -23,6 +23,7 @@ export const API_ROUTES = {
     DETAIL: (id: string) => `/api/projects/${id}`,
     UPDATE: (id: string) => `/api/projects/${id}`,
     DELETE: (id: string) => `/api/projects/${id}`,
+    TASKS: (projectId: string) => `/api/projects/${projectId}/tasks`,
   },
   TASKS: {
     LIST: "/api/tasks",

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button } from "@/shared/components/ui/button"
 import { Badge } from "@/shared/components/ui/badge"
@@ -11,102 +11,106 @@ import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal"
 import { AnimatedTaskCard } from "@/shared/components/ui/animated-task-card"
 import { PROJECTS_CONSTANTS } from "../constants"
-import { getPriorityColor, getDeadlineStatus } from "../utils"
 import { ProjectDetailProps } from "../types"
-import { Task } from "@/features/tasks/types/task.types"
+import { apiService } from "@/shared/services/api"
 
 export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
   const [showCreateTask, setShowCreateTask] = useState(false)
-  const [project] = useState({
-    id: projectId,
-    name: "Website Redesign",
-    description: "Complete overhaul of company website with modern design and improved user experience",
-    members: [
-      { name: "John Doe", avatar: "/placeholder.svg?height=32&width=32", role: PROJECTS_CONSTANTS.ROLES.ADMIN },
-      { name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32", role: PROJECTS_CONSTANTS.ROLES.MEMBER },
-      { name: "Mike Johnson", avatar: "/placeholder.svg?height=32&width=32", role: PROJECTS_CONSTANTS.ROLES.MEMBER },
-    ],
-  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [project, setProject] = useState<any | null>(null)
+  const [tasks, setTasks] = useState<any[]>([])
 
-  const [tasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Design new homepage layout",
-      aiSummary:
-        "Create modern, responsive homepage with hero section, feature highlights, and improved navigation structure",
-      priority: PROJECTS_CONSTANTS.PRIORITY.HIGH,
-      assignee: { name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32" },
-      deadline: "2024-02-15",
-      status: PROJECTS_CONSTANTS.TASK_STATUS.IN_PROGRESS,
-      project: "Website Redesign",
-    },
-    {
-      id: "2",
-      title: "Implement user authentication",
-      aiSummary: "Develop secure login/signup system with password reset functionality and social media integration",
-      priority: PROJECTS_CONSTANTS.PRIORITY.MEDIUM,
-      assignee: { name: "Mike Johnson", avatar: "/placeholder.svg?height=32&width=32" },
-      deadline: "2024-02-20",
-      status: PROJECTS_CONSTANTS.TASK_STATUS.TODO,
-      project: "Website Redesign",
-    },
-    {
-      id: "3",
-      title: "Optimize page loading speed",
-      aiSummary: "Improve website performance through image optimization, code splitting, and caching strategies",
-      priority: PROJECTS_CONSTANTS.PRIORITY.LOW,
-      assignee: { name: "John Doe", avatar: "/placeholder.svg?height=32&width=32" },
-      deadline: "2024-02-10",
-      status: PROJECTS_CONSTANTS.TASK_STATUS.DONE,
-      project: "Website Redesign",
-    },
-  ])
+  useEffect(() => {
+    let isMounted = true
+    const load = async () => {
+      if (!projectId) return
+      try {
+        setLoading(true)
+        setError(null)
+        const projResp = await apiService.getProject(projectId)
+        const projData = (projResp as any).data || projResp
+        const tasksResp = await apiService.getProjectTasks(projectId)
+        const tasksData = (tasksResp as any).data || tasksResp
+        const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
+        if (!isMounted) return
+        setProject(projData)
+        setTasks(Array.isArray(tasksArray) ? tasksArray : [])
+      } catch (e: any) {
+        if (!isMounted) return
+        setError(e.message || 'Failed to load project detail')
+      } finally {
+        if (!isMounted) return
+        setLoading(false)
+      }
+    }
+    load()
+    return () => { isMounted = false }
+  }, [projectId])
 
-  const TaskCard = ({ task }: { task: Task }) => {
-    const deadlineStatus = getDeadlineStatus(task.deadline)
-
-    return (
-      <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="p-4 space-y-3">
-          <div className="flex items-start justify-between">
-            <h4 className="font-medium">{task.title}</h4>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${getPriorityColor(task.priority)}`} />
-              <Badge variant="outline" className="text-xs">
-                {task.priority}
-              </Badge>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded-md">
-            <Sparkles className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-blue-800 dark:text-blue-200">{task.aiSummary}</p>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={task.assignee.avatar || "/placeholder.svg"} alt={task.assignee.name} />
-                <AvatarFallback className="text-xs">
-                  {task.assignee.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm text-muted-foreground">{task.assignee.name}</span>
-            </div>
-            <div className={`text-xs ${deadlineStatus.color}`}>{deadlineStatus.label}</div>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const tasksByStatus = {
+  const tasksByStatus = useMemo(() => ({
     todo: tasks.filter((task) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.TODO),
     inProgress: tasks.filter((task) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.IN_PROGRESS),
     done: tasks.filter((task) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.DONE),
+  }), [tasks])
+
+  const toUiTask = (task: any) => {
+    const priorityMap: Record<string, string> = { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High' }
+    const statusMap: Record<string, string> = { TODO: 'todo', IN_PROGRESS: 'inProgress', DONE: 'done' }
+    return {
+      id: task.id,
+      title: task.title,
+      aiSummary: task.summary || '',
+      priority: priorityMap[task.priority] || 'Medium',
+      status: statusMap[task.status] || 'todo',
+      project: project?.name || '',
+      deadline: task.deadline || '',
+      assignee: {
+        name: task.assignee?.email || 'Unassigned',
+        avatar: '',
+      },
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-full">
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-14 items-center gap-4 px-6">
+            <SidebarTrigger />
+            <Button variant="ghost" size="sm" onClick={onBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Projects
+            </Button>
+          </div>
+        </header>
+        <div className="flex-1 flex items-center justify-center">
+          Loading project...
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !project) {
+    return (
+      <div className="flex flex-col h-full">
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-14 items-center gap-4 px-6">
+            <SidebarTrigger />
+            <Button variant="ghost" size="sm" onClick={onBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Projects
+            </Button>
+          </div>
+        </header>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error || 'Project not found'}</p>
+            <Button onClick={onBack}>Go Back</Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -136,20 +140,18 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex -space-x-2">
-                    {project.members.slice(0, 3).map((member, index) => (
+                    {project.projectUsers?.slice(0, 3).map((pu: any, index: number) => (
                       <Avatar key={index} className="h-8 w-8 border-2 border-background">
-                        <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
+                        <AvatarImage src={"/placeholder.svg"} alt={`${pu.user?.firstName} ${pu.user?.lastName}`} />
                         <AvatarFallback>
-                          {member.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
+                          {(pu.user?.firstName || "").charAt(0)}
+                          {(pu.user?.lastName || "").charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                     ))}
-                    {project.members.length > 3 && (
+                    {project.projectUsers && project.projectUsers.length > 3 && (
                       <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
-                        +{project.members.length - 3}
+                        +{project.projectUsers.length - 3}
                       </div>
                     )}
                   </div>
@@ -192,7 +194,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.todo.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={task as any} />
+                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} />
                     ))}
                   </div>
                 </div>
@@ -207,7 +209,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.inProgress.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={task as any} />
+                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} />
                     ))}
                   </div>
                 </div>
@@ -222,7 +224,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.done.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={task as any} />
+                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} />
                     ))}
                   </div>
                 </div>
@@ -236,21 +238,19 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {project.members.map((member, index) => (
+                    {project.projectUsers?.map((pu: any, index: number) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar>
-                            <AvatarImage src={member.avatar || "/placeholder.svg"} alt={member.name} />
+                            <AvatarImage src={"/placeholder.svg"} alt={`${pu.user?.firstName} ${pu.user?.lastName}`} />
                             <AvatarFallback>
-                              {member.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
+                              {(pu.user?.firstName || "").charAt(0)}
+                              {(pu.user?.lastName || "").charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{member.name}</p>
-                            <Badge variant={member.role === PROJECTS_CONSTANTS.ROLES.ADMIN ? "default" : "secondary"}>{member.role}</Badge>
+                            <p className="font-medium">{pu.user?.firstName} {pu.user?.lastName}</p>
+                            <Badge variant={"secondary"}>Member</Badge>
                           </div>
                         </div>
                       </div>

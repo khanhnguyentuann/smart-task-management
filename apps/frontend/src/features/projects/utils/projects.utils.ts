@@ -70,7 +70,7 @@ export const formatProjectError = (error: any): string => {
 
 // Filter and search utilities
 export const filterProjectsByQuery = (projects: Project[], query: string): Project[] => {
-    if (!query || query.length < PROJECTS_CONSTANTS.LIMITS.SEARCH_MIN_LENGTH) {
+    if (!query) {
         return projects
     }
 

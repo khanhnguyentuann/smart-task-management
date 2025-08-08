@@ -28,7 +28,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
-  const { projects, loading, error, createProject, deleteProject, updateProject, searchProjects } = useProjects()
+  const { projects, allProjects, loading, error, createProject, deleteProject, updateProject, searchProjects } = useProjects()
   const { toast } = useToast()
 
   // Store timeout reference
@@ -57,12 +57,13 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
         searchProjects(query).finally(() => setIsSearching(false))
       }, PROJECTS_CONSTANTS.LIMITS.SEARCH_DEBOUNCE_MS)
     }
+    // Khi query ngắn (< min), chỉ filter client-side theo allProjects
   }
 
   // Client-side filter for short queries only
   const filteredProjects = searchQuery.length < PROJECTS_CONSTANTS.LIMITS.SEARCH_MIN_LENGTH
-    ? filterProjectsByQuery(projects, searchQuery)
-    : projects // For server-side search, use all projects as they're already filtered
+    ? filterProjectsByQuery(allProjects, searchQuery)
+    : projects // For server-side search, use server result
 
   const handleCreateProject = async (projectData: any) => {
     try {
