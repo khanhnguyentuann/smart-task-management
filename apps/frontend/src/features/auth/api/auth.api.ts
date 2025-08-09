@@ -1,39 +1,52 @@
-import { apiService } from '@/core/services/api'
-import type { AuthResponse, LoginCredentials, RegisterCredentials } from '../types'
+/*
+    API layer: Only talk to HTTP Client (ApiClient)
+    No business logic, just transform response if needed.
+*/
+import { apiClient } from '@/core/services/api-client'
+import { API_ROUTES } from '@/core/constants/routes'
+import type { AuthApiResponse, AuthResponse, LoginCredentials, RegisterCredentials, User } from '../types'
 
 class AuthApi {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        const response = await apiService.login(credentials)
-        return this.transformAuthResponse(response)
+        const res = await apiClient.post<AuthApiResponse>(API_ROUTES.AUTH.LOGIN, credentials)
+        return this.transformAuthResponse(res)
     }
 
     async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-        const response = await apiService.register(credentials)
-        return this.transformAuthResponse(response)
+        const res = await apiClient.post<AuthApiResponse>(API_ROUTES.AUTH.REGISTER, credentials)
+        return this.transformAuthResponse(res)
     }
 
     async logout(): Promise<void> {
-        await apiService.logout()
+        await apiClient.post(API_ROUTES.AUTH.LOGOUT)
     }
 
-    async refreshToken(refreshToken: string): Promise<AuthResponse> {
-        const response = await apiService.refreshToken(refreshToken)
-        return this.transformAuthResponse(response)
+    async getProfile(): Promise<User> {
+        return apiClient.get<User>(API_ROUTES.USERS.PROFILE)
     }
 
-    private transformAuthResponse(response: any): AuthResponse {
+    async updateProfile(payload: Partial<User>): Promise<User> {
+        return apiClient.put<User>(API_ROUTES.USERS.UPDATE, payload)
+    }
+
+    async refresh(): Promise<AuthResponse> {
+        const res = await apiClient.post<AuthApiResponse>(API_ROUTES.AUTH.REFRESH, {})
+        return this.transformAuthResponse(res)
+    }
+
+    private transformAuthResponse(response: AuthApiResponse): AuthResponse {
+        const accessToken = response.accessToken ?? response.token
+        if (!accessToken) {
+            throw new Error('Invalid authentication response: missing access token')
+        }
+        const refreshToken = response.refreshToken
+        if (!refreshToken) {
+            throw new Error('Invalid authentication response: missing refresh token')
+        }
         return {
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            user: {
-                id: response.user.id,
-                firstName: response.user.firstName,
-                lastName: response.user.lastName,
-                email: response.user.email,
-                createdAt: response.user.createdAt,
-                avatar: response.user.avatar,
-                department: response.user.department
-            }
+            accessToken,
+            refreshToken,
+            user: response.user,
         }
     }
 }

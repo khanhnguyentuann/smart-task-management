@@ -1,75 +1,77 @@
 import { z } from 'zod'
 import { AUTH_CONSTANTS, type PasswordStrength } from '../constants'
 
-// Zod schemas
-export const loginSchema = z.object({
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(1, 'Password is required')
-})
-
+// Unified validation schema for Register form
 export const registerSchema = z.object({
-    firstName: z.string().min(2, 'First name must be at least 2 characters'),
-    lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(AUTH_CONSTANTS.PASSWORD.MIN_LENGTH, `Password must be at least ${AUTH_CONSTANTS.PASSWORD.MIN_LENGTH} characters`),
+    firstName: z
+        .string()
+        .trim()
+        .min(2, AUTH_CONSTANTS.VALIDATION.FIRST_NAME_MIN)
+        .max(20, AUTH_CONSTANTS.VALIDATION.FIRST_NAME_MAX)
+        .regex(/^[\p{L}\p{M}\s'-]+$/u, AUTH_CONSTANTS.VALIDATION.FIRST_NAME_PATTERN),
+    lastName: z
+        .string()
+        .trim()
+        .min(2, AUTH_CONSTANTS.VALIDATION.LAST_NAME_MIN)
+        .max(20, AUTH_CONSTANTS.VALIDATION.LAST_NAME_MAX)
+        .regex(/^[\p{L}\p{M}\s'-]+$/u, AUTH_CONSTANTS.VALIDATION.LAST_NAME_PATTERN),
+    email: z
+        .string()
+        .email(AUTH_CONSTANTS.VALIDATION.EMAIL_INVALID),
+    password: z
+        .string()
+        .min(AUTH_CONSTANTS.PASSWORD.MIN_LENGTH, AUTH_CONSTANTS.VALIDATION.PASSWORD_MIN)
+        .max(AUTH_CONSTANTS.PASSWORD.MAX_LENGTH, AUTH_CONSTANTS.VALIDATION.PASSWORD_MAX)
+        .regex(/[A-Z]/, AUTH_CONSTANTS.VALIDATION.PASSWORD_UPPER)
+        .regex(/[a-z]/, AUTH_CONSTANTS.VALIDATION.PASSWORD_LOWER)
+        .regex(/\d/, AUTH_CONSTANTS.VALIDATION.PASSWORD_DIGIT)
+        .regex(/[@$!%*?&]/, AUTH_CONSTANTS.VALIDATION.PASSWORD_SPECIAL),
     confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"]
+    message: AUTH_CONSTANTS.VALIDATION.CONFIRM_PASSWORD_MISMATCH,
+    path: ["confirmPassword"],
 })
 
 // Type exports
-export type LoginFormData = z.infer<typeof loginSchema>
 export type RegisterFormData = z.infer<typeof registerSchema>
 
-// Password validation
+// Password strength assessment (for real-time UI)
 export interface PasswordValidationResult {
-    isValid: boolean
-    errors: string[]
     strength: PasswordStrength
+    rules: {
+        minOk: boolean
+        maxOk: boolean
+        upperOk: boolean
+        lowerOk: boolean
+        digitOk: boolean
+        specialOk: boolean
+    }
 }
 
 export const validatePassword = (password: string): PasswordValidationResult => {
-    const errors: string[] = []
+    const { PASSWORD } = AUTH_CONSTANTS
+    const { MIN_LENGTH, MAX_LENGTH, STRENGTH_LEVELS } = PASSWORD
 
-    if (password.length < AUTH_CONSTANTS.PASSWORD.MIN_LENGTH) {
-        errors.push(`Password must be at least ${AUTH_CONSTANTS.PASSWORD.MIN_LENGTH} characters long`)
-    }
+    const p = password || ""
+    const minOk = p.length >= MIN_LENGTH
+    const maxOk = p.length <= MAX_LENGTH
+    const lowerOk = /[a-z]/.test(p)
+    const upperOk = /[A-Z]/.test(p)
+    const digitOk = /\d/.test(p)
+    const specialOk = /[@$!%*?&]/.test(p)
 
-    if (!/[a-z]/.test(password)) {
-        errors.push('Password must contain at least one lowercase letter')
-    }
+    const passedRuleCount = [minOk, maxOk, lowerOk, upperOk, digitOk, specialOk].filter(Boolean).length
 
-    if (!/[A-Z]/.test(password)) {
-        errors.push('Password must contain at least one uppercase letter')
-    }
-
-    if (!/\d/.test(password)) {
-        errors.push('Password must contain at least one number')
-    }
-
-    if (!/[@$!%*?&]/.test(password)) {
-        errors.push('Password must contain at least one special character (@$!%*?&)')
-    }
-
-    const criteriaMet = [
-        password.length >= AUTH_CONSTANTS.PASSWORD.MIN_LENGTH,
-        /[a-z]/.test(password),
-        /[A-Z]/.test(password),
-        /\d/.test(password),
-        /[@$!%*?&]/.test(password)
-    ].filter(Boolean).length
-
-    let strength: PasswordStrength = AUTH_CONSTANTS.PASSWORD.STRENGTH_LEVELS.WEAK
-    if (criteriaMet >= 5) {
-        strength = AUTH_CONSTANTS.PASSWORD.STRENGTH_LEVELS.STRONG
-    } else if (criteriaMet >= 3) {
-        strength = AUTH_CONSTANTS.PASSWORD.STRENGTH_LEVELS.MEDIUM
-    }
+    const passwordStrength: PasswordStrength =
+        passedRuleCount >= 6
+            ? STRENGTH_LEVELS.STRONG
+            : passedRuleCount >= 4
+                ? STRENGTH_LEVELS.MEDIUM
+                : STRENGTH_LEVELS.WEAK
 
     return {
-        isValid: errors.length === 0,
-        errors,
-        strength
+        strength: passwordStrength,
+        rules: { minOk, maxOk, upperOk, lowerOk, digitOk, specialOk },
     }
 }
+

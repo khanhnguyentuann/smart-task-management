@@ -14,7 +14,7 @@ import { useToast } from "@/shared/hooks/useToast"
 import { AnimatedBackground } from "@/shared/components/ui/animated-background"
 import { TaskBot } from "@/shared/components/ui/task-bot"
 import { WelcomeScreen } from "@/features/welcome"
-import { AuthModal } from "@/features/auth"
+import { AuthModal, useLogout } from "@/features/auth"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function Home() {
@@ -25,6 +25,7 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
+  const { logout } = useLogout()
 
   useEffect(() => {
     // Check for saved user in localStorage
@@ -43,20 +44,22 @@ export default function Home() {
     setShowAuthModal(false)
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const userName = user?.firstName || "User"
-    setUser(null)
-    localStorage.removeItem("smart-task-user")
-    setShowWelcome(true)
-    setCurrentPage("dashboard")
-    setSelectedProject(null)
-
-    // Show logout success toast
-    toast({
-      title: "👋 See you soon!",
-      description: `Successfully logged out. Come back anytime, ${userName}!`,
-      variant: "default",
-    })
+    try {
+      await logout()
+    } finally {
+      setUser(null)
+      localStorage.removeItem("smart-task-user")
+      setShowWelcome(true)
+      setCurrentPage("dashboard")
+      setSelectedProject(null)
+      toast({
+        title: "👋 See you soon!",
+        description: `Successfully logged out. Come back anytime, ${userName}!`,
+        variant: "default",
+      })
+    }
   }
 
   const handleGetStarted = () => {
