@@ -71,7 +71,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
       priority: priorityMap[task.priority] || 'Medium',
       status: statusMap[task.status] || 'todo',
       project: project?.name || '',
-      deadline: task.deadline || '',
+      deadline: (task as any).dueDate || task.deadline || '',
       assignee: {
         name: task.assignee?.email || 'Unassigned',
         avatar: '',
@@ -200,18 +200,18 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex -space-x-2">
-                    {project.projectUsers?.slice(0, 3).map((pu: any, index: number) => (
+                    {project.members?.slice(0, 3).map((m: any, index: number) => (
                       <Avatar key={index} className="h-8 w-8 border-2 border-background">
-                        <AvatarImage src={"/placeholder.svg"} alt={`${pu.user?.firstName} ${pu.user?.lastName}`} />
+                        <AvatarImage src={"/placeholder.svg"} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
                         <AvatarFallback>
-                          {(pu.user?.firstName || "").charAt(0)}
-                          {(pu.user?.lastName || "").charAt(0)}
+                          {(m.user?.firstName || "").charAt(0)}
+                          {(m.user?.lastName || "").charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                     ))}
-                    {project.projectUsers && project.projectUsers.length > 3 && (
+                    {project.members && project.members.length > 3 && (
                       <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
-                        +{project.projectUsers.length - 3}
+                        +{project.members.length - 3}
                       </div>
                     )}
                   </div>
@@ -308,36 +308,36 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {project.projectUsers?.map((pu: any, index: number) => (
+                    {project.members?.map((m: any, index: number) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar>
-                            <AvatarImage src={"/placeholder.svg"} alt={`${pu.user?.firstName} ${pu.user?.lastName}`} />
+                            <AvatarImage src={"/placeholder.svg"} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
                             <AvatarFallback>
-                              {(pu.user?.firstName || "").charAt(0)}
-                              {(pu.user?.lastName || "").charAt(0)}
+                              {(m.user?.firstName || "").charAt(0)}
+                              {(m.user?.lastName || "").charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{pu.user?.firstName} {pu.user?.lastName}</p>
+                            <p className="font-medium">{m.user?.firstName} {m.user?.lastName}</p>
                             <div className="flex items-center gap-2">
-                              <Badge variant={pu.user?.id === project.ownerId ? "default" : "secondary"}>
-                                {pu.user?.id === project.ownerId ? "Owner" : "Member"}
+                              <Badge variant={m.user?.id === project.ownerId ? "default" : "secondary"}>
+                                {m.user?.id === project.ownerId ? "Owner" : "Member"}
                               </Badge>
-                              {pu.user?.email && (
-                                <span className="text-xs text-muted-foreground">{pu.user.email}</span>
+                              {m.user?.email && (
+                                <span className="text-xs text-muted-foreground">{m.user.email}</span>
                               )}
                             </div>
                           </div>
                         </div>
-                        {project.ownerId === project.currentUserId && pu.user?.id !== project.ownerId && (
+                        {project.ownerId === project.currentUserId && m.user?.id !== project.ownerId && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setConfirmKickMember({ 
                               open: true, 
-                              memberId: pu.user?.id, 
-                              memberName: `${pu.user?.firstName} ${pu.user?.lastName}` 
+                              memberId: m.user?.id, 
+                              memberName: `${m.user?.firstName} ${m.user?.lastName}` 
                             })}
                             className="text-red-600 hover:text-red-700"
                           >
@@ -370,7 +370,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
         onOpenChange={setShowCreateTask}
         projectId={projectId}
         user={user}
-        members={(project?.projectUsers || []).map((pu: any) => ({ id: pu.user?.id, name: `${pu.user?.firstName || ''} ${pu.user?.lastName || ''}`.trim() }))}
+        members={(project?.members || []).map((m: any) => ({ id: m.user?.id, name: `${m.user?.firstName || ''} ${m.user?.lastName || ''}`.trim() }))}
         onCreated={async () => {
           if (!projectId) return
           try {

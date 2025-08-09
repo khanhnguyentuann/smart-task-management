@@ -44,7 +44,7 @@ export function MyTasks({ user }: MyTasksProps) {
       priority: priorityMap[t.priority] || "Medium",
       status: statusMap[t.status] || "TODO",
       project: t.project?.name || "",
-      deadline: t.deadline || new Date().toISOString(),
+      deadline: (t as any).dueDate || t.deadline || new Date().toISOString(),
       assignee: { name: t.assignee?.email || user.email, avatar: user.avatar },
     }
   }, [user.email, user.avatar])
@@ -183,10 +183,10 @@ export function MyTasks({ user }: MyTasksProps) {
   })
 
   const groupedTasks = {
-    overdue: filteredTasks.filter((task) => getDeadlineStatus(task.deadline).category === "overdue"),
-    today: filteredTasks.filter((task) => getDeadlineStatus(task.deadline).category === "today"),
-    thisWeek: filteredTasks.filter((task) => getDeadlineStatus(task.deadline).category === "thisWeek"),
-    later: filteredTasks.filter((task) => getDeadlineStatus(task.deadline).category === "later"),
+    overdue: filteredTasks.filter((task) => getDeadlineStatus((task as any).dueDate || task.deadline).category === "overdue"),
+    today: filteredTasks.filter((task) => getDeadlineStatus((task as any).dueDate || task.deadline).category === "today"),
+    thisWeek: filteredTasks.filter((task) => getDeadlineStatus((task as any).dueDate || task.deadline).category === "thisWeek"),
+    later: filteredTasks.filter((task) => getDeadlineStatus((task as any).dueDate || task.deadline).category === "later"),
   }
 
   const TaskGroup = ({ title, tasks, icon }: { title: string; tasks: Task[]; icon: React.ReactNode }) => {

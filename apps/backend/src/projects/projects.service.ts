@@ -43,7 +43,7 @@ export class ProjectsService {
                 startDate: startDate ? new Date(startDate) : null,
                 endDate: endDate ? new Date(endDate) : null,
                 ownerId: userId,
-                projectUsers: {
+                members: {
                     create: [
                         // Auto-add owner as member
                         {
@@ -75,7 +75,7 @@ export class ProjectsService {
                         email: true,
                     },
                 },
-                projectUsers: {
+                members: {
                     include: {
                         user: {
                             select: {
@@ -108,7 +108,7 @@ export class ProjectsService {
                 },
                 _count: {
                     select: {
-                        projectUsers: true,
+                        members: true,
                         tasks: true,
                     },
                 },
@@ -129,7 +129,7 @@ export class ProjectsService {
                 OR: [
                     { ownerId: userId },
                     {
-                        projectUsers: {
+                        members: {
                             some: {
                                 userId,
                             },
@@ -146,7 +146,7 @@ export class ProjectsService {
                         email: true,
                     },
                 },
-                projectUsers: {
+                members: {
                     include: {
                         user: {
                             select: {
@@ -179,7 +179,7 @@ export class ProjectsService {
                 },
                 _count: {
                     select: {
-                        projectUsers: true,
+                        members: true,
                         tasks: true,
                     },
                 },
@@ -200,7 +200,7 @@ export class ProjectsService {
                 OR: [
                     { ownerId: userId },
                     {
-                        projectUsers: {
+                        members: {
                             some: {
                                 userId,
                             },
@@ -217,7 +217,7 @@ export class ProjectsService {
                         email: true,
                     },
                 },
-                projectUsers: {
+                members: {
                     include: {
                         user: {
                             select: {
@@ -234,7 +234,7 @@ export class ProjectsService {
                 },
                 _count: {
                     select: {
-                        projectUsers: true,
+                        members: true,
                     },
                 },
             },
@@ -280,7 +280,7 @@ export class ProjectsService {
                         email: true,
                     },
                 },
-                projectUsers: {
+                members: {
                     include: {
                         user: {
                             select: {
@@ -313,7 +313,7 @@ export class ProjectsService {
                 },
                 _count: {
                     select: {
-                        projectUsers: true,
+                        members: true,
                         tasks: true,
                     },
                 },
@@ -345,7 +345,7 @@ export class ProjectsService {
     }
 
     async isProjectMember(projectId: string, userId: string): Promise<boolean> {
-        const projectUser = await this.prisma.projectUser.findFirst({
+        const projectUser = await this.prisma.projectMember.findFirst({
             where: {
                 projectId,
                 userId,
@@ -374,7 +374,7 @@ export class ProjectsService {
                         OR: [
                             { ownerId: userId },
                             {
-                                projectUsers: {
+                                members: {
                                     some: {
                                         userId,
                                     },
@@ -409,7 +409,7 @@ export class ProjectsService {
                         email: true,
                     },
                 },
-                projectUsers: {
+                members: {
                     include: {
                         user: {
                             select: {
@@ -442,7 +442,7 @@ export class ProjectsService {
                 },
                 _count: {
                     select: {
-                        projectUsers: true,
+                        members: true,
                         tasks: true,
                     },
                 },

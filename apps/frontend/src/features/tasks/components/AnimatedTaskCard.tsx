@@ -35,7 +35,7 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
     return { color: "text-muted-foreground", label: `Due in ${diffDays} days` }
   }
 
-  const deadlineStatus = getDeadlineStatus(task.deadline)
+  const deadlineStatus = getDeadlineStatus((task as any).dueDate || task.deadline)
 
   return (
     <motion.div

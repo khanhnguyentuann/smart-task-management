@@ -11,7 +11,7 @@ export class MembersService {
     constructor(private prisma: PrismaService) { }
 
     async getProjectMembers(projectId: string) {
-        const members = await this.prisma.projectUser.findMany({
+        const members = await this.prisma.projectMember.findMany({
             where: { projectId },
             include: {
                 user: {
@@ -22,9 +22,7 @@ export class MembersService {
                     },
                 },
             },
-            orderBy: {
-                joinedAt: 'asc',
-            },
+            orderBy: { joinedAt: 'asc' },
         });
 
         return members.map(member => ({
@@ -44,7 +42,7 @@ export class MembersService {
         }
 
         // Check which users already exist in project
-        const existingMembers = await this.prisma.projectUser.findMany({
+        const existingMembers = await this.prisma.projectMember.findMany({
             where: {
                 projectId,
                 userId: { in: userIds },
@@ -70,7 +68,7 @@ export class MembersService {
         }
 
         // Add new members
-        const result = await this.prisma.projectUser.createMany({
+        const result = await this.prisma.projectMember.createMany({
             data: newUserIds.map(userId => ({
                 projectId,
                 userId,
@@ -85,7 +83,7 @@ export class MembersService {
     }
 
     async removeMember(projectId: string, userId: string) {
-        const member = await this.prisma.projectUser.findUnique({
+        const member = await this.prisma.projectMember.findUnique({
             where: {
                 userId_projectId: {
                     userId,
@@ -98,7 +96,7 @@ export class MembersService {
             throw new NotFoundException('Member not found in this project');
         }
 
-        await this.prisma.projectUser.delete({
+        await this.prisma.projectMember.delete({
             where: {
                 userId_projectId: {
                     userId,

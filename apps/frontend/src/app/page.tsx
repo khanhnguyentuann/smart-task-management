@@ -7,6 +7,7 @@ import { EnhancedDashboardContent } from "@/features/dashboard"
 import { ProjectsList, ProjectDetail } from "@/features/projects"
 import { MyTasks } from "@/features/tasks"
 import { Profile } from "@/features/user"
+import { userService } from "@/features/user"
 import { Settings } from "@/features/settings"
 import { Notifications } from "@/features/notifications"
 import { HelpSupport } from "@/features/help"
@@ -24,6 +25,7 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [lastProfileFetchedAt, setLastProfileFetchedAt] = useState<number | null>(null)
   const { toast } = useToast()
   const { logout } = useLogout()
 
@@ -33,6 +35,12 @@ export default function Home() {
     if (savedUser) {
       setUser(JSON.parse(savedUser))
       setShowWelcome(false)
+      // Background hydrate profile
+      userService.getProfile().then((profile) => {
+        setUser(profile)
+        localStorage.setItem("smart-task-user", JSON.stringify(profile))
+        setLastProfileFetchedAt(Date.now())
+      }).catch(() => { })
     }
     setIsLoading(false)
   }, [])
@@ -42,6 +50,12 @@ export default function Home() {
     localStorage.setItem("smart-task-user", JSON.stringify(userData))
     setShowWelcome(false)
     setShowAuthModal(false)
+    // Hydrate with full profile in background
+    userService.getProfile().then((profile) => {
+      setUser(profile)
+      localStorage.setItem("smart-task-user", JSON.stringify(profile))
+      setLastProfileFetchedAt(Date.now())
+    }).catch(() => { })
   }
 
   const handleLogout = async () => {
@@ -88,7 +102,7 @@ export default function Home() {
       case "my-tasks":
         return <MyTasks user={user} />
       case "profile":
-        return <Profile user={user} />
+        return <Profile />
       case "settings":
         return <Settings user={user} />
       case "notifications":
@@ -99,6 +113,22 @@ export default function Home() {
         return <EnhancedDashboardContent user={user} onNavigate={setCurrentPage} />
     }
   }
+
+  // Refetch profile when app gains focus if older than 5 minutes
+  useEffect(() => {
+    const onFocus = () => {
+      const fiveMinutes = 5 * 60 * 1000
+      if (!lastProfileFetchedAt || Date.now() - lastProfileFetchedAt > fiveMinutes) {
+        userService.getProfile().then((profile) => {
+          setUser(profile)
+          localStorage.setItem("smart-task-user", JSON.stringify(profile))
+          setLastProfileFetchedAt(Date.now())
+        }).catch(() => { })
+      }
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [lastProfileFetchedAt])
 
   const getMascotMessage = () => {
     if (currentPage === "dashboard") {

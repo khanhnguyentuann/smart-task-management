@@ -9,7 +9,8 @@ export interface Task {
     name: string
     avatar: string
   }
-  deadline: string
+  deadline?: string
+  dueDate?: string
   status: typeof PROJECTS_CONSTANTS.TASK_STATUS[keyof typeof PROJECTS_CONSTANTS.TASK_STATUS]
   project: string
 }

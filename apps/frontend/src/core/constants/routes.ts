@@ -40,6 +40,8 @@ export const API_ROUTES = {
     LIST: "/api/users",
     PROFILE: "/api/users/profile",
     UPDATE: "/api/users/profile",
+    AVATAR: "/api/users/avatar",
+    AVATAR_OF: (userId: string) => `/api/users/avatar/${userId}`,
     DETAIL: (id: string) => `/api/users/${id}`,
   },
 } as const 

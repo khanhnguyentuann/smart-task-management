@@ -3,7 +3,7 @@ import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
 export class ProjectMemberGuard implements CanActivate {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
@@ -21,7 +21,7 @@ export class ProjectMemberGuard implements CanActivate {
                 OR: [
                     { ownerId: user.id },
                     {
-                        projectUsers: {
+                        members: {
                             some: {
                                 userId: user.id,
                             },

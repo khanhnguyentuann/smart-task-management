@@ -17,6 +17,7 @@ import { format } from "date-fns"
 import { cn } from "@/shared/lib/utils/cn"
 import { PROJECTS_CONSTANTS } from "@/features/projects/constants"
 import { apiService } from "@/core/services/api"
+import { useToast } from "@/shared/hooks/useToast"
 
 interface User {
   name: string
@@ -39,9 +40,10 @@ export function CreateTaskModal({ open, onOpenChange, projectId, user, members =
   const [description, setDescription] = useState("")
   const [priority, setPriority] = useState<typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]>(PROJECTS_CONSTANTS.PRIORITY.MEDIUM)
   const [assignee, setAssignee] = useState("")
-  const [deadline, setDeadline] = useState<Date>()
+  const [dueDate, setDueDate] = useState<Date>()
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
   const [aiSummary, setAiSummary] = useState("")
+  const { toast } = useToast()
 
   const teamMembers = members.map(m => ({ id: m.id, name: m.name, avatar: "/placeholder.svg?height=32&width=32" }))
 
@@ -66,20 +68,27 @@ export function CreateTaskModal({ open, onOpenChange, projectId, user, members =
         description,
         priority: priority === PROJECTS_CONSTANTS.PRIORITY.HIGH ? 'HIGH' : priority === PROJECTS_CONSTANTS.PRIORITY.LOW ? 'LOW' : 'MEDIUM',
         assigneeId: assignee || undefined,
-        deadline: deadline ? deadline.toISOString() : undefined,
+        dueDate: dueDate ? dueDate.toISOString() : undefined,
         // status is optional; backend defaults to TODO
       }
       await apiService.createProjectTask(projectId, payload)
+      const assigneeName = teamMembers.find((m) => m.id === assignee)?.name || 'Unassigned'
+      toast({
+        title: "Task created",
+        description: `“${title}” • Assignee: ${assigneeName}${dueDate ? ` • Due: ${format(dueDate, 'PPP')}` : ''}`,
+        variant: "default",
+      })
       onOpenChange(false)
       setTitle("")
       setDescription("")
       setPriority(PROJECTS_CONSTANTS.PRIORITY.MEDIUM)
       setAssignee("")
-      setDeadline(undefined)
+      setDueDate(undefined)
       setAiSummary("")
       onCreated?.()
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to create task', err)
+      toast({ title: "Create task failed", description: err?.message || "Please try again.", variant: "destructive" })
     }
   }
 
@@ -163,25 +172,25 @@ export function CreateTaskModal({ open, onOpenChange, projectId, user, members =
             </div>
 
             <div>
-              <Label>Deadline</Label>
+              <Label>Due Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !deadline && "text-muted-foreground"
+                      !dueDate && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {deadline ? format(deadline, "PPP") : <span>Pick a date</span>}
+                    {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
-                    selected={deadline}
-                    onSelect={setDeadline}
+                    selected={dueDate}
+                    onSelect={setDueDate}
                     initialFocus
                   />
                 </PopoverContent>

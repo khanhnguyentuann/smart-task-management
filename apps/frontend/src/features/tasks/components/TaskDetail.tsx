@@ -60,7 +60,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                 avatar: simpleTask.assignee.avatar || "",
                 email: simpleTask.assignee.email || `${(simpleTask.assignee.name || "user").toLowerCase().replace(" ", ".")}@company.com`
             }] : [],
-            dueDate: simpleTask.deadline ? new Date(simpleTask.deadline) : null,
+            dueDate: (simpleTask as any).dueDate ? new Date((simpleTask as any).dueDate) : (simpleTask.deadline ? new Date(simpleTask.deadline) : null),
             labels: simpleTask.labels || [
                 { id: "1", name: "Frontend", color: "bg-blue-500" },
                 { id: "2", name: "High Priority", color: "bg-red-500" }
@@ -169,7 +169,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                     description: editedTask.description,
                     status: statusMap[editedTask.status] || 'TODO',
                     priority: priorityMap[editedTask.priority] || 'MEDIUM',
-                    deadline: editedTask.dueDate ? new Date(editedTask.dueDate).toISOString() : undefined,
+                    dueDate: editedTask.dueDate ? new Date(editedTask.dueDate).toISOString() : undefined,
                 }
 
                 await apiService.updateTask(editedTask.id, payload)

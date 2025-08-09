@@ -84,14 +84,14 @@ class ProjectsApi {
                     lastName: '',
                     email: '',
                 },
-                members: project.projectUsers?.map((pu: any) => ({
+                members: project.members?.map((m: any) => ({
                     user: {
-                        id: pu.user?.id || '',
-                        firstName: pu.user?.firstName || '',
-                        lastName: pu.user?.lastName || '',
-                        email: pu.user?.email || '',
+                        id: m.user?.id || '',
+                        firstName: m.user?.firstName || '',
+                        lastName: m.user?.lastName || '',
+                        email: m.user?.email || '',
                     },
-                    joinedAt: pu.joinedAt,
+                    joinedAt: m.joinedAt,
                 })) || [],
                 tasks: project.tasks?.map((task: any) => ({
                     id: task.id,
@@ -107,13 +107,13 @@ class ProjectsApi {
                     } : undefined,
                     createdAt: task.createdAt,
                     updatedAt: task.updatedAt,
-                    deadline: task.deadline,
+                    deadline: task.dueDate || task.deadline,
                 })) || [],
                 createdAt: project.createdAt,
                 updatedAt: project.updatedAt,
                 // Frontend-specific fields
                 userRole: project.ownerId === project.currentUserId ? 'Owner' : 'Member',
-                memberCount: project.projectUsers?.length || 0,
+                memberCount: project.members?.length || 0,
                 taskStats: this.calculateTaskStats(project.tasks || [])
             }
         } catch (error) {

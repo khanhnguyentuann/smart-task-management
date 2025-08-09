@@ -15,8 +15,7 @@ interface User {
     firstName: string
     lastName: string
     email: string
-    role: "ADMIN" | "MEMBER"
-    avatar: string
+    avatar?: string
     department?: string
 }
 
@@ -410,23 +409,22 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                                                         {user.role === "ADMIN" && (
-                                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                            <EnhancedButton
-                                                onClick={() => onNavigate("projects")}
-                                                className="w-full justify-start bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg"
-                                                size="lg"
+                                    {/* Admin-only actions can be enabled later when role is available */}
+                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                        <EnhancedButton
+                                            onClick={() => onNavigate("projects")}
+                                            className="w-full justify-start bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg"
+                                            size="lg"
+                                        >
+                                            <motion.div
+                                                animate={{ rotate: [0, 10, -10, 0] }}
+                                                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
                                             >
-                                                <motion.div
-                                                    animate={{ rotate: [0, 10, -10, 0] }}
-                                                    transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-                                                >
-                                                    <Plus className="h-5 w-5 mr-3" />
-                                                </motion.div>
-                                                Create New Project
-                                            </EnhancedButton>
-                                        </motion.div>
-                                    )}
+                                                <Plus className="h-5 w-5 mr-3" />
+                                            </motion.div>
+                                            Create New Project
+                                        </EnhancedButton>
+                                    </motion.div>
 
                                     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                         <EnhancedButton

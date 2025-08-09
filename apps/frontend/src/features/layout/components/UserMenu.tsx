@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { Badge } from "@/shared/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,8 +19,8 @@ interface UserMenuProps {
     firstName: string
     lastName: string
     email: string
-    role: "ADMIN" | "MEMBER"
-    avatar: string
+    role?: "ADMIN" | "MEMBER"
+    avatar?: string
     department?: string
   } | null
   onNavigate: (page: string) => void
@@ -41,36 +40,32 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
     return null
   }
 
-  // Get initials safely
-  const getInitials = () => {
-    const firstInitial = user.firstName ? user.firstName[0] : ''
-    const lastInitial = user.lastName ? user.lastName[0] : ''
-    return `${firstInitial}${lastInitial}`.toUpperCase()
-  }
+  const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email || 'User'
+  const getInitials = () => (displayName?.match(/\b\w/g)?.join('').slice(0, 2) || 'U').toUpperCase()
 
   return (
-    <div className="flex items-center justify-between w-full">
+    <div className="flex items-center justify-between w-full gap-2">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <motion.button
-            className="flex items-center gap-3 w-full text-left hover:bg-muted/50 rounded-lg p-2 transition-colors"
+            className="flex items-center gap-3 text-left hover:bg-muted/50 rounded-lg p-2 transition-colors flex-1 min-w-0"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: "spring", stiffness: 300 }}>
               <Avatar className="h-10 w-10 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
+                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={displayName} />
                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>
             </motion.div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.firstName} {user.lastName}</p>
-              <div className="flex items-center gap-2">
-                <Badge variant={user.role === "ADMIN" ? "default" : "secondary"} className="text-xs">
-                  {user.role}
-                </Badge>
+              <p className="text-sm font-medium truncate max-w-[180px] md:max-w-[220px]">
+                {displayName}
+              </p>
+              <div className="flex items-center gap-2 min-w-0">
+                {user.email && <span className="text-xs text-muted-foreground truncate">{user.email}</span>}
                 {user.department && <span className="text-xs text-muted-foreground truncate">{user.department}</span>}
               </div>
             </div>
@@ -80,13 +75,13 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
         <DropdownMenuContent align="start" className="w-56">
           <div className="flex items-center gap-3 p-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
+              <AvatarImage src={user.avatar || "/placeholder.svg"} alt={displayName} />
               <AvatarFallback>
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.firstName} {user.lastName}</p>
+              <p className="text-sm font-medium truncate">{displayName}</p>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
           </div>

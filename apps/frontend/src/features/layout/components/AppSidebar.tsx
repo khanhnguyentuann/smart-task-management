@@ -12,8 +12,7 @@ interface AppSidebarProps {
         firstName: string
         lastName: string
         email: string
-        role: "ADMIN" | "MEMBER"
-        avatar: string
+        avatar?: string
         department?: string
     } | null
     currentPage: string

@@ -16,7 +16,7 @@ export class TasksService {
 
     async create(projectId: string, createTaskDto: CreateTaskDto, userId: string) {
         // Verify user is member of project
-        const projectUser = await this.prisma.projectUser.findFirst({
+        const projectUser = await this.prisma.projectMember.findFirst({
             where: {
                 projectId,
                 userId,
@@ -29,7 +29,7 @@ export class TasksService {
 
         // If assignee is specified, verify they are also project member
         if (createTaskDto.assigneeId) {
-            const assigneeInProject = await this.prisma.projectUser.findFirst({
+            const assigneeInProject = await this.prisma.projectMember.findFirst({
                 where: {
                     projectId,
                     userId: createTaskDto.assigneeId,
@@ -97,13 +97,14 @@ export class TasksService {
         }
 
         // Date range filter
+        // NOTE: schema hiện không có deadline, dùng dueDate thay thế
         if (filterDto.deadlineFrom || filterDto.deadlineTo) {
-            where.deadline = {};
+            where.dueDate = {} as any;
             if (filterDto.deadlineFrom) {
-                where.deadline.gte = new Date(filterDto.deadlineFrom);
+                (where.dueDate as any).gte = new Date(filterDto.deadlineFrom);
             }
             if (filterDto.deadlineTo) {
-                where.deadline.lte = new Date(filterDto.deadlineTo);
+                (where.dueDate as any).lte = new Date(filterDto.deadlineTo);
             }
         }
 
@@ -164,7 +165,7 @@ export class TasksService {
                     OR: [
                         { ownerId: userId },
                         {
-                            projectUsers: {
+                            members: {
                                 some: {
                                     userId,
                                 },
@@ -208,7 +209,11 @@ export class TasksService {
         const task = await this.findOne(id, userId);
 
         // Check permissions
-        const isProjectOwner = task.project.ownerId === userId;
+        const projectOwner = await this.prisma.project.findFirst({
+            where: { id: task.projectId, ownerId: userId },
+            select: { id: true },
+        });
+        const isProjectOwner = !!projectOwner;
         const isAssignee = task.assigneeId === userId;
         const isCreator = task.createdById === userId;
 
@@ -220,7 +225,7 @@ export class TasksService {
         // If changing assignee, verify new assignee is project member
         if (updateTaskDto.assigneeId !== undefined) {
             if (updateTaskDto.assigneeId) {
-                const assigneeInProject = await this.prisma.projectUser.findFirst({
+                const assigneeInProject = await this.prisma.projectMember.findFirst({
                     where: {
                         projectId: task.projectId,
                         userId: updateTaskDto.assigneeId,
@@ -263,7 +268,11 @@ export class TasksService {
         const task = await this.findOne(id, userId);
 
         // Only project owner or task creator can delete
-        const isProjectOwner = task.project.ownerId === userId;
+        const projectOwner = await this.prisma.project.findFirst({
+            where: { id: task.projectId, ownerId: userId },
+            select: { id: true },
+        });
+        const isProjectOwner = !!projectOwner;
         const isCreator = task.createdById === userId;
 
         if (!isProjectOwner && !isCreator) {
@@ -314,9 +323,7 @@ export class TasksService {
                     },
                 },
             },
-            orderBy: {
-                deadline: 'asc',
-            },
+            orderBy: { dueDate: 'asc' },
         });
 
         return tasks;

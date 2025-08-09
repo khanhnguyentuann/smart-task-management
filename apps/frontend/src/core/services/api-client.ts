@@ -127,7 +127,11 @@ class ApiClient {
 
         try {
             const response = await this.axiosInstance.request<T>(axiosConfig)
-            return response.data
+            const raw = response.data as any
+            if (raw && typeof raw === 'object' && 'success' in raw && 'data' in raw) {
+                return raw.data as T
+            }
+            return raw as T
         } catch (error) {
             // Error is handled in interceptor
             throw error

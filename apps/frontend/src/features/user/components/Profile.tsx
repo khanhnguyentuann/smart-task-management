@@ -10,20 +10,99 @@ import { Camera, Mail, User, Building, Calendar, MapPin } from "lucide-react"
 import { motion } from "framer-motion"
 import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
+import { useState } from "react"
+import { useToast } from "@/shared/hooks/useToast"
+import { useUserProfile } from "../hooks/useUserProfile"
+import type { UserProfile } from "../types/user.types"
+import { updateProfileSchema } from "../validation/user.validation"
 
-interface ProfileProps {
-  user: {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    role: "ADMIN" | "MEMBER"
-    avatar: string
-    department?: string
+export function Profile() {
+  const { toast } = useToast()
+  const { profile: user, setProfile, updateProfile, uploadAvatar, loading } = useUserProfile()
+  const [form, setForm] = useState<Partial<UserProfile>>({})
+  const [errors, setErrors] = useState<Record<string, string | null>>({})
+
+  const toInputDate = (iso?: string | null) => (iso ? iso.substring(0, 10) : '')
+
+  const validate = (values: Partial<UserProfile>) => {
+    const result = updateProfileSchema.safeParse({
+      firstName: values.firstName,
+      lastName: values.lastName,
+      department: values.department,
+      dateOfBirth: (values as any).dateOfBirth ?? (values as any).birthday ?? '',
+      avatar: values.avatar,
+    })
+    if (result.success) {
+      setErrors({})
+      return true
+    }
+    const fieldErrors: Record<string, string> = {}
+    for (const issue of result.error.issues) {
+      const path = issue.path?.[0] as string | undefined
+      if (path) fieldErrors[path] = issue.message
+    }
+    setErrors(fieldErrors)
+    return false
   }
-}
 
-export function Profile({ user }: ProfileProps) {
+  if (!user) return null
+
+  const onSelectAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // Update preview immediately
+    const reader = new FileReader()
+    reader.onload = () => {
+      const base64 = reader.result as string
+      setForm((prev) => ({ ...(prev ?? {}), avatar: base64 }))
+    }
+    reader.readAsDataURL(file)
+    // Auto upload
+    try {
+      const updated = await uploadAvatar({ file })
+      if (updated) {
+        setProfile(updated)
+        toast({
+          title: "Ảnh đại diện đã được cập nhật",
+          description: `${updated.firstName} ${updated.lastName} ảnh mới đã được lưu thành công.`,
+          variant: "default",
+        })
+      }
+    } catch {
+      toast({ title: "Tải ảnh thất bại", description: "Vui lòng thử lại sau.", variant: "destructive" })
+    }
+  }
+
+  const onSave = async () => {
+    if (!validate(form)) {
+      toast({ title: "Thông tin chưa hợp lệ", description: "Vui lòng kiểm tra lại các trường nhập.", variant: "destructive" })
+      return
+    }
+    try {
+      const payload = {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        department: form.department,
+        dateOfBirth: (form as any).dateOfBirth ?? (form as any).birthday,
+        avatar: form.avatar,
+      }
+      const updated = await updateProfile(payload)
+      setProfile(updated)
+      const changed: string[] = []
+      if (payload.firstName && payload.firstName !== user.firstName) changed.push("First name")
+      if (payload.lastName && payload.lastName !== user.lastName) changed.push("Last name")
+      if (payload.department && payload.department !== user.department) changed.push("Department")
+      if (payload.dateOfBirth && payload.dateOfBirth !== (user as any).dateOfBirth) changed.push("Date of birth")
+      const desc = changed.length > 0 ? `Đã cập nhật: ${changed.join(", ")}.` : "Không có thay đổi đáng kể."
+      toast({
+        title: "Cập nhật hồ sơ thành công",
+        description: desc,
+        variant: "default",
+      })
+    } catch (_err) {
+      toast({ title: "Update failed", variant: "destructive" })
+    }
+  }
   return (
     <div className="flex flex-col h-full">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -48,7 +127,7 @@ export function Profile({ user }: ProfileProps) {
                   <div className="relative">
                     <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
                       <Avatar className="h-20 w-20 ring-4 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
+                        <AvatarImage src={(form?.avatar ?? user.avatar) || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
                         <AvatarFallback className="text-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                           {`${user.firstName}${user.lastName}`}
                         </AvatarFallback>
@@ -59,15 +138,13 @@ export function Profile({ user }: ProfileProps) {
                       whileTap={{ scale: 0.9 }}
                       className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors"
                     >
+                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={onSelectAvatar} />
                       <Camera className="h-4 w-4" />
                     </motion.button>
                   </div>
                   <div className="space-y-2">
                     <h2 className="text-2xl font-semibold">{user.firstName} {user.lastName}</h2>
                     <div className="flex items-center gap-2">
-                      <Badge variant={user.role === "ADMIN" ? "default" : "secondary"} className="text-sm">
-                        {user.role}
-                      </Badge>
                       {user.department && (
                         <Badge variant="outline" className="text-sm">
                           {user.department}
@@ -83,15 +160,17 @@ export function Profile({ user }: ProfileProps) {
                       <Label htmlFor="firstName">First Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="firstName" defaultValue={user.firstName} className="pl-10" />
+                        <Input id="firstName" value={(form.firstName ?? user.firstName) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), firstName: e.target.value }))} className="pl-10" />
                       </div>
+                      {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="lastName" defaultValue={user.lastName} className="pl-10" />
+                        <Input id="lastName" value={(form.lastName ?? user.lastName) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), lastName: e.target.value }))} className="pl-10" />
                       </div>
+                      {errors.lastName && <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>}
                     </div>
                   </div>
 
@@ -99,29 +178,32 @@ export function Profile({ user }: ProfileProps) {
                     <Label htmlFor="email">Email Address</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="email" type="email" defaultValue={user.email} className="pl-10" />
+                      <Input id="email" type="email" value={user.email} disabled className="pl-10" />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="dateOfBirth">Birthday</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input id="dateOfBirth" type="date" value={toInputDate((form as any).dateOfBirth ?? (user as any).dateOfBirth ?? (user as any).birthday ?? '')} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), dateOfBirth: e.target.value }))} className="pl-10" />
+                    </div>
+                    {errors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="department">Department</Label>
                     <div className="relative">
                       <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="department" defaultValue={user.department || "Not specified"} className="pl-10" />
+                        <Input id="department" value={(form.department ?? user.department) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), department: e.target.value }))} className="pl-10" />
                     </div>
+                    {errors.department && <p className="text-xs text-red-500 mt-1">{errors.department}</p>}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Role</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="role" defaultValue={user.role} disabled className="pl-10" />
-                    </div>
-                  </div>
                 </div>
 
                 <div className="flex gap-2">
-                  <EnhancedButton>Save Changes</EnhancedButton>
+                  <EnhancedButton onClick={onSave} disabled={loading}>Save Changes</EnhancedButton>
                   <EnhancedButton variant="outline">Cancel</EnhancedButton>
                 </div>
               </CardContent>
