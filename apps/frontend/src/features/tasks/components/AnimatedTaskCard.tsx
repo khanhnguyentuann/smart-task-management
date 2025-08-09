@@ -89,7 +89,7 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
           <div className="flex items-center justify-between">
             <motion.div className="flex items-center gap-2" whileHover={{ scale: 1.05 }}>
               <Avatar className="h-6 w-6 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                <AvatarImage src={task.assignee.avatar || "/placeholder.svg"} alt={task.assignee.name} />
+                <AvatarImage src={task.assignee?.avatar && task.assignee.avatar.startsWith('data:image') ? task.assignee.avatar : (task.assignee?.avatar || "/default-avatar.png")} alt={task.assignee.name} />
                 <AvatarFallback className="text-xs">
                   {task.assignee.name
                     .split(" ")

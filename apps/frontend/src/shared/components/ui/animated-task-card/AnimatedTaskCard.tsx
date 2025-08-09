@@ -83,7 +83,7 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6">
-                <AvatarImage src={task.assignee?.avatar || "/placeholder.svg"} alt={task.assignee?.name || 'Unassigned'} />
+                <AvatarImage src={task.assignee?.avatar && task.assignee.avatar.startsWith('data:image') ? task.assignee.avatar : (task.assignee?.avatar || "/default-avatar.png")} alt={task.assignee?.name || 'Unassigned'} />
                 <AvatarFallback className="text-xs">
                   {(task.assignee?.name || 'U')
                     .split(" ")

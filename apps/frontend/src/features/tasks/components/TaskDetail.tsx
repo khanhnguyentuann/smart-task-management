@@ -538,7 +538,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                                 className="flex items-center gap-2 bg-muted/50 rounded-full px-3 py-1"
                                             >
                                                 <Avatar className="h-6 w-6">
-                                                    <AvatarImage src={assignee.avatar || "/placeholder.svg"} alt={assignee.name} />
+                                                <AvatarImage src={assignee.avatar && assignee.avatar.startsWith('data:image') ? assignee.avatar : (assignee.avatar || "/default-avatar.png")} alt={assignee.name} />
                                                     <AvatarFallback className="text-xs">
                                                         {assignee.name.split(" ").map((n: string) => n[0]).join("")}
                                                     </AvatarFallback>
@@ -694,7 +694,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                     <div className="space-y-3">
                                         <div className="flex items-start gap-3">
                                             <Avatar className="h-8 w-8">
-                                                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                                                <AvatarImage src={user.avatar && user.avatar.startsWith('data:image') ? user.avatar : (user.avatar || "/default-avatar.png")} alt={user.name} />
                                                 <AvatarFallback>
                                                     {user.name?.split(" ").map((n: any) => n[0]).join("") || "U"}
                                                 </AvatarFallback>
@@ -737,7 +737,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                         className="flex items-start gap-3"
                                     >
                                         <Avatar className="h-8 w-8">
-                                            <AvatarImage src={comment.author?.avatar || "/placeholder.svg"} alt={comment.author?.name || "User"} />
+                                            <AvatarImage src={comment.author?.avatar && comment.author.avatar.startsWith('data:image') ? comment.author.avatar : (comment.author?.avatar || "/default-avatar.png")} alt={comment.author?.name || "User"} />
                                             <AvatarFallback>
                                                 {(comment.author?.name || "U").split(" ").map((n: string) => n?.[0] || "").join("") || "U"}
                                             </AvatarFallback>
@@ -823,7 +823,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                         className="flex items-start gap-3"
                                     >
                                         <Avatar className="h-6 w-6">
-                                            <AvatarImage src={activity.user?.avatar || "/placeholder.svg"} alt={activity.user?.name || "User"} />
+                                            <AvatarImage src={activity.user?.avatar && activity.user.avatar.startsWith('data:image') ? activity.user.avatar : (activity.user?.avatar || "/default-avatar.png")} alt={activity.user?.name || "User"} />
                                             <AvatarFallback className="text-xs">
                                                 {(activity.user?.name || "U").split(" ").map((n: string) => n?.[0] || "").join("") || "U"}
                                             </AvatarFallback>

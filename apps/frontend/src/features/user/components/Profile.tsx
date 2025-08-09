@@ -127,7 +127,7 @@ export function Profile() {
                   <div className="relative">
                     <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
                       <Avatar className="h-20 w-20 ring-4 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                        <AvatarImage src={(form?.avatar ?? user.avatar) || "/placeholder.svg"} alt={`${user.firstName} ${user.lastName}`} />
+                        <AvatarImage src={(form?.avatar ?? user.avatar) && (form?.avatar ?? user.avatar)?.startsWith('data:image') ? (form?.avatar ?? user.avatar) : ((form?.avatar ?? user.avatar) || "/default-avatar.png")} alt={`${user.firstName} ${user.lastName}`} />
                         <AvatarFallback className="text-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                           {`${user.firstName}${user.lastName}`}
                         </AvatarFallback>
@@ -186,7 +186,7 @@ export function Profile() {
                     <Label htmlFor="dateOfBirth">Birthday</Label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="dateOfBirth" type="date" value={toInputDate((form as any).dateOfBirth ?? (user as any).dateOfBirth ?? (user as any).birthday ?? '')} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), dateOfBirth: e.target.value }))} className="pl-10" />
+                      <Input id="dateOfBirth" type="date" value={toInputDate((form as any).dateOfBirth ?? (user as any).dateOfBirth ?? (user as any).birthday ?? '')} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), dateOfBirth: e.target.value }))} className="pl-10" />
                     </div>
                     {errors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>}
                   </div>
@@ -195,7 +195,7 @@ export function Profile() {
                     <Label htmlFor="department">Department</Label>
                     <div className="relative">
                       <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="department" value={(form.department ?? user.department) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), department: e.target.value }))} className="pl-10" />
+                      <Input id="department" value={(form.department ?? user.department) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), department: e.target.value }))} className="pl-10" />
                     </div>
                     {errors.department && <p className="text-xs text-red-500 mt-1">{errors.department}</p>}
                   </div>

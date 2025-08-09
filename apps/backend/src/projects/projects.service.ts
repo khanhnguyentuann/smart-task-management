@@ -221,6 +221,7 @@ export class ProjectsService {
                         firstName: true,
                         lastName: true,
                         email: true,
+                        avatar: true,
                     },
                 },
                 members: {
@@ -231,6 +232,7 @@ export class ProjectsService {
                                 firstName: true,
                                 lastName: true,
                                 email: true,
+                                avatar: true,
                             },
                         },
                     },
