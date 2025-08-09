@@ -6,6 +6,7 @@ export interface BaseUser {
   firstName: string;
   lastName: string;
   email: string;
+  avatar?: string;
 }
 
 // Task related interfaces
@@ -16,7 +17,7 @@ export interface ProjectTask {
   status: 'TODO' | 'IN_PROGRESS' | 'DONE';
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   assigneeId?: string;
-  assignee?: Pick<BaseUser, 'id' | 'firstName' | 'lastName'>;
+  assignee?: Pick<BaseUser, 'id' | 'firstName' | 'lastName' | 'avatar' | 'email'>;
   createdAt: string;
   updatedAt: string;
 }

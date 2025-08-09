@@ -37,9 +37,12 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
         setError(null)
         const projResp = await apiService.getProject(projectId)
         const projData = (projResp as any).data || projResp
+        console.log('[ProjectDetail] fetched project:', projData)
+        console.log('[ProjectDetail] members:', projData?.members)
         const tasksResp = await apiService.getProjectTasks(projectId)
         const tasksData = (tasksResp as any).data || tasksResp
         const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
+        console.log('[ProjectDetail] tasks:', tasksArray)
         if (!isMounted) return
         setProject(projData)
         setTasks(Array.isArray(tasksArray) ? tasksArray : [])
@@ -64,6 +67,9 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
   const toUiTask = (task: any) => {
     const priorityMap: Record<string, string> = { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High' }
     const statusMap: Record<string, string> = { TODO: 'todo', IN_PROGRESS: 'inProgress', DONE: 'done' }
+    const assigneeFullName = task.assignee?.firstName || task.assignee?.lastName
+      ? `${task.assignee?.firstName || ''} ${task.assignee?.lastName || ''}`.trim()
+      : undefined
     return {
       id: task.id,
       title: task.title,
@@ -73,8 +79,8 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
       project: project?.name || '',
       deadline: (task as any).dueDate || task.deadline || '',
       assignee: {
-        name: task.assignee?.email || 'Unassigned',
-        avatar: '',
+        name: assigneeFullName || task.assignee?.email || 'Unassigned',
+        avatar: task.assignee?.avatar || '',
       },
     }
   }
@@ -104,6 +110,8 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
     try {
       const projResp = await apiService.getProject(projectId)
       const projData = (projResp as any).data || projResp
+      console.log('[ProjectDetail] refreshed project:', projData)
+      console.log('[ProjectDetail] members:', projData?.members)
       setProject(projData)
     } catch (error) {
       console.error("Failed to refresh project:", error)
@@ -123,9 +131,9 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
 
   if (selectedTaskId) {
     return (
-      <TaskDetail 
-        taskId={selectedTaskId} 
-        user={user} 
+      <TaskDetail
+        taskId={selectedTaskId}
+        user={user}
         onBack={handleBackFromTask}
         onDelete={refreshTasks}
       />
@@ -202,7 +210,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   <div className="flex -space-x-2">
                     {project.members?.slice(0, 3).map((m: any, index: number) => (
                       <Avatar key={index} className="h-8 w-8 border-2 border-background">
-                        <AvatarImage src={"/placeholder.svg"} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
+                        <AvatarImage src={m.user?.avatar || "/placeholder.svg"} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
                         <AvatarFallback>
                           {(m.user?.firstName || "").charAt(0)}
                           {(m.user?.lastName || "").charAt(0)}
@@ -216,10 +224,10 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                     )}
                   </div>
                   {project.ownerId === project.currentUserId && (
-                  <Button onClick={() => setShowCreateTask(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Task
-                  </Button>
+                    <Button onClick={() => setShowCreateTask(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Task
+                    </Button>
                   )}
                 </div>
               </div>
@@ -312,7 +320,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar>
-                            <AvatarImage src={"/placeholder.svg"} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
+                            <AvatarImage src={m.user?.avatar || "/placeholder.svg"} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
                             <AvatarFallback>
                               {(m.user?.firstName || "").charAt(0)}
                               {(m.user?.lastName || "").charAt(0)}
@@ -334,10 +342,10 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setConfirmKickMember({ 
-                              open: true, 
-                              memberId: m.user?.id, 
-                              memberName: `${m.user?.firstName} ${m.user?.lastName}` 
+                            onClick={() => setConfirmKickMember({
+                              open: true,
+                              memberId: m.user?.id,
+                              memberName: `${m.user?.firstName} ${m.user?.lastName}`
                             })}
                             className="text-red-600 hover:text-red-700"
                           >
@@ -378,7 +386,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
             const tasksData = (tasksResp as any).data || tasksResp
             const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
             setTasks(Array.isArray(tasksArray) ? tasksArray : [])
-          } catch {}
+          } catch { }
         }}
       />
 
@@ -403,7 +411,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={() => confirmKickMember.memberId && handleKickMember(confirmKickMember.memberId)}
               className="bg-red-600 hover:bg-red-700"
             >

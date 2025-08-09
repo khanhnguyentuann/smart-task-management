@@ -53,6 +53,9 @@ export class TasksService {
                     select: {
                         id: true,
                         email: true,
+                        avatar: true,
+                        firstName: true,
+                        lastName: true,
                     },
                 },
                 createdBy: {
@@ -130,6 +133,9 @@ export class TasksService {
                         select: {
                             id: true,
                             email: true,
+                            avatar: true,
+                            firstName: true,
+                            lastName: true,
                         },
                     },
                     createdBy: {
@@ -179,6 +185,9 @@ export class TasksService {
                     select: {
                         id: true,
                         email: true,
+                        avatar: true,
+                        firstName: true,
+                        lastName: true,
                     },
                 },
                 createdBy: {

@@ -13,20 +13,12 @@ export class MembersService {
     async getProjectMembers(projectId: string) {
         const members = await this.prisma.projectMember.findMany({
             where: { projectId },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        email: true,
-                        createdAt: true,
-                    },
-                },
-            },
+            include: { user: true },
             orderBy: { joinedAt: 'asc' },
         });
 
         return members.map(member => ({
-            user: member.user,
+            user: { ...member.user, avatar: member.user.avatar || '' },
             joinedAt: member.joinedAt,
         }));
     }

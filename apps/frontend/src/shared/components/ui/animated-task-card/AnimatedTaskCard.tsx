@@ -83,15 +83,15 @@ export function AnimatedTaskCard({ task, className, onClick }: AnimatedTaskCardP
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6">
-                <AvatarImage src={task.assignee.avatar || "/placeholder.svg"} alt={task.assignee.name} />
+                <AvatarImage src={task.assignee?.avatar || "/placeholder.svg"} alt={task.assignee?.name || 'Unassigned'} />
                 <AvatarFallback className="text-xs">
-                  {task.assignee.name
+                  {(task.assignee?.name || 'U')
                     .split(" ")
                     .map((n: string) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs text-muted-foreground">{task.assignee.name}</span>
+              <span className="text-xs text-muted-foreground">{task.assignee?.name || 'Unassigned'}</span>
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3 text-muted-foreground" />
