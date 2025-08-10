@@ -1,4 +1,6 @@
-export { AnimatedTaskCard } from './AnimatedTaskCard'
+// New modular exports
 export { CreateTaskModal } from './CreateTaskModal'
-export { MyTasks } from './MyTasks'
-export { TaskDetail } from './TaskDetail' 
+export * from './MyTasks'
+export * from './TaskDetail'
+export * from './TaskForm'
+export * from './Modals' 

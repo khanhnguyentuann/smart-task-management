@@ -1,0 +1,1 @@
+// Zustand/Redux để share state giữa tabs

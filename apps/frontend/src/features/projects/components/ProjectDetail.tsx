@@ -9,8 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui
 import { ArrowLeft, Plus, Users, Settings, CheckSquare, Clock, AlertTriangle, Sparkles, UserPlus, UserMinus } from "lucide-react"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal"
-import { AnimatedTaskCard } from "@/shared/components/ui/animated-task-card"
-import { TaskDetail } from "@/features/tasks/components/TaskDetail"
+import { TaskCard } from "@/features/tasks/components/MyTasks/TaskCard"
+import { TaskDetail } from "@/features/tasks"
 import { AddMemberModal } from "./AddMemberModal"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/shared/components/ui/alert-dialog"
 import { PROJECTS_CONSTANTS } from "../constants"
@@ -264,7 +264,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.todo.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
+                      <TaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
                     ))}
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.inProgress.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
+                      <TaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
                     ))}
                   </div>
                 </div>
@@ -294,7 +294,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   </div>
                   <div className="space-y-3">
                     {tasksByStatus.done.map((task) => (
-                      <AnimatedTaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
+                      <TaskCard key={task.id} task={toUiTask(task) as any} onClick={() => handleTaskClick(task)} />
                     ))}
                   </div>
                 </div>

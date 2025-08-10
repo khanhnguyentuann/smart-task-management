@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarInset } from "@/shared/components/ui/sidebar"
 import { AppSidebar } from "@/features/layout"
 import { EnhancedDashboardContent } from "@/features/dashboard"
 import { ProjectsList, ProjectDetail } from "@/features/projects"
-import { MyTasks } from "@/features/tasks"
+import { MyTasks, TaskDetail } from "@/features/tasks"
 import { Profile } from "@/features/user"
 import { userService } from "@/features/user"
 import { Settings } from "@/features/settings"
@@ -21,6 +21,7 @@ import { motion, AnimatePresence } from "framer-motion"
 export default function Home() {
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
+  const [selectedTask, setSelectedTask] = useState<any>(null)
   const [user, setUser] = useState<any>(null)
   const [showWelcome, setShowWelcome] = useState(true)
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -80,6 +81,16 @@ export default function Home() {
     setShowAuthModal(true)
   }
 
+  // Reset selections when changing pages
+  useEffect(() => {
+    if (currentPage !== "my-tasks") {
+      setSelectedTask(null)
+    }
+    if (currentPage !== "project-detail") {
+      setSelectedProject(null)
+    }
+  }, [currentPage])
+
   const renderContent = () => {
     console.log("Current page:", currentPage)
     console.log("User data:", user)
@@ -100,7 +111,22 @@ export default function Home() {
       case "project-detail":
         return <ProjectDetail projectId={selectedProject} user={user} onBack={() => setCurrentPage("projects")} />
       case "my-tasks":
-        return <MyTasks user={user} />
+        if (selectedTask) {
+          return (
+            <TaskDetail
+              taskId={selectedTask.id}
+              user={user}
+              onBack={() => setSelectedTask(null)}
+              onDelete={() => setSelectedTask(null)}
+            />
+          )
+        }
+        return (
+          <MyTasks 
+            user={user} 
+            onTaskClick={(task) => setSelectedTask(task)}
+          />
+        )
       case "profile":
         return <Profile />
       case "settings":
