@@ -153,7 +153,7 @@ export function Notifications({ user }: NotificationsProps) {
             <div className="relative">
               {notification.avatar ? (
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={notification.avatar || "/placeholder.svg"} alt="User" />
+                  <AvatarImage src={notification.avatar && notification.avatar.startsWith('data:image') ? notification.avatar : (notification.avatar || '/default-avatar.svg')} alt="User" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
               ) : (

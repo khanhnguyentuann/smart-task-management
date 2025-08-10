@@ -127,7 +127,7 @@ export function Profile() {
                   <div className="relative">
                     <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
                       <Avatar className="h-20 w-20 ring-4 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                        <AvatarImage src={(form?.avatar ?? user.avatar) && (form?.avatar ?? user.avatar)?.startsWith('data:image') ? (form?.avatar ?? user.avatar) : ((form?.avatar ?? user.avatar) || "/default-avatar.png")} alt={`${user.firstName} ${user.lastName}`} />
+                        <AvatarImage src={(form?.avatar ?? user.avatar) && (form?.avatar ?? user.avatar)?.startsWith('data:image') ? (form?.avatar ?? user.avatar) : ((form?.avatar ?? user.avatar) || '/default-avatar.svg')} alt={`${user.firstName} ${user.lastName}`} />
                         <AvatarFallback className="text-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                           {`${user.firstName}${user.lastName}`}
                         </AvatarFallback>

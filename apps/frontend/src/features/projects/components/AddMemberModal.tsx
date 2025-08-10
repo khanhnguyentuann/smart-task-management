@@ -142,7 +142,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMe
                     onChange={() => handleUserToggle(user.id)}
                   />
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar && user.avatar.startsWith('data:image') ? user.avatar : (user.avatar || "/default-avatar.png")} alt={`${user.firstName} ${user.lastName}`} />
+                    <AvatarImage src={user.avatar && user.avatar.startsWith('data:image') ? user.avatar : (user.avatar || '/default-avatar.svg')} alt={`${user.firstName} ${user.lastName}`} />
                     <AvatarFallback>
                       {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                     </AvatarFallback>

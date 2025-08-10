@@ -342,7 +342,7 @@ export function EnhancedDashboardContent({ user, onNavigate }: DashboardContentP
                                                     <div className="relative">
                                                         <motion.div whileHover={{ scale: 1.1 }}>
                                                             <Avatar className="h-10 w-10 ring-2 ring-white dark:ring-gray-800 shadow-lg">
-                                                                <AvatarImage src={activity.avatar || "/placeholder.svg"} alt={activity.user} />
+                                                                <AvatarImage src={activity.avatar && activity.avatar.startsWith('data:image') ? activity.avatar : (activity.avatar || '/default-avatar.svg')} alt={activity.user} />
                                                                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                                                                     {activity.user
                                                                         .split(" ")

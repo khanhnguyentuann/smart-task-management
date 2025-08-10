@@ -45,7 +45,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId, user, members =
   const [aiSummary, setAiSummary] = useState("")
   const { toast } = useToast()
 
-  const teamMembers = members.map(m => ({ id: m.id, name: m.name, avatar: "/default-avatar.png" }))
+  const teamMembers = members.map(m => ({ id: m.id, name: m.name, avatar: '/default-avatar.svg' }))
 
   const generateAISummary = async () => {
     if (!title || !description) return

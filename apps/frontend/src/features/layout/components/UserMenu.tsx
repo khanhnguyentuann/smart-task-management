@@ -54,7 +54,7 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
           >
             <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: "spring", stiffness: 300 }}>
               <Avatar className="h-10 w-10 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={displayName} />
+                <AvatarImage src={user.avatar && user.avatar.startsWith('data:image') ? user.avatar : (user.avatar || '/default-avatar.svg')} alt={displayName} />
                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                   {getInitials()}
                 </AvatarFallback>
@@ -75,7 +75,7 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
         <DropdownMenuContent align="start" className="w-56">
           <div className="flex items-center gap-3 p-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user.avatar || "/placeholder.svg"} alt={displayName} />
+              <AvatarImage src={user.avatar && user.avatar.startsWith('data:image') ? user.avatar : (user.avatar || '/default-avatar.svg')} alt={displayName} />
               <AvatarFallback>
                 {getInitials()}
               </AvatarFallback>

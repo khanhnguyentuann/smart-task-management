@@ -413,7 +413,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                       onClick={() => handleMemberToggle(user)}
                     >
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src="/placeholder.svg" alt={`${user.firstName} ${user.lastName}`} />
+                        <AvatarImage src="/default-avatar.svg" alt={`${user.firstName} ${user.lastName}`} />
                         <AvatarFallback>
                           {(user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase()}
                         </AvatarFallback>
@@ -438,7 +438,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
               {/* Current user (always included) */}
               <div className="flex items-center gap-3 p-3 bg-green-100 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" alt={`${currentUser.firstName} ${currentUser.lastName}`} />
+                  <AvatarImage src="/default-avatar.svg" alt={`${currentUser.firstName} ${currentUser.lastName}`} />
                   <AvatarFallback>
                     {(currentUser.firstName.charAt(0) + currentUser.lastName.charAt(0)).toUpperCase()}
                   </AvatarFallback>
@@ -456,7 +456,7 @@ export function CreateProjectForm({ onBack, onSave, currentUser }: CreateProject
                   className="flex items-center gap-3 p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg" alt={`${member.firstName} ${member.lastName}`} />
+                    <AvatarImage src="/default-avatar.svg" alt={`${member.firstName} ${member.lastName}`} />
                     <AvatarFallback>
                       {(member.firstName.charAt(0) + member.lastName.charAt(0)).toUpperCase()}
                     </AvatarFallback>

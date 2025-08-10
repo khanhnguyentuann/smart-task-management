@@ -24,7 +24,7 @@ export function DashboardContent({ user, onNavigate }: DashboardContentProps) {
       action: "completed task",
       target: "Update user authentication",
       time: "2 minutes ago",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/default-avatar.svg",
     },
     {
       id: 2,
@@ -33,7 +33,7 @@ export function DashboardContent({ user, onNavigate }: DashboardContentProps) {
       action: "created project",
       target: "Mobile App Redesign",
       time: "1 hour ago",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/default-avatar.svg",
     },
     {
       id: 3,
@@ -42,7 +42,7 @@ export function DashboardContent({ user, onNavigate }: DashboardContentProps) {
       action: "assigned task",
       target: "Database optimization",
       time: "3 hours ago",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/default-avatar.svg",
     },
   ])
 
@@ -86,7 +86,7 @@ export function DashboardContent({ user, onNavigate }: DashboardContentProps) {
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
+              <AvatarImage src={user?.avatar && user.avatar.startsWith('data:image') ? user.avatar : (user?.avatar || '/default-avatar.svg')} alt={user?.name || 'User'} />
               <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
             <div className="text-sm">

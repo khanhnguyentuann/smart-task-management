@@ -210,7 +210,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                   <div className="flex -space-x-2">
                     {project.members?.slice(0, 3).map((m: any, index: number) => (
                       <Avatar key={index} className="h-8 w-8 border-2 border-background">
-                        <AvatarImage src={m.user?.avatar && m.user.avatar.startsWith('data:image') ? m.user.avatar : (m.user?.avatar || "/default-avatar.png")} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
+                        <AvatarImage src={m.user?.avatar && m.user.avatar.startsWith('data:image') ? m.user.avatar : (m.user?.avatar || '/default-avatar.svg')} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
                         <AvatarFallback>
                           {(m.user?.firstName || "").charAt(0)}
                           {(m.user?.lastName || "").charAt(0)}
@@ -320,7 +320,7 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar>
-                        <AvatarImage src={m.user?.avatar && m.user.avatar.startsWith('data:image') ? m.user.avatar : (m.user?.avatar || "/default-avatar.png")} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
+                        <AvatarImage src={m.user?.avatar && m.user.avatar.startsWith('data:image') ? m.user.avatar : (m.user?.avatar || '/default-avatar.svg')} alt={`${m.user?.firstName} ${m.user?.lastName}`} />
                             <AvatarFallback>
                               {(m.user?.firstName || "").charAt(0)}
                               {(m.user?.lastName || "").charAt(0)}

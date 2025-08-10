@@ -28,6 +28,7 @@ model User {
   department   String?
   jobTitle     String?
   dateOfBirth  DateTime?
+  gender       Gender?
   timezone     String?   @default("UTC")
   language     String?   @default("en")
   
@@ -383,4 +384,10 @@ enum ActivityType {
   MEMBER_ADDED
   MEMBER_REMOVED
   FILE_UPLOADED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }

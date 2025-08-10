@@ -75,9 +75,9 @@ export function MyTasks({ user }: MyTasksProps) {
   }, [user.email, user.avatar, toUiTask])
 
   const teamMembers = [
-    { id: "1", name: "John Doe", avatar: "/placeholder.svg?height=32&width=32", email: "john@company.com" },
-    { id: "2", name: "Sarah Wilson", avatar: "/placeholder.svg?height=32&width=32", email: "sarah@company.com" },
-    { id: "3", name: "Mike Johnson", avatar: "/placeholder.svg?height=32&width=32", email: "mike@company.com" },
+    { id: "1", name: "John Doe", avatar: "/default-avatar.svg", email: "john@company.com" },
+    { id: "2", name: "Sarah Wilson", avatar: "/default-avatar.svg", email: "sarah@company.com" },
+    { id: "3", name: "Mike Johnson", avatar: "/default-avatar.svg", email: "mike@company.com" },
   ]
 
   const handleTaskClick = (task: Task) => {

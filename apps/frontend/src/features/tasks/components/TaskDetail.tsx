@@ -21,6 +21,7 @@ import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { TaskDetail as TaskDetailType } from "../types/task.types"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/shared/components/ui/alert-dialog"
+import { useToast } from "@/shared/hooks/useToast"
 
 interface TaskDetailProps {
     taskId: string
@@ -41,6 +42,8 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
     const [task, setTask] = useState<any>(null)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const { toast } = useToast()
 
     // Convert simple task to detailed task format
     const convertToDetailedTask = useCallback((simpleTask: any): TaskDetailType => {
@@ -88,7 +91,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                     author: {
                         id: "2",
                         name: "Mike Johnson",
-                        avatar: "/placeholder.svg?height=32&width=32"
+                        avatar: "/default-avatar.svg"
                     },
                     createdAt: new Date(Date.now() - 3600000),
                     mentions: []
@@ -113,7 +116,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                     user: {
                         id: "2",
                         name: "Mike Johnson",
-                        avatar: "/placeholder.svg?height=32&width=32"
+                        avatar: "/default-avatar.svg"
                     },
                     timestamp: new Date(Date.now() - 3600000)
                 }
@@ -151,6 +154,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
 
     const detailedTask = useMemo<TaskDetailType | null>(() => (task ? convertToDetailedTask(task) : null), [task, convertToDetailedTask])
     const currentTask = editedTask || detailedTask
+    const isOwner = task?.project?.ownerId === user?.id
 
     const handleEdit = useCallback(() => {
         setEditedTask({ ...currentTask })
@@ -194,15 +198,24 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
             const { apiService } = await import("@/core/services/api")
             await apiService.deleteTask(currentTask.id)
 
+            toast({
+                title: "Task Deleted",
+                description: "The task has been successfully deleted.",
+            })
+
             // Close dialog and go back
             setShowDeleteConfirm(false)
             onBack()
             onDelete?.()
         } catch (error) {
             console.error("Failed to delete task:", error)
-            // You could show a toast error here
+            toast({
+                variant: "destructive",
+                title: "Deletion Failed",
+                description: "Failed to delete the task. Please try again.",
+            })
         }
-    }, [currentTask, onBack, onDelete])
+    }, [currentTask, onBack, onDelete, toast])
 
     const handleCancel = useCallback(() => {
         setEditedTask(null)
@@ -538,7 +551,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                                 className="flex items-center gap-2 bg-muted/50 rounded-full px-3 py-1"
                                             >
                                                 <Avatar className="h-6 w-6">
-                                                <AvatarImage src={assignee.avatar && assignee.avatar.startsWith('data:image') ? assignee.avatar : (assignee.avatar || "/default-avatar.png")} alt={assignee.name} />
+                                                    <AvatarImage src={assignee.avatar ?? undefined} alt={assignee.name} />
                                                     <AvatarFallback className="text-xs">
                                                         {assignee.name.split(" ").map((n: string) => n[0]).join("")}
                                                     </AvatarFallback>
@@ -694,7 +707,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                     <div className="space-y-3">
                                         <div className="flex items-start gap-3">
                                             <Avatar className="h-8 w-8">
-                                                <AvatarImage src={user.avatar && user.avatar.startsWith('data:image') ? user.avatar : (user.avatar || "/default-avatar.png")} alt={user.name} />
+                                                <AvatarImage src={user.avatar && user.avatar.startsWith('data:image') ? user.avatar : (user.avatar || '/default-avatar.svg')} alt={user.name} />
                                                 <AvatarFallback>
                                                     {user.name?.split(" ").map((n: any) => n[0]).join("") || "U"}
                                                 </AvatarFallback>
@@ -737,7 +750,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                         className="flex items-start gap-3"
                                     >
                                         <Avatar className="h-8 w-8">
-                                            <AvatarImage src={comment.author?.avatar && comment.author.avatar.startsWith('data:image') ? comment.author.avatar : (comment.author?.avatar || "/default-avatar.png")} alt={comment.author?.name || "User"} />
+                                            <AvatarImage src={comment.author?.avatar && comment.author.avatar.startsWith('data:image') ? comment.author.avatar : (comment.author?.avatar || '/default-avatar.svg')} alt={comment.author?.name || 'User'} />
                                             <AvatarFallback>
                                                 {(comment.author?.name || "U").split(" ").map((n: string) => n?.[0] || "").join("") || "U"}
                                             </AvatarFallback>
@@ -823,7 +836,7 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                                         className="flex items-start gap-3"
                                     >
                                         <Avatar className="h-6 w-6">
-                                            <AvatarImage src={activity.user?.avatar && activity.user.avatar.startsWith('data:image') ? activity.user.avatar : (activity.user?.avatar || "/default-avatar.png")} alt={activity.user?.name || "User"} />
+                                            <AvatarImage src={activity.user?.avatar && activity.user.avatar.startsWith('data:image') ? activity.user.avatar : (activity.user?.avatar || '/default-avatar.svg')} alt={activity.user?.name || 'User'} />
                                             <AvatarFallback className="text-xs">
                                                 {(activity.user?.name || "U").split(" ").map((n: string) => n?.[0] || "").join("") || "U"}
                                             </AvatarFallback>
@@ -847,36 +860,40 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                     <Separator />
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm">
-                                <Archive className="h-4 w-4 mr-2" />
-                                Archive
-                            </Button>
-                            <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-                                <AlertDialogTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="text-red-600 hover:text-red-700"
-                                    >
-                                        <Trash2 className="h-4 w-4 mr-2" />
-                                        Delete
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Delete Task</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                                                                         Are you sure you want to delete &quot;{currentTask?.title}&quot;? This action cannot be undone.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                            {isOwner && (
+                                <Button variant="outline" size="sm">
+                                    <Archive className="h-4 w-4 mr-2" />
+                                    Archive
+                                </Button>
+                            )}
+                            {isOwner && (
+                                <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-red-600 hover:text-red-700"
+                                        >
+                                            <Trash2 className="h-4 w-4 mr-2" />
                                             Delete
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Are you sure you want to delete &quot;{currentTask?.title}&quot;? This action cannot be undone.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                                                Delete
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            )}
                         </div>
                         <div className="text-xs text-muted-foreground">
                             Created {format(currentTask?.createdAt, "MMM d, yyyy")} •
