@@ -15,8 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus, Sparkles, CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/shared/lib/utils/cn"
-import { PROJECTS_CONSTANTS } from "@/features/projects/constants"
-import { apiService } from "@/core/services/api"
+import { PROJECTS_CONSTANTS } from "@/features/projects/lib"
+import { apiClient } from "@/core/services/api-client"
+import { API_ROUTES } from "@/core/constants/routes"
 import { useToast } from "@/shared/hooks/useToast"
 import { useUser } from "@/features/layout"
 
@@ -65,7 +66,7 @@ export function CreateTaskModal({ open, onOpenChange, projectId, members = [], o
         dueDate: dueDate ? dueDate.toISOString() : undefined,
         // status is optional; backend defaults to TODO
       }
-      await apiService.createProjectTask(projectId, payload)
+      await apiClient.post(API_ROUTES.PROJECTS.TASKS(projectId), payload)
       const assigneeName = teamMembers.find((m) => m.id === assignee)?.name || 'Unassigned'
       toast({
         title: "Task created",

@@ -59,8 +59,9 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
             try {
                 setLoading(true)
                 setError(null)
-                const { apiService } = await import("@/core/services/api")
-                const resp = await apiService.getTasks()
+                const { apiClient } = await import("@/core/services/api-client")
+                const { API_ROUTES } = await import("@/core/constants/routes")
+                const resp = await apiClient.get(API_ROUTES.TASKS.LIST)
                 const tasksData = (resp as any).data || resp
                 const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
                 const mappedTasks = Array.isArray(tasksArray) ? tasksArray.map(toUiTask).filter((task): task is Task => task !== null) : []

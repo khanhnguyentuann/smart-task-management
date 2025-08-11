@@ -1,4 +1,4 @@
-export { ProjectsList } from './ProjectsList'
-export { CreateProjectForm } from './CreateProjectForm'
-export { DeleteProjectDialog } from './DeleteProjectDialog'
-export { EditProjectForm } from './EditProjectForm' 
+// New organized exports
+export * from "./Modals"
+export * from "./ProjectForm"
+export * from "./ProjectsList" 

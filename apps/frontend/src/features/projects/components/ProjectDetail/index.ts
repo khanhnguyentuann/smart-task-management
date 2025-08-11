@@ -1,0 +1,6 @@
+export * from "./ProjectDetail"
+export * from "./ProjectHeader"
+export * from "./ProjectTabs"
+export * from "./tabs/Members"
+export * from "./tabs/Tasks"
+export * from "./tabs/Settings"

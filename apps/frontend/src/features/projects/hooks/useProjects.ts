@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { projectsApi } from '../api/projects.api'
-import type { Project, CreateProjectData, UpdateProjectData } from '../types'
+import { projectService } from '../services/project.service'
+import type { Project, CreateProjectData, UpdateProjectData } from '../lib'
 
 export const useProjects = () => {
   const [projects, setProjects] = useState<Project[]>([])
@@ -12,7 +12,7 @@ export const useProjects = () => {
     try {
       setLoading(true)
       setError(null)
-      const data = await projectsApi.getProjects()
+      const data = await projectService.getProjects()
       setAllProjects(data)
       setProjects(data)
     } catch (err: any) {
@@ -25,7 +25,7 @@ export const useProjects = () => {
   const createProject = useCallback(async (projectData: CreateProjectData): Promise<Project> => {
     try {
       setError(null)
-      const newProject = await projectsApi.createProject(projectData)
+      const newProject = await projectService.createProject(projectData)
       setAllProjects(prev => [...prev, newProject])
       setProjects(prev => [...prev, newProject])
       return newProject
@@ -38,7 +38,7 @@ export const useProjects = () => {
   const updateProject = useCallback(async (id: string, projectData: UpdateProjectData): Promise<Project> => {
     try {
       setError(null)
-      const updatedProject = await projectsApi.updateProject(id, projectData)
+      const updatedProject = await projectService.updateProject(id, projectData)
       setAllProjects(prev => prev.map(project =>
         project.id === id ? updatedProject : project
       ))
@@ -55,7 +55,7 @@ export const useProjects = () => {
   const deleteProject = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await projectsApi.deleteProject(id)
+      await projectService.deleteProject(id)
       setAllProjects(prev => prev.filter(project => project.id !== id))
       setProjects(prev => prev.filter(project => project.id !== id))
     } catch (err: any) {
@@ -67,7 +67,7 @@ export const useProjects = () => {
   const getProject = useCallback(async (id: string): Promise<Project> => {
     try {
       setError(null)
-      return await projectsApi.getProject(id)
+      return await projectService.getProject(id)
     } catch (err: any) {
       setError(err.message || 'Failed to fetch project')
       throw err
@@ -77,7 +77,7 @@ export const useProjects = () => {
   const searchProjects = async (query: string) => {
     try {
       setLoading(true)
-      const response = await projectsApi.searchProjects(query)
+      const response = await projectService.searchProjects(query)
       setProjects(response)
     } catch (error: any) {
       setError(error.message)

@@ -126,8 +126,9 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             try {
                 setLoading(true)
                 setError(null)
-                const { apiService } = await import("@/core/services/api")
-                const resp = await apiService.getTask(taskId)
+                const { apiClient } = await import("@/core/services/api-client")
+                const { API_ROUTES } = await import("@/core/constants/routes")
+                const resp = await apiClient.get(API_ROUTES.TASKS.DETAIL(taskId))
                 const taskData = (resp as any).data || resp
 
                 if (!isMounted) return
@@ -157,7 +158,8 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const handleSave = useCallback(async () => {
         if (editedTask) {
             try {
-                const { apiService } = await import("@/core/services/api")
+                const { apiClient } = await import("@/core/services/api-client")
+                const { API_ROUTES } = await import("@/core/constants/routes")
                 const statusMap: Record<string, string> = { TODO: 'TODO', IN_PROGRESS: 'IN_PROGRESS', DONE: 'DONE' }
                 const priorityMap: Record<string, string> = { LOW: 'LOW', MEDIUM: 'MEDIUM', HIGH: 'HIGH' }
 
@@ -169,10 +171,10 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                     dueDate: editedTask.dueDate ? new Date(editedTask.dueDate).toISOString() : undefined,
                 }
 
-                await apiService.updateTask(editedTask.id, payload)
+                await apiClient.put(API_ROUTES.TASKS.UPDATE(editedTask.id), payload)
 
                 // Refresh task data after update
-                const resp = await apiService.getTask(editedTask.id)
+                const resp = await apiClient.get(API_ROUTES.TASKS.DETAIL(editedTask.id))
                 const taskData = (resp as any).data || resp
                 setTask(taskData)
 
@@ -207,8 +209,9 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         if (!currentTask) return
 
         try {
-            const { apiService } = await import("@/core/services/api")
-            await apiService.deleteTask(currentTask.id)
+            const { apiClient } = await import("@/core/services/api-client")
+            const { API_ROUTES } = await import("@/core/constants/routes")
+            await apiClient.delete(API_ROUTES.TASKS.DELETE(currentTask.id))
 
             toast({
                 title: "Task Deleted",

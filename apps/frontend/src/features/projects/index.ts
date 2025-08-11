@@ -1,29 +1,18 @@
-// Export components
-export { ProjectsList } from "./components/ProjectsList"
+// Components
+export * from "./components"
 export { ProjectDetail } from "./components/ProjectDetail"
-export { CreateProjectForm } from "./components/CreateProjectForm"
 
-// Export hooks
-export { useProjects } from "./hooks/useProjects"
-export { useUsers } from "./hooks/useUsers"
+// Hooks
+export * from "./hooks"
 
-// Export types
-export type {
-    Project,
-    CreateProjectData,
-    UpdateProjectData,
-    ProjectsListProps,
-    ProjectDetailProps,
-    CreateProjectModalProps,
-    ProjectMember,
-    ProjectTask
-} from "./types"
+// Services
+export * from "./services"
 
-// Export constants
-export { PROJECTS_CONSTANTS } from './constants'
+// API
+export * from "./api"
 
-// Export validation
-export * from './validation'
+// Store
+export * from "./store/project.store"
 
-// Export utils
-export * from './utils'
+// Lib (types, constants, validation, utils, mappers)
+export * from './lib'
