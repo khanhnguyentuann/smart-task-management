@@ -18,6 +18,7 @@ interface AddMemberModalProps {
     onOpenChange: (open: boolean) => void
     projectId: string
     onAdded: () => void
+    existingMembers?: any[] // Add existing members prop
 }
 
 interface User {
@@ -28,7 +29,7 @@ interface User {
     avatar?: string
 }
 
-export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMemberModalProps) {
+export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existingMembers = [] }: AddMemberModalProps) {
     const [selectedUsers, setSelectedUsers] = useState<string[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const { toast } = useToast()
@@ -37,7 +38,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMe
     const { users, loading: usersLoading, error, fetchUsers } = useUsers()
     const { addProjectMembers } = useProjectMembers()
 
-    // Search users when query changes
+    // Search users when query changes - only search if query is not empty
     useEffect(() => {
         if (searchQuery.trim()) {
             const timeoutId = setTimeout(() => {
@@ -45,9 +46,15 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMe
             }, 300)
             return () => clearTimeout(timeoutId)
         } else {
-            fetchUsers() // Load all users when search is empty
+            // Don't load all users when search is empty
+            // Users will only be loaded when user types something
         }
     }, [searchQuery, fetchUsers])
+
+    // Filter out existing project members
+    const availableUsers = users.filter(user => 
+        !existingMembers.some(member => member.user?.id === user.id)
+    )
 
     const handleAddMembers = async () => {
         if (selectedUsers.length === 0) return
@@ -119,8 +126,8 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMe
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                 Searching users...
                             </div>
-                        ) : users.length > 0 ? (
-                            users.map((user) => (
+                        ) : availableUsers.length > 0 ? (
+                            availableUsers.map((user) => (
                                 <div
                                     key={user.id}
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
@@ -158,7 +165,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMe
                         <div className="space-y-2">
                             <Label>Selected Users ({selectedUsers.length})</Label>
                             <div className="flex flex-wrap gap-2">
-                                {users
+                                {availableUsers
                                     .filter(user => selectedUsers.includes(user.id))
                                     .map((user) => (
                                         <Badge key={user.id} variant="secondary" className="flex items-center gap-1">

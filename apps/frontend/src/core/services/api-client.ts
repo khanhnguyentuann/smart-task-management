@@ -28,35 +28,15 @@ class ApiClient {
                 config.headers.Authorization = `Bearer ${token}`
             }
 
-            if (this.isDev) {
-                console.log('[API request]', {
-                    method: (config.method || 'GET').toUpperCase(),
-                    url: config.url
-                })
-            }
-
             return config
         })
 
         // Response interceptor - Handle errors and refresh token
         this.axiosInstance.interceptors.response.use(
             (response) => {
-                if (this.isDev) {
-                    console.log('[API response:ok]', {
-                        url: response.config.url,
-                        status: response.status
-                    })
-                }
                 return response
             },
             async (error: AxiosError) => {
-                if (this.isDev) {
-                    console.warn('[API response:error]', {
-                        url: error.config?.url,
-                        status: error.response?.status
-                    })
-                }
-
                 // Handle 401 - Token expired
                 if (error.response?.status === 401) {
                     const isAuthEndpoint = error.config?.url?.startsWith('/api/auth/')

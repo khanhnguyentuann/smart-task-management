@@ -6,6 +6,7 @@ import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { UserPlus } from "lucide-react"
 import { MemberRow } from "./MemberRow"
+import { useUser } from "@/features/layout"
 
 interface ProjectMembersProps {
     project: any
@@ -14,12 +15,14 @@ interface ProjectMembersProps {
 }
 
 export function ProjectMembers({ project, onAddMember, onRemoveMember }: ProjectMembersProps) {
+    const { user } = useUser()
+
     return (
         <Card>
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle>Project Members</CardTitle>
-                    {project.ownerId === project.currentUserId && (
+                    {project.ownerId === user?.id && (
                         <Button onClick={onAddMember} size="sm">
                             <UserPlus className="h-4 w-4 mr-2" />
                             Add Member
@@ -34,7 +37,7 @@ export function ProjectMembers({ project, onAddMember, onRemoveMember }: Project
                             key={index}
                             member={m}
                             isOwner={m.user?.id === project.ownerId}
-                            canRemove={project.ownerId === project.currentUserId && m.user?.id !== project.ownerId}
+                            canRemove={project.ownerId === user?.id && m.user?.id !== user?.id}
                             onRemove={onRemoveMember}
                         />
                     ))}

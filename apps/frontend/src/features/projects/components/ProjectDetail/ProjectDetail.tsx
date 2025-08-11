@@ -8,7 +8,8 @@ import { ArrowLeft, Plus, Users, Settings, CheckSquare, Edit } from "lucide-reac
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal"
 import { EditProjectModal } from "../Modals/EditProjectModal"
-import { AddMemberModal, ProjectMembers, RemoveMemberConfirm } from "./tabs/Members"
+import { AddMemberModal } from "../Modals/AddMemberModal"
+import { ProjectMembers, RemoveMemberConfirm } from "./tabs/Members"
 import { ProjectTasks } from "./tabs/Tasks"
 import { ProjectSettings } from "./tabs/Settings"
 import { PROJECTS_CONSTANTS } from "../../lib"
@@ -19,10 +20,12 @@ import { useProjectMembers } from "../../hooks/useProjectMembers"
 import { useProjectForm } from "../../hooks/useProjectForm"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/shared/hooks/useToast"
 
 export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'user'>) {
     const { user } = useUser()
     const router = useRouter()
+    const { toast } = useToast()
     const [showCreateTask, setShowCreateTask] = useState(false)
     const [showAddMember, setShowAddMember] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
@@ -31,7 +34,7 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
 
     // Use hooks instead of direct API calls
     const { project, loading, error, refreshProject } = useProjectDetail(projectId)
-    const { getProjectTasks, createProjectTask } = useProjectTasks()
+    const { getProjectTasks } = useProjectTasks()
     const { removeProjectMember } = useProjectMembers()
     const { updateProject } = useProjectForm()
 
@@ -56,33 +59,6 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
         await loadTasks()
     }
 
-    const tasksByStatus = useMemo(() => ({
-        todo: tasks.filter((task: any) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.TODO),
-        inProgress: tasks.filter((task: any) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.IN_PROGRESS),
-        done: tasks.filter((task: any) => task.status === PROJECTS_CONSTANTS.TASK_STATUS.DONE),
-    }), [tasks])
-
-    const toUiTask = (task: any) => {
-        const priorityMap: Record<string, string> = { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High' }
-        const statusMap: Record<string, string> = { TODO: 'todo', IN_PROGRESS: 'inProgress', DONE: 'done' }
-        const assigneeFullName = task.assignee?.firstName || task.assignee?.lastName
-            ? `${task.assignee?.firstName || ''} ${task.assignee?.lastName || ''}`.trim()
-            : undefined
-        return {
-            id: task.id,
-            title: task.title,
-            aiSummary: task.summary || '',
-            priority: priorityMap[task.priority] || 'Medium',
-            status: statusMap[task.status] || 'todo',
-            project: project?.name || '',
-            deadline: (task as any).dueDate || task.deadline || '',
-            assignee: {
-                name: assigneeFullName || task.assignee?.email || 'Unassigned',
-                avatar: task.assignee?.avatar || '',
-            },
-        }
-    }
-
     const handleTaskClick = (task: any) => {
         // Navigate to task detail page instead of showing inline
         router.push(`/my-tasks/${task.id}`)
@@ -94,10 +70,19 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
             await removeProjectMember(projectId, memberId)
             await refreshProject()
             setConfirmKickMember({ open: false })
+            toast({
+                title: "Member removed",
+                description: "The member has been removed from the project.",
+            })
         } catch (error) {
             console.error("Failed to remove member:", error)
+            toast({
+                title: "Failed to remove member",
+                description: "Could not remove member. Please try again.",
+                variant: "destructive",
+            })
         }
-    }, [projectId, removeProjectMember, refreshProject])
+    }, [projectId, removeProjectMember, refreshProject, toast])
 
     const handleUpdateProject = useCallback(async (projectData: any) => {
         if (!projectId) return
@@ -105,10 +90,19 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
             await updateProject(projectId, projectData)
             await refreshProject()
             setShowEditModal(false)
+            toast({
+                title: "Project updated",
+                description: "Your project has been updated.",
+            })
         } catch (error) {
             console.error("Failed to update project:", error)
+            toast({
+                title: "Failed to update project",
+                description: "Could not update project. Please try again.",
+                variant: "destructive",
+            })
         }
-    }, [projectId, updateProject, refreshProject])
+    }, [projectId, updateProject, refreshProject, toast])
 
 
     if (loading) {
@@ -231,6 +225,21 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
                         </TabsList>
 
                         <TabsContent value="tasks" className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-lg font-semibold">Project Tasks</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {tasks.length} task{tasks.length !== 1 ? 's' : ''} in this project
+                                    </p>
+                                </div>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={loadTasks}
+                                >
+                                    Refresh Tasks
+                                </Button>
+                            </div>
                             <ProjectTasks
                                 tasks={tasks}
                                 project={project}
@@ -271,6 +280,7 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
                     open={showAddMember}
                     onOpenChange={setShowAddMember}
                     projectId={projectId}
+                    existingMembers={project?.members || []}
                     onAdded={refreshProject}
                 />
             )}

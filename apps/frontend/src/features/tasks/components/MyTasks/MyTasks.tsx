@@ -30,6 +30,12 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
         if (!user) return null
         const priorityMap: Record<string, Task["priority"]> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High" }
         const statusMap: Record<string, Task["status"]> = { TODO: "TODO", IN_PROGRESS: "IN_PROGRESS", DONE: "DONE" }
+        
+        // Use actual assignee data if available, otherwise use current user
+        const assigneeName = t.assignee?.firstName && t.assignee?.lastName 
+            ? `${t.assignee.firstName} ${t.assignee.lastName}`
+            : t.assignee?.email || user.email
+            
         return {
             id: t.id,
             title: t.title,
@@ -42,9 +48,9 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
             deadline: (t as any).dueDate || t.deadline || new Date().toISOString(),
             dueDate: (t as any).dueDate ? new Date((t as any).dueDate) : null,
             assignee: { 
-                id: t.assignee?.id,
-                name: t.assignee?.email || user.email, 
-                avatar: user.avatar || "",
+                id: t.assignee?.id || user.id,
+                name: assigneeName, 
+                avatar: t.assignee?.avatar || user.avatar || "",
                 email: t.assignee?.email || user.email
             },
             createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),

@@ -296,29 +296,8 @@ export class TasksService {
     }
 
     async getUserTasks(userId: string, filterDto: TaskFilterDto) {
-        // Get all projects where user is owner or member
-        const userProjects = await this.prisma.project.findMany({
-            where: {
-                OR: [
-                    { ownerId: userId },
-                    {
-                        members: {
-                            some: {
-                                userId: userId
-                            }
-                        }
-                    }
-                ]
-            },
-            select: { id: true }
-        });
-
-        const projectIds = userProjects.map(p => p.id);
-
         const where: Prisma.TaskWhereInput = {
-            projectId: {
-                in: projectIds
-            }
+            assigneeId: userId // Only tasks assigned to current user
         };
 
         // Apply same filters as findAllByProject
