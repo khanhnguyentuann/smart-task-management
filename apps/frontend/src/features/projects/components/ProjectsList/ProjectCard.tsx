@@ -1,7 +1,7 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card/Card"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Badge } from "@/shared/components/ui/badge"
 import { Users, CheckSquare, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu"

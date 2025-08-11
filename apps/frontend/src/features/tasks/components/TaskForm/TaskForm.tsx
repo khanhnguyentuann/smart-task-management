@@ -1,11 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card/Card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Textarea } from "@/shared/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Calendar } from "@/shared/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover"
 import { CalendarIcon, Save, X } from 'lucide-react'

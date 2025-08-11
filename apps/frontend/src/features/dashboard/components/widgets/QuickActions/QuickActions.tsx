@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Plus, Eye } from "lucide-react"
-import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card/Card"
+import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card"
 import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 

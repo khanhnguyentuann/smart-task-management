@@ -8,8 +8,8 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/shared/components/ui/dialog/Dialog"
-import { Button } from "@/shared/components/ui/button/Button"
+} from "@/shared/components/ui/dialog"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { AlertTriangle, Trash2 } from "lucide-react"

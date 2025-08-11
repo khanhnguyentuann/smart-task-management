@@ -6,7 +6,7 @@ import { Input } from "@/shared/components/ui/input"
 import { Search, CheckSquare, Clock, AlertTriangle, Calendar } from 'lucide-react'
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Task } from "../../types/task.types"
 import { TaskCard } from "./TaskCard"
 import { EmptyState } from "./EmptyState"

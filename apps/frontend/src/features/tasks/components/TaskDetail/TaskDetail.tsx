@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useMemo, useCallback } from "react"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Separator } from "@/shared/components/ui/separator"
 import { ArrowLeft, Archive } from 'lucide-react'
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { TrendingUp } from "lucide-react"
-import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card/Card"
+import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card"
 import { Progress } from "@/shared/components/ui/progress"
 import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
 import { StatCard as StatCardType } from "../../../types/dashboard.types"

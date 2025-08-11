@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { Card } from "@/shared/components/ui/card/Card"
+import { Card } from "@/shared/components/ui/card"
 import { cn } from "@/shared/lib/utils/cn"
 import { motion } from "framer-motion"
 import { forwardRef } from "react"

@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog/Dialog"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Share2, Copy, Mail, MessageSquare } from 'lucide-react'

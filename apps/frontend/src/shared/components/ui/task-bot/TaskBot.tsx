@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Plus } from "lucide-react"
 
 interface TaskBotProps {

@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader } from "@/shared/components/ui/card/Card"
+import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Label } from "@/shared/components/ui/label"
 import { Textarea } from "@/shared/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"

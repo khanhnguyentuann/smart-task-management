@@ -1,7 +1,7 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { MoreHorizontal, Heart, Reply, Edit, Trash } from 'lucide-react'
 import { format } from "date-fns"
 import { motion } from "framer-motion"

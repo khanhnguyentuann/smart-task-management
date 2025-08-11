@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { UserMinus } from "lucide-react"

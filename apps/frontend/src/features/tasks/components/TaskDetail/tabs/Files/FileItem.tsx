@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu"
 import { Download, Eye, Paperclip, MoreHorizontal, Trash, Share, Copy } from 'lucide-react'
 import { format } from "date-fns"

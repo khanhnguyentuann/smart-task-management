@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardHeader, CardTitle } from "@/shared/components/ui/card/Card"
+import { Card, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Input } from "@/shared/components/ui/input"
 import { Badge } from "@/shared/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"

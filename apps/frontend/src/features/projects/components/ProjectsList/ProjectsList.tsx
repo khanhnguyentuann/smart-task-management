@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Plus, Loader2 } from 'lucide-react'
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { CreateProjectModal } from "../Modals/CreateProjectModal"

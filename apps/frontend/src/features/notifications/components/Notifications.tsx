@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CardContent } from "@/shared/components/ui/card/Card"
+import { CardContent } from "@/shared/components/ui/card"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"

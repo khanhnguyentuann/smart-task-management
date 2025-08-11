@@ -1,9 +1,9 @@
 "use client"
 
-import { Card, CardContent, CardHeader } from "@/shared/components/ui/card/Card"
+import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Label } from "@/shared/components/ui/label"
 import { Badge } from "@/shared/components/ui/badge"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Tag, Plus, X } from 'lucide-react'
 

@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useState, useCallback } from "react"
-import { Card, CardHeader, CardTitle } from "@/shared/components/ui/card/Card"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Card, CardHeader, CardTitle } from "@/shared/components/ui/card"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
 import { ArrowLeft, Plus, Users, Settings, CheckSquare, Edit } from "lucide-react"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"

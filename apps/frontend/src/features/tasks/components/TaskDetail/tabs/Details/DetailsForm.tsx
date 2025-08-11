@@ -1,11 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardHeader } from "@/shared/components/ui/card/Card"
+import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Label } from "@/shared/components/ui/label"
 import { Textarea } from "@/shared/components/ui/textarea"
 import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover"
 import { Calendar } from "@/shared/components/ui/calendar"
 import { Edit3, Users, CalendarIcon, Plus } from 'lucide-react'

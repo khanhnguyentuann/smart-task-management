@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { Activity } from "lucide-react"
-import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card/Card"
+import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card"
 import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
 import { Activity as ActivityType } from "../../../types/dashboard.types"
 import { ActivityItem } from "./ActivityItem"

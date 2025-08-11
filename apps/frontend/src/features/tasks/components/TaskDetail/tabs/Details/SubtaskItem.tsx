@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/shared/components/ui/button/Button"
+import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { CheckSquare, Square, X } from 'lucide-react'
 import { motion } from "framer-motion"
 
