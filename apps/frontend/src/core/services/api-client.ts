@@ -1,6 +1,7 @@
-import { AUTH_CONSTANTS } from "@/features/auth/constants/auth.constants"
 import { API_ROUTES } from "@/core/constants/routes"
+import { TOKEN_CONSTANTS } from "@/core/constants/tokens"
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios"
+import { cookieUtils } from "@/core/utils/cookie.utils"
 
 // Base API Client - Just handle HTTP communication
 class ApiClient {
@@ -20,8 +21,9 @@ class ApiClient {
     private setupInterceptors() {
         // Request interceptor - Attach token
         this.axiosInstance.interceptors.request.use((config) => {
+            // Get token from cookies (primary) or localStorage (fallback)
             const token = typeof window !== 'undefined'
-                ? (localStorage.getItem(AUTH_CONSTANTS.TOKEN_KEY) || localStorage.getItem('accessToken'))
+                ? (cookieUtils.getCookie(TOKEN_CONSTANTS.ACCESS_TOKEN) || localStorage.getItem(TOKEN_CONSTANTS.ACCESS_TOKEN))
                 : null
 
             if (token) {
@@ -58,7 +60,7 @@ class ApiClient {
 
     private async handleTokenRefresh(originalError: AxiosError) {
         const refreshToken = typeof window !== 'undefined'
-            ? (localStorage.getItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY) || localStorage.getItem('refreshToken'))
+            ? (cookieUtils.getCookie(TOKEN_CONSTANTS.REFRESH_TOKEN) || localStorage.getItem(TOKEN_CONSTANTS.REFRESH_TOKEN))
             : null
 
         if (!refreshToken) {
@@ -75,7 +77,16 @@ class ApiClient {
             const newToken = data?.accessToken || data?.token
 
             if (newToken) {
-                localStorage.setItem(AUTH_CONSTANTS.TOKEN_KEY, newToken)
+                // Save new token to both cookies and localStorage
+                cookieUtils.setCookie(TOKEN_CONSTANTS.ACCESS_TOKEN, newToken, {
+                    maxAge: 15 * 60 * 1000, // 15 minutes
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax'
+                })
+                
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem(TOKEN_CONSTANTS.ACCESS_TOKEN, newToken)
+                }
 
                 // Retry original request with new token
                 const originalRequest = originalError.config!
@@ -89,9 +100,14 @@ class ApiClient {
     }
 
     private clearAuth() {
+        // Clear cookies
+        cookieUtils.deleteCookie(TOKEN_CONSTANTS.ACCESS_TOKEN)
+        cookieUtils.deleteCookie(TOKEN_CONSTANTS.REFRESH_TOKEN)
+        
+        // Clear localStorage
         if (typeof window !== 'undefined') {
-            localStorage.removeItem(AUTH_CONSTANTS.TOKEN_KEY)
-            localStorage.removeItem(AUTH_CONSTANTS.REFRESH_TOKEN_KEY)
+            localStorage.removeItem(TOKEN_CONSTANTS.ACCESS_TOKEN)
+            localStorage.removeItem(TOKEN_CONSTANTS.REFRESH_TOKEN)
         }
     }
 

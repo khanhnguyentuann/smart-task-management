@@ -1,7 +1,4 @@
 export const AUTH_CONSTANTS = {
-    TOKEN_KEY: 'authToken',
-    REFRESH_TOKEN_KEY: 'refreshToken',
-
     PASSWORD: {
         MIN_LENGTH: 6,
         MAX_LENGTH: 12,
