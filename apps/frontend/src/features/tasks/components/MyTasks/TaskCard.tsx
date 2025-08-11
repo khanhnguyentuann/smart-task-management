@@ -51,15 +51,15 @@ export function TaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
         >
             <GlassmorphismCard className="group cursor-pointer">
                 <div className="p-4 space-y-3">
-                    <div className="flex items-start justify-between">
-                        <h4 className="font-medium group-hover:text-blue-600 transition-colors">{task.title}</h4>
-                        <div className="flex items-center gap-2">
+                    <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-medium group-hover:text-blue-600 transition-colors truncate flex-1 min-w-0">{task.title}</h4>
+                        <div className="flex items-center gap-2 flex-shrink-0">
                             <motion.div
                                 className={`w-2 h-2 rounded-full ${getPriorityColor(task.priority)}`}
                                 animate={{ scale: [1, 1.2, 1] }}
                                 transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
                             />
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs whitespace-nowrap">
                                 {task.priority}
                             </Badge>
                         </div>
@@ -80,15 +80,16 @@ export function TaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
                                 repeat: Number.POSITIVE_INFINITY,
                                 repeatType: "reverse",
                             }}
+                            className="flex-shrink-0"
                         >
                             <div className="text-blue-600 text-sm">🤖✨</div>
                         </motion.div>
-                        <p className="text-sm text-blue-800 dark:text-blue-200">{task.aiSummary}</p>
+                        <p className="text-sm text-blue-800 dark:text-blue-200 line-clamp-2 min-w-0">{task.aiSummary}</p>
                     </motion.div>
 
-                    <div className="flex items-center justify-between">
-                        <motion.div className="flex items-center gap-2" whileHover={{ scale: 1.05 }}>
-                            <Avatar className="h-6 w-6 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
+                    <div className="flex items-center justify-between gap-2">
+                        <motion.div className="flex items-center gap-2 min-w-0 flex-1" whileHover={{ scale: 1.05 }}>
+                            <Avatar className="h-6 w-6 ring-2 ring-blue-500/20 hover:ring-blue-500/40 transition-all flex-shrink-0">
                                 <AvatarImage src={task.assignee?.avatar && task.assignee.avatar.startsWith('data:image') ? task.assignee.avatar : (task.assignee?.avatar || '/default-avatar.svg')} alt={task.assignee.name} />
                                 <AvatarFallback className="text-xs">
                                     {task.assignee.name
@@ -97,15 +98,15 @@ export function TaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
                                         .join("")}
                                 </AvatarFallback>
                             </Avatar>
-                            <span className="text-sm text-muted-foreground">{task.assignee.name}</span>
+                            <span className="text-sm text-muted-foreground truncate">{task.assignee.name}</span>
                         </motion.div>
 
                         <motion.div
-                            className={`text-xs flex items-center gap-1 ${deadlineStatus.color}`}
+                            className={`text-xs flex items-center gap-1 ${deadlineStatus.color} flex-shrink-0`}
                             whileHover={{ scale: 1.1 }}
                         >
                             <Calendar className="h-3 w-3" />
-                            {deadlineStatus.label}
+                            <span className="whitespace-nowrap">{deadlineStatus.label}</span>
                         </motion.div>
                     </div>
 

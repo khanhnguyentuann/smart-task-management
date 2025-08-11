@@ -8,6 +8,7 @@ import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { motion } from "framer-motion"
 import { TaskDetail as TaskDetailType } from "../../types/task.types"
 import { useToast } from "@/shared/hooks/useToast"
+import { useUser } from "@/features/layout"
 
 // Import modular components
 import { TaskDetailHeader } from "./TaskDetailHeader"
@@ -16,12 +17,13 @@ import { DeleteTaskModal } from "../Modals/DeleteTaskModal"
 
 interface TaskDetailProps {
     taskId: string
-    user: any
     onBack: () => void
     onDelete?: () => void
 }
 
-export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) {
+export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
+    const { user } = useUser()
+    
     // State management
     const [isEditing, setIsEditing] = useState(false)
     const [editedTask, setEditedTask] = useState<any>(null)
@@ -94,8 +96,8 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                     description: "moved this task from To Do to In Progress",
                     user: {
                         id: "1",
-                        name: user.name,
-                        avatar: user.avatar
+                        name: user?.firstName ? `${user.firstName} ${user.lastName}` : "User",
+                        avatar: user?.avatar || ""
                     },
                     timestamp: new Date(Date.now() - 7200000)
                 },
@@ -341,6 +343,10 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
         )
     }
 
+    if (!user) {
+        return null
+    }
+
     // Main render
     return (
         <motion.div
@@ -388,7 +394,6 @@ export function TaskDetail({ taskId, user, onBack, onDelete }: TaskDetailProps) 
                         currentTask={currentTask}
                         isEditing={isEditing}
                         editedTask={editedTask}
-                        user={user}
                         onFieldChange={handleFieldChange}
                         newComment={newComment}
                         setNewComment={setNewComment}

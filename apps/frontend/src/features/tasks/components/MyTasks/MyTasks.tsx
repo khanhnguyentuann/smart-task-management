@@ -10,21 +10,14 @@ import { Button } from "@/shared/components/ui/button/Button"
 import { Task } from "../../types/task.types"
 import { TaskCard } from "./TaskCard"
 import { EmptyState } from "./EmptyState"
-
-interface User {
-    id: string
-    name: string
-    email: string
-    role: "Admin" | "Member"
-    avatar: string
-}
+import { useUser } from "@/features/layout"
 
 interface MyTasksProps {
-    user: User
     onTaskClick: (task: Task) => void
 }
 
-export function MyTasks({ user, onTaskClick }: MyTasksProps) {
+export function MyTasks({ onTaskClick }: MyTasksProps) {
+    const { user } = useUser()
     const [searchQuery, setSearchQuery] = useState("")
     const [statusFilter, setStatusFilter] = useState("all")
     const [priorityFilter, setPriorityFilter] = useState("all")
@@ -33,7 +26,8 @@ export function MyTasks({ user, onTaskClick }: MyTasksProps) {
     const [error, setError] = useState<string | null>(null)
 
     // Map backend task to UI task shape
-    const toUiTask = React.useCallback((t: any): Task => {
+    const toUiTask = React.useCallback((t: any): Task | null => {
+        if (!user) return null
         const priorityMap: Record<string, Task["priority"]> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High" }
         const statusMap: Record<string, Task["status"]> = { TODO: "TODO", IN_PROGRESS: "IN_PROGRESS", DONE: "DONE" }
         return {
@@ -50,15 +44,17 @@ export function MyTasks({ user, onTaskClick }: MyTasksProps) {
             assignee: { 
                 id: t.assignee?.id,
                 name: t.assignee?.email || user.email, 
-                avatar: user.avatar,
+                avatar: user.avatar || "",
                 email: t.assignee?.email || user.email
             },
             createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
             updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(),
         }
-    }, [user.email, user.avatar])
+    }, [user])
 
     React.useEffect(() => {
+        if (!user) return
+        
         const fetchTasks = async () => {
             try {
                 setLoading(true)
@@ -67,7 +63,8 @@ export function MyTasks({ user, onTaskClick }: MyTasksProps) {
                 const resp = await apiService.getTasks()
                 const tasksData = (resp as any).data || resp
                 const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
-                setTasks(Array.isArray(tasksArray) ? tasksArray.map(toUiTask) : [])
+                const mappedTasks = Array.isArray(tasksArray) ? tasksArray.map(toUiTask).filter((task): task is Task => task !== null) : []
+                setTasks(mappedTasks)
             } catch (e: any) {
                 console.error("Failed to fetch tasks:", e)
                 if (e.message?.includes('Authentication') || e.message?.includes('Unauthorized')) {
@@ -81,7 +78,7 @@ export function MyTasks({ user, onTaskClick }: MyTasksProps) {
         }
 
         fetchTasks()
-    }, [user.email, user.avatar, toUiTask])
+    }, [user, toUiTask])
 
     const handleTaskClick = (task: Task) => {
         onTaskClick(task)

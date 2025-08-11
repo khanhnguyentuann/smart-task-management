@@ -13,7 +13,6 @@ interface TaskDetailTabsProps {
     currentTask: TaskDetail | null
     isEditing: boolean
     editedTask: any
-    user: any
     onFieldChange: (field: string, value: any) => void
     newComment: string
     setNewComment: (value: string) => void
@@ -34,7 +33,6 @@ export function TaskDetailTabs({
     currentTask,
     isEditing,
     editedTask,
-    user,
     onFieldChange,
     newComment,
     setNewComment,
@@ -76,7 +74,6 @@ export function TaskDetailTabs({
             <TabsContent value="comments">
                 <CommentsTab
                     currentTask={currentTask}
-                    user={user}
                     newComment={newComment}
                     setNewComment={setNewComment}
                     onAddComment={onAddComment}

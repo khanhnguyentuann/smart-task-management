@@ -5,6 +5,7 @@ import { LayoutDashboard, FolderKanban, CheckSquare, User } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/shared/components/ui/sidebar"
 import { useSidebar } from "@/shared/components/ui/sidebar"
 import { UserMenu } from "./UserMenu"
+import { useRouter, usePathname } from "next/navigation"
 
 interface AppSidebarProps {
     user: {
@@ -15,8 +16,6 @@ interface AppSidebarProps {
         avatar?: string
         department?: string
     } | null
-    currentPage: string
-    onNavigate: (page: string) => void
     onLogout: () => void
 }
 
@@ -43,11 +42,24 @@ const menuItems = [
     },
 ]
 
-export function AppSidebar({ user, currentPage, onNavigate, onLogout }: AppSidebarProps) {
+export function AppSidebar({ user, onLogout }: AppSidebarProps) {
     const { setOpenMobile, isMobile } = useSidebar()
+    const router = useRouter()
+    const pathname = usePathname()
+
+    const getCurrentPage = () => {
+        if (pathname === "/dashboard") return "dashboard"
+        if (pathname.startsWith("/projects")) return "projects"
+        if (pathname.startsWith("/my-tasks")) return "my-tasks"
+        if (pathname === "/profile") return "profile"
+        if (pathname === "/settings") return "settings"
+        if (pathname === "/notifications") return "notifications"
+        if (pathname === "/help-support") return "help-support"
+        return "dashboard"
+    }
 
     const handleNavigate = (page: string) => {
-        onNavigate(page)
+        router.push(`/${page}`)
         // Auto-close sidebar on mobile after navigation
         if (isMobile) {
             setOpenMobile(false)
@@ -92,7 +104,7 @@ export function AppSidebar({ user, currentPage, onNavigate, onLogout }: AppSideb
                             >
                                 <SidebarMenuButton
                                     onClick={() => handleNavigate(item.key)}
-                                    isActive={currentPage === item.key}
+                                    isActive={getCurrentPage() === item.key}
                                     className="w-full justify-start hover:scale-105 transition-transform"
                                 >
                                     <motion.div whileHover={{ rotate: 10, scale: 1.1 }} transition={{ type: "spring", stiffness: 300 }}>
@@ -107,7 +119,7 @@ export function AppSidebar({ user, currentPage, onNavigate, onLogout }: AppSideb
             </SidebarContent>
 
             <SidebarFooter className="border-t p-4">
-                <UserMenu user={user} onNavigate={handleNavigate} onLogout={onLogout} />
+                <UserMenu user={user} onLogout={onLogout} />
             </SidebarFooter>
         </Sidebar>
     )

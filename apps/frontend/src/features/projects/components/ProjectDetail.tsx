@@ -16,9 +16,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { PROJECTS_CONSTANTS } from "../constants"
 import { ProjectDetailProps } from "../types"
 import { apiService } from "@/core/services/api"
+import { useUser } from "@/features/layout"
 
-export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
-  const [showCreateTask, setShowCreateTask] = useState(false)
+export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'user'>) {
+    const { user } = useUser()
+    const [showCreateTask, setShowCreateTask] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [project, setProject] = useState<any | null>(null)
@@ -133,7 +135,6 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
     return (
       <TaskDetail
         taskId={selectedTaskId}
-        user={user}
         onBack={handleBackFromTask}
         onDelete={refreshTasks}
       />
@@ -377,7 +378,6 @@ export function ProjectDetail({ projectId, user, onBack }: ProjectDetailProps) {
         open={showCreateTask}
         onOpenChange={setShowCreateTask}
         projectId={projectId}
-        user={user}
         members={(project?.members || []).map((m: any) => ({ id: m.user?.id, name: `${m.user?.firstName || ''} ${m.user?.lastName || ''}`.trim() }))}
         onCreated={async () => {
           if (!projectId) return

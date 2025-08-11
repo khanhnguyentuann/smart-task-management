@@ -4,10 +4,10 @@ import { Separator } from "@/shared/components/ui/separator"
 import { CommentEditor } from "./CommentEditor"
 import { CommentList } from "./CommentList"
 import { TaskDetail } from "../../../../types/task.types"
+import { useUser } from "@/features/layout"
 
 interface CommentsTabProps {
     currentTask: TaskDetail | null
-    user: any
     newComment: string
     setNewComment: (value: string) => void
     onAddComment: () => void
@@ -16,12 +16,12 @@ interface CommentsTabProps {
 
 export function CommentsTab({
     currentTask,
-    user,
     newComment,
     setNewComment,
     onAddComment,
     isSubmittingComment = false
 }: CommentsTabProps) {
+    const { user } = useUser()
     const handleEditComment = (commentId: string) => {
         // TODO: Implement edit comment functionality
         console.log('Edit comment:', commentId)

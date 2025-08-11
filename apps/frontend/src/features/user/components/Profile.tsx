@@ -12,13 +12,15 @@ import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { useState } from "react"
 import { useToast } from "@/shared/hooks/useToast"
-import { useUserProfile } from "../hooks/useUserProfile"
+import { useUser } from "@/features/layout"
 import type { UserProfile } from "../types/user.types"
 import { updateProfileSchema } from "../validation/user.validation"
+import { userService } from "../services/user.service"
 
 export function Profile() {
   const { toast } = useToast()
-  const { profile: user, setProfile, updateProfile, uploadAvatar, loading } = useUserProfile()
+  const { user, setUser, refetchUser } = useUser()
+  const [loading, setLoading] = useState(false)
   const [form, setForm] = useState<Partial<UserProfile>>({})
   const [errors, setErrors] = useState<Record<string, string | null>>({})
 
@@ -58,10 +60,12 @@ export function Profile() {
     }
     reader.readAsDataURL(file)
     // Auto upload
+    setLoading(true)
     try {
-      const updated = await uploadAvatar({ file })
-      if (updated) {
-        setProfile(updated)
+      const result = await userService.uploadAvatarFile(file)
+      if (result?.avatar && user) {
+        const updated = { ...user, avatar: result.avatar }
+        setUser(updated)
         toast({
           title: "Ảnh đại diện đã được cập nhật",
           description: `${updated.firstName} ${updated.lastName} ảnh mới đã được lưu thành công.`,
@@ -70,6 +74,8 @@ export function Profile() {
       }
     } catch {
       toast({ title: "Tải ảnh thất bại", description: "Vui lòng thử lại sau.", variant: "destructive" })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -78,6 +84,7 @@ export function Profile() {
       toast({ title: "Thông tin chưa hợp lệ", description: "Vui lòng kiểm tra lại các trường nhập.", variant: "destructive" })
       return
     }
+    setLoading(true)
     try {
       const payload = {
         firstName: form.firstName,
@@ -86,13 +93,13 @@ export function Profile() {
         dateOfBirth: (form as any).dateOfBirth ?? (form as any).birthday,
         avatar: form.avatar,
       }
-      const updated = await updateProfile(payload)
-      setProfile(updated)
+      const updated = await userService.updateProfile(payload)
+      setUser(updated)
       const changed: string[] = []
-      if (payload.firstName && payload.firstName !== user.firstName) changed.push("First name")
-      if (payload.lastName && payload.lastName !== user.lastName) changed.push("Last name")
-      if (payload.department && payload.department !== user.department) changed.push("Department")
-      if (payload.dateOfBirth && payload.dateOfBirth !== (user as any).dateOfBirth) changed.push("Date of birth")
+      if (payload.firstName && payload.firstName !== user?.firstName) changed.push("First name")
+      if (payload.lastName && payload.lastName !== user?.lastName) changed.push("Last name")
+      if (payload.department && payload.department !== user?.department) changed.push("Department")
+      if (payload.dateOfBirth && payload.dateOfBirth !== (user as any)?.dateOfBirth) changed.push("Date of birth")
       const desc = changed.length > 0 ? `Đã cập nhật: ${changed.join(", ")}.` : "Không có thay đổi đáng kể."
       toast({
         title: "Cập nhật hồ sơ thành công",
@@ -101,6 +108,8 @@ export function Profile() {
       })
     } catch (_err) {
       toast({ title: "Update failed", variant: "destructive" })
+    } finally {
+      setLoading(false)
     }
   }
   return (

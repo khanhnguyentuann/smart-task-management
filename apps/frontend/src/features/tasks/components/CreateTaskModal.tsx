@@ -18,25 +18,19 @@ import { cn } from "@/shared/lib/utils/cn"
 import { PROJECTS_CONSTANTS } from "@/features/projects/constants"
 import { apiService } from "@/core/services/api"
 import { useToast } from "@/shared/hooks/useToast"
-
-interface User {
-  name: string
-  email: string
-  role: typeof PROJECTS_CONSTANTS.ROLES[keyof typeof PROJECTS_CONSTANTS.ROLES]
-  avatar: string
-}
+import { useUser } from "@/features/layout"
 
 interface CreateTaskModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   projectId: string | null
-  user: User
   members?: Array<{ id: string; name: string }>
   onCreated?: () => void
 }
 
-export function CreateTaskModal({ open, onOpenChange, projectId, user, members = [], onCreated }: CreateTaskModalProps) {
-  const [title, setTitle] = useState("")
+export function CreateTaskModal({ open, onOpenChange, projectId, members = [], onCreated }: CreateTaskModalProps) {
+    const { user } = useUser()
+    const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [priority, setPriority] = useState<typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]>(PROJECTS_CONSTANTS.PRIORITY.MEDIUM)
   const [assignee, setAssignee] = useState("")

@@ -12,6 +12,7 @@ import {
 import { User, Bell, Settings, HelpCircle, LogOut } from "lucide-react"
 import { motion } from "framer-motion"
 import { EnhancedThemeToggle } from "@/shared/components/ui/enhanced-theme-toggle"
+import { useRouter } from "next/navigation"
 
 interface UserMenuProps {
   user: {
@@ -19,19 +20,18 @@ interface UserMenuProps {
     firstName: string
     lastName: string
     email: string
-    role?: "ADMIN" | "MEMBER"
     avatar?: string
     department?: string
   } | null
-  onNavigate: (page: string) => void
   onLogout: () => void
 }
 
-export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
+export function UserMenu({ user, onLogout }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
 
   const handleNavigate = (page: string) => {
-    onNavigate(page)
+    router.push(`/${page}`)
     setIsOpen(false) // Close dropdown after navigation
   }
 
@@ -66,7 +66,6 @@ export function UserMenu({ user, onNavigate, onLogout }: UserMenuProps) {
               </p>
               <div className="flex items-center gap-2 min-w-0">
                 {user.email && <span className="text-xs text-muted-foreground truncate">{user.email}</span>}
-                {user.department && <span className="text-xs text-muted-foreground truncate">{user.department}</span>}
               </div>
             </div>
           </motion.button>
