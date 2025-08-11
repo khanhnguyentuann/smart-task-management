@@ -296,8 +296,29 @@ export class TasksService {
     }
 
     async getUserTasks(userId: string, filterDto: TaskFilterDto) {
+        // Get all projects where user is owner or member
+        const userProjects = await this.prisma.project.findMany({
+            where: {
+                OR: [
+                    { ownerId: userId },
+                    {
+                        members: {
+                            some: {
+                                userId: userId
+                            }
+                        }
+                    }
+                ]
+            },
+            select: { id: true }
+        });
+
+        const projectIds = userProjects.map(p => p.id);
+
         const where: Prisma.TaskWhereInput = {
-            assigneeId: userId,
+            projectId: {
+                in: projectIds
+            }
         };
 
         // Apply same filters as findAllByProject
@@ -319,6 +340,15 @@ export class TasksService {
         const tasks = await this.prisma.task.findMany({
             where,
             include: {
+                assignee: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        email: true,
+                        avatar: true,
+                    },
+                },
                 project: {
                     select: {
                         id: true,

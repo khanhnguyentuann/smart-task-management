@@ -1,6 +1,6 @@
 "use client"
 
-import { EnhancedDashboardContent } from "@/features/dashboard"
+import { Dashboard } from "@/features/dashboard"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
 
@@ -16,5 +16,5 @@ export default function DashboardPage() {
     return null
   }
 
-  return <EnhancedDashboardContent user={user} onNavigate={handleNavigate} />
+  return <Dashboard user={user} onNavigate={handleNavigate} />
 }

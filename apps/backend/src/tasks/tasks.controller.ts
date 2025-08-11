@@ -77,4 +77,10 @@ export class TasksController {
     ) {
         return this.tasksService.getUserTasks(user.id, filterDto);
     }
+
+    // Get all tasks for dashboard (user's tasks across all projects)
+    @Get('tasks')
+    getAllTasks(@CurrentUser() user: User) {
+        return this.tasksService.getUserTasks(user.id, {});
+    }
 }
