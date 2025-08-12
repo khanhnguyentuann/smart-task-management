@@ -1,13 +1,7 @@
+import type { User } from '@/shared/lib/types'
+
 // Core domain types
-export interface User {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  createdAt: string
-  avatar?: string
-  department?: string
-}
+// User interface is now imported from shared types
 
 export interface AuthTokens {
   accessToken: string

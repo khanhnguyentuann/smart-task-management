@@ -1,14 +1,11 @@
-export interface UserProfile {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  avatar?: string
-  department?: string
-  dateOfBirth?: string
-  createdAt?: string
+import type { User, UpdateUserPayload } from '@/shared/lib/types'
+
+// UserProfile extends the shared User interface
+export interface UserProfile extends User {
+  // Additional profile-specific fields can be added here
 }
 
-export type UpdateProfilePayload = Partial<Pick<UserProfile, 'firstName' | 'lastName' | 'department' | 'dateOfBirth' | 'avatar'>>
+// Use shared UpdateUserPayload type
+export type UpdateProfilePayload = UpdateUserPayload
 
 

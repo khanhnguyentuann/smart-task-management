@@ -1,14 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { apiClient } from '@/core/services/api-client'
 import { API_ROUTES } from '@/core/constants/routes'
-
-export interface User {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    createdAt: string
-}
+import type { User } from '@/shared/lib/types'
 
 export const useUsers = () => {
     const [users, setUsers] = useState<User[]>([])

@@ -1,13 +1,7 @@
 import { PROJECTS_CONSTANTS } from "../constants";
+import type { BaseUser } from '@/shared/lib/types'
 
-// Base user interface for reusability
-export interface BaseUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  avatar?: string;
-}
+// BaseUser interface is now imported from shared types
 
 // Task related interfaces
 export interface ProjectTask {

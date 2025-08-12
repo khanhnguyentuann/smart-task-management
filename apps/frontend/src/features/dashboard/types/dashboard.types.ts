@@ -1,11 +1,6 @@
-export interface User {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    avatar?: string
-    department?: string
-}
+import type { User } from '@/shared/lib/types'
+
+// User interface is now imported from shared types
 
 export interface DashboardContentProps {
     user: User | null
