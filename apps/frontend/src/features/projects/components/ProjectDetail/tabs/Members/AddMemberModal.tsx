@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { ScrollArea } from "@/shared/components/ui/scroll-area"
 import { Checkbox } from "@/shared/components/ui/checkbox"
 import { Search, Users, X, Loader2 } from 'lucide-react'
-import { useUsers } from "@/shared/hooks"
+import { useUsers, useErrorHandler } from "@/shared/hooks"
 import { useProjectMembers } from "@/features/projects/hooks/useProjectMembers"
 import { useToast } from "@/shared/hooks/useToast"
 
@@ -33,6 +33,9 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMe
     const [selectedUsers, setSelectedUsers] = useState<string[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const { toast } = useToast()
+    const { handleError } = useErrorHandler({
+        context: { component: 'AddMemberModal' }
+    })
     
     // Use hooks instead of direct API calls
     const { users, loading: usersLoading, error, fetchUsers } = useUsers()
@@ -61,12 +64,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMe
                 description: `Successfully added ${selectedUsers.length} member${selectedUsers.length !== 1 ? 's' : ''} to the project.`,
             })
         } catch (error: any) {
-            console.error("Failed to add members:", error)
-            toast({
-                title: "Failed to Add Members",
-                description: error.message || "Please try again.",
-                variant: "destructive",
-            })
+            handleError(error)
         }
     }
 

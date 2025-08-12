@@ -1,16 +1,9 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react"
 import { userService } from "@/features/user"
-
-interface User {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  avatar?: string
-  department?: string
-}
+import { useErrorHandler } from "@/shared/hooks"
+import type { User } from "@/shared/lib/types"
 
 interface UserContextType {
   user: User | null
@@ -24,26 +17,33 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const { handleError } = useErrorHandler({
+    context: { component: 'UserProvider' }
+  })
+  
+  // Use ref to store handleError to avoid dependency issues
+  const handleErrorRef = useRef(handleError)
+  handleErrorRef.current = handleError
 
-  const refetchUser = async () => {
+  const refetchUser = useCallback(async () => {
     try {
       const profile = await userService.getProfile()
       setUser(profile)
-      localStorage.setItem("smart-task-user", JSON.stringify(profile))
-    } catch (error) {
-      console.error("Failed to refetch user:", error)
+    } catch (error: any) {
+      handleErrorRef.current(error)
     }
-  }
+  }, []) // No dependencies needed
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("smart-task-user")
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
-      // Background hydrate profile
-      refetchUser()
+    // Only fetch user profile once on mount
+    if (!isInitialized) {
+      refetchUser().finally(() => {
+        setIsLoading(false)
+        setIsInitialized(true)
+      })
     }
-    setIsLoading(false)
-  }, [])
+  }, [refetchUser, isInitialized])
 
   return (
     <UserContext.Provider value={{ user, setUser, isLoading, refetchUser }}>

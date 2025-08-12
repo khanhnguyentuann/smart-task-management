@@ -12,6 +12,7 @@ import { ProjectSearch } from "./ProjectSearch"
 import { EmptyState } from "./EmptyState"
 import { useProjects } from "@/features/projects/hooks/useProjects"
 import { useToast } from "@/shared/hooks/useToast"
+import { useErrorHandler } from "@/shared/hooks"
 import type { ProjectsListProps } from "@/features/projects/lib"
 import { PROJECTS_CONSTANTS, validateSearchQuery, filterProjectsByQuery, formatProjectError } from "../../lib"
 
@@ -27,6 +28,9 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
     const [isSearching, setIsSearching] = useState(false)
     const { projects, allProjects, loading, error, createProject, deleteProject, updateProject, searchProjects } = useProjects()
     const { toast } = useToast()
+    const { handleError } = useErrorHandler({
+        context: { component: 'ProjectsList' }
+    })
 
     // Store timeout reference
     const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
@@ -45,7 +49,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
             // Validate search query
             const validation = validateSearchQuery(query)
             if (!validation.success) {
-                console.error('Search validation failed:', validation.error)
+                handleError(new Error(validation.error.errors[0]?.message || 'Invalid search query'))
                 return
             }
 
@@ -72,11 +76,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                 variant: "default",
             })
         } catch (error: any) {
-            toast({
-                title: PROJECTS_CONSTANTS.MESSAGES.CREATE_FAILED,
-                description: formatProjectError(error),
-                variant: "destructive",
-            })
+            handleError(error)
         }
     }
 
@@ -104,11 +104,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                 variant: "default",
             })
         } catch (error: any) {
-            toast({
-                title: PROJECTS_CONSTANTS.MESSAGES.UPDATE_FAILED,
-                description: formatProjectError(error),
-                variant: "destructive",
-            })
+            handleError(error)
         } finally {
             setEditLoading(false)
             setShowEditModal(false)
@@ -135,11 +131,7 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
                 variant: "default",
             })
         } catch (error: any) {
-            toast({
-                title: PROJECTS_CONSTANTS.MESSAGES.DELETE_FAILED,
-                description: formatProjectError(error),
-                variant: "destructive",
-            })
+            handleError(error)
         } finally {
             setDeleteLoading(false)
         }

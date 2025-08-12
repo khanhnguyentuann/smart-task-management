@@ -2,6 +2,8 @@ import { API_ROUTES } from "@/core/constants/routes"
 import { TOKEN_CONSTANTS } from "@/core/constants/tokens"
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios"
 import { cookieUtils } from "@/core/utils/cookie.utils"
+import { errorService } from "@/core/services/error.service"
+import { logger } from "@/core/utils/logger"
 
 // Base API Client - Just handle HTTP communication
 class ApiClient {
@@ -48,12 +50,22 @@ class ApiClient {
                     }
                 }
 
-                // Extract error message
-                const message = (error.response?.data as any)?.message
-                    || error.message
-                    || 'Network error'
+                // Use centralized error service
+                const appError = errorService.handleApiError(error, {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                })
 
-                return Promise.reject(new Error(message))
+                // Log error with context
+                logger.error('API request failed', 'ApiClient', {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    status: error.response?.status,
+                    error: appError.message,
+                    code: appError.code
+                })
+
+                return Promise.reject(new Error(appError.message))
             }
         )
     }

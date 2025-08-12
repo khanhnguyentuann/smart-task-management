@@ -7,12 +7,16 @@ import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { Eye, EyeOff, Mail, Lock, Sparkles } from "lucide-react"
 import { useToast } from "@/shared/hooks/useToast"
 import { useLogin } from "@/features/auth"
+import { useErrorHandler } from "@/shared/hooks"
 import { AUTH_CONSTANTS } from "../constants"
 import { LoginProps } from "../types"
 
 export function Login({ onSuccess, onClose }: LoginProps) {
     const { toast } = useToast()
     const { login } = useLogin()
+    const { handleAuthError } = useErrorHandler({
+        context: { component: 'Login' }
+    })
 
     const [showPassword, setShowPassword] = useState(false)
     const [formData, setFormData] = useState({ email: "", password: "" })
@@ -32,11 +36,7 @@ export function Login({ onSuccess, onClose }: LoginProps) {
             onSuccess(user)
             onClose()
         } catch (error: any) {
-            toast({
-                title: AUTH_CONSTANTS.ERRORS.LOGIN_FAILED,
-                description: error?.message ?? AUTH_CONSTANTS.ERRORS.INVALID_CREDENTIALS,
-                variant: "destructive",
-            })
+            handleAuthError(error)
         }
     }
 

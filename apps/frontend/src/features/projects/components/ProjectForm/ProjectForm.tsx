@@ -13,7 +13,7 @@ import { format } from "date-fns"
 import { Save, CalendarIcon } from 'lucide-react'
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { PROJECTS_CONSTANTS, validateUpdateProject } from "../../lib"
-import { useToast } from "@/shared/hooks/useToast"
+import { useToast, useErrorHandler } from "@/shared/hooks"
 import type { UpdateProjectData } from "../../lib"
 
 interface ProjectFormProps {
@@ -28,6 +28,9 @@ const availableColors = PROJECTS_CONSTANTS.COLORS
 
 export function ProjectForm({ project, onSave, onBack, loading = false, mode = 'create' }: ProjectFormProps) {
     const { toast } = useToast()
+    const { handleValidationError } = useErrorHandler({
+        context: { component: 'ProjectForm' }
+    })
     const [formData, setFormData] = useState({
         name: project.name,
         description: project.description || "",
@@ -62,12 +65,7 @@ export function ProjectForm({ project, onSave, onBack, loading = false, mode = '
         // Validate project data
         const validation = validateUpdateProject(projectData)
         if (!validation.success) {
-            console.error('Validation failed:', validation.error)
-            toast({
-                title: PROJECTS_CONSTANTS.MESSAGES.VALIDATION_ERROR,
-                description: validation.error.errors?.[0]?.message || PROJECTS_CONSTANTS.MESSAGES.VALIDATION_GENERIC,
-                variant: "destructive",
-            })
+            handleValidationError(new Error(validation.error.errors?.[0]?.message || PROJECTS_CONSTANTS.MESSAGES.VALIDATION_GENERIC), 'form')
             return
         }
 

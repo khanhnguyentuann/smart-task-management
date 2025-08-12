@@ -9,7 +9,7 @@ import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { Checkbox } from "@/shared/components/ui/checkbox"
 import { Search, Users, Loader2 } from 'lucide-react'
-import { useUsers } from "@/shared/hooks"
+import { useUsers, useErrorHandler } from "@/shared/hooks"
 import { useProjectMembers } from "@/features/projects/hooks/useProjectMembers"
 import { useToast } from "@/shared/hooks/useToast"
 
@@ -33,6 +33,9 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
     const [selectedUsers, setSelectedUsers] = useState<string[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const { toast } = useToast()
+    const { handleError } = useErrorHandler({
+        context: { component: 'AddMemberModal' }
+    })
 
     // Use hooks instead of direct API calls
     const { users, loading: usersLoading, error, fetchUsers } = useUsers()
@@ -52,8 +55,8 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
     }, [searchQuery, fetchUsers])
 
     // Filter out existing project members
-    const availableUsers = users.filter(user => 
-        !existingMembers.some(member => member.user?.id === user.id)
+    const availableUsers = users.filter((user: any) => 
+        !existingMembers.some((member: any) => member.user?.id === user.id)
     )
 
     const handleAddMembers = async () => {
@@ -67,12 +70,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
                 description: `Successfully added ${selectedUsers.length} member${selectedUsers.length !== 1 ? 's' : ''} to the project.`,
             })
         } catch (error: any) {
-            console.error("Failed to add members:", error)
-            toast({
-                title: "Failed to Add Members",
-                description: error.message || "Please try again.",
-                variant: "destructive",
-            })
+            handleError(error)
         }
     }
 
@@ -127,7 +125,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
                                 Searching users...
                             </div>
                         ) : availableUsers.length > 0 ? (
-                            availableUsers.map((user) => (
+                            availableUsers.map((user: any) => (
                                 <div
                                     key={user.id}
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
@@ -166,8 +164,8 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
                             <Label>Selected Users ({selectedUsers.length})</Label>
                             <div className="flex flex-wrap gap-2">
                                 {availableUsers
-                                    .filter(user => selectedUsers.includes(user.id))
-                                    .map((user) => (
+                                    .filter((user: any) => selectedUsers.includes(user.id))
+                                    .map((user: any) => (
                                         <Badge key={user.id} variant="secondary" className="flex items-center gap-1">
                                             {user.firstName} {user.lastName}
                                             <button

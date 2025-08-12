@@ -7,6 +7,7 @@ import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { Eye, EyeOff, Lock, Sparkles, User } from "lucide-react"
 import { useToast } from "@/shared/hooks/useToast"
 import { useRegister } from "@/features/auth"
+import { useErrorHandler } from "@/shared/hooks"
 import { AUTH_CONSTANTS } from "../constants"
 import { getStrengthMeta } from "../utils"
 import { registerSchema, validatePassword, type RegisterFormData } from "../validation"
@@ -16,6 +17,9 @@ import { motion, AnimatePresence } from "framer-motion"
 export function Register({ onSuccess, onClose }: RegisterProps) {
     const { toast } = useToast()
     const { register } = useRegister()
+    const { handleAuthError, handleValidationError } = useErrorHandler({
+        context: { component: 'Register' }
+    })
 
     const [showPassword, setShowPassword] = useState(false)
     const [isPasswordFocused, setIsPasswordFocused] = useState(false)
@@ -41,7 +45,7 @@ export function Register({ onSuccess, onClose }: RegisterProps) {
         const regValidation = registerSchema.safeParse(formData)
         if (!regValidation.success) {
             const err = regValidation.error.errors[0]?.message || 'Invalid form data'
-            toast({ title: AUTH_CONSTANTS.ERRORS.REGISTER_FAILED, description: err, variant: 'destructive' })
+            handleValidationError(new Error(err), 'form')
             return
         }
 
@@ -62,11 +66,7 @@ export function Register({ onSuccess, onClose }: RegisterProps) {
             onSuccess(user)
             onClose()
         } catch (error: any) {
-            toast({
-                title: AUTH_CONSTANTS.ERRORS.REGISTER_FAILED,
-                description: error?.message ?? AUTH_CONSTANTS.ERRORS.REGISTER_FAILED,
-                variant: "destructive",
-            })
+            handleAuthError(error)
         }
     }
 

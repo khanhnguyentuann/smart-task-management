@@ -18,7 +18,7 @@ import { format } from "date-fns"
 import { X, Users, CalendarIcon, Save, FolderPlus, Search } from 'lucide-react'
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
-import { useUsers, useToast } from "@/shared/hooks"
+import { useUsers, useToast, useErrorHandler } from "@/shared/hooks"
 import { PROJECTS_CONSTANTS, validateCreateProject, getTemplateById } from "../../lib"
 import type { CreateProjectData, ProjectTemplate, TeamMember } from "../../lib"
 
@@ -62,6 +62,9 @@ export function CreateProjectModal({ open, onOpenChange, currentUser, onCreated 
     const [memberSearch, setMemberSearch] = useState("")
     const { users, loading: usersLoading } = useUsers()
     const { toast } = useToast()
+    const { handleValidationError } = useErrorHandler({
+        context: { component: 'CreateProjectModal' }
+    })
 
     const handleTemplateSelect = (template: ProjectTemplate) => {
         setSelectedTemplate(template)
@@ -110,12 +113,7 @@ export function CreateProjectModal({ open, onOpenChange, currentUser, onCreated 
         // Validate project data
         const validation = validateCreateProject(projectData)
         if (!validation.success) {
-            console.error('Validation failed:', validation.error)
-            toast({
-                title: PROJECTS_CONSTANTS.MESSAGES.VALIDATION_ERROR,
-                description: validation.error.errors?.[0]?.message || PROJECTS_CONSTANTS.MESSAGES.VALIDATION_GENERIC,
-                variant: "destructive",
-            })
+            handleValidationError(new Error(validation.error.errors?.[0]?.message || PROJECTS_CONSTANTS.MESSAGES.VALIDATION_GENERIC), 'form')
             setLoading(false)
             return
         }

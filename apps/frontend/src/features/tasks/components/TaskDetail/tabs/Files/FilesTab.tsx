@@ -4,6 +4,7 @@ import { FileUploader } from "./FileUploader"
 import { FileList } from "./FileList"
 import { TaskDetail } from "../../../../types/task.types"
 import { useCallback, useState } from "react"
+import { useErrorHandler } from "@/shared/hooks"
 
 interface FilesTabProps {
     currentTask: TaskDetail | null
@@ -12,6 +13,9 @@ interface FilesTabProps {
 
 export function FilesTab({ currentTask, fileInputRef }: FilesTabProps) {
     const [isUploading, setIsUploading] = useState(false)
+    const { handleError } = useErrorHandler({
+        context: { component: 'FilesTab' }
+    })
 
     const handleFileSelect = useCallback(async (files: FileList) => {
         setIsUploading(true)
@@ -23,12 +27,12 @@ export function FilesTab({ currentTask, fileInputRef }: FilesTabProps) {
             await new Promise(resolve => setTimeout(resolve, 2000))
 
             // TODO: Update task attachments after successful upload
-        } catch (error) {
-            console.error('File upload failed:', error)
+        } catch (error: any) {
+            handleError(error)
         } finally {
             setIsUploading(false)
         }
-    }, [])
+    }, [handleError])
 
     const handleViewFile = useCallback((attachmentId: string) => {
         // TODO: Implement file preview

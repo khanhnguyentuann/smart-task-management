@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { format } from "date-fns"
 import { CalendarIcon, Save } from 'lucide-react'
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
-import { useToast } from "@/shared/hooks/useToast"
+import { useToast, useErrorHandler } from "@/shared/hooks"
 import { PROJECTS_CONSTANTS, validateUpdateProject } from "../../lib"
 
 interface EditProjectModalProps {
@@ -37,6 +37,9 @@ export function EditProjectModal({ open, onOpenChange, currentUser, project, onU
     })
     const [loading, setLoading] = useState(false)
     const { toast } = useToast()
+    const { handleValidationError } = useErrorHandler({
+        context: { component: 'EditProjectModal' }
+    })
 
     // Update form data when project changes
     useEffect(() => {
@@ -68,12 +71,7 @@ export function EditProjectModal({ open, onOpenChange, currentUser, project, onU
         // Validate project data
         const validation = validateUpdateProject(projectData)
         if (!validation.success) {
-            console.error('Validation failed:', validation.error)
-            toast({
-                title: PROJECTS_CONSTANTS.MESSAGES.VALIDATION_ERROR,
-                description: validation.error.errors?.[0]?.message || PROJECTS_CONSTANTS.MESSAGES.VALIDATION_GENERIC,
-                variant: "destructive",
-            })
+            handleValidationError(new Error(validation.error.errors?.[0]?.message || PROJECTS_CONSTANTS.MESSAGES.VALIDATION_GENERIC), 'form')
             setLoading(false)
             return
         }

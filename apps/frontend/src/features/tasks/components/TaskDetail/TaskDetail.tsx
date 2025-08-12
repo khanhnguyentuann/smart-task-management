@@ -8,6 +8,7 @@ import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { motion } from "framer-motion"
 import { TaskDetail as TaskDetailType } from "../../types/task.types"
 import { useToast } from "@/shared/hooks/useToast"
+import { useErrorHandler } from "@/shared/hooks"
 import { useUser } from "@/features/layout"
 
 // Import modular components
@@ -37,6 +38,9 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null)
 
     const { toast } = useToast()
+    const { handleError } = useErrorHandler({
+        context: { component: 'TaskDetail' }
+    })
 
     // Convert simple task to detailed task format
     const convertToDetailedTask = useCallback((simpleTask: any): TaskDetailType => {
@@ -185,13 +189,8 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                     title: "Task Updated",
                     description: "Your changes have been saved successfully.",
                 })
-            } catch (error) {
-                console.error("Failed to save task:", error)
-                toast({
-                    variant: "destructive",
-                    title: "Save Failed",
-                    description: "Failed to save changes. Please try again.",
-                })
+            } catch (error: any) {
+                handleError(error)
             }
         }
     }, [editedTask, toast])
@@ -220,15 +219,10 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
 
             onBack()
             onDelete?.()
-        } catch (error) {
-            console.error("Failed to delete task:", error)
-            toast({
-                variant: "destructive",
-                title: "Deletion Failed",
-                description: "Failed to delete the task. Please try again.",
-            })
+        } catch (error: any) {
+            handleError(error)
         }
-    }, [currentTask, onBack, onDelete, toast])
+    }, [currentTask, onBack, onDelete, toast, handleError])
 
     // Comment handlers
     const handleAddComment = useCallback(() => {

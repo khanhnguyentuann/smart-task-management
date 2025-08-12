@@ -21,11 +21,15 @@ import { useProjectForm } from "../../hooks/useProjectForm"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/shared/hooks/useToast"
+import { useErrorHandler } from "@/shared/hooks"
 
 export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'user'>) {
     const { user } = useUser()
     const router = useRouter()
     const { toast } = useToast()
+    const { handleError } = useErrorHandler({
+        context: { component: 'ProjectDetail' }
+    })
     const [showCreateTask, setShowCreateTask] = useState(false)
     const [showAddMember, setShowAddMember] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
@@ -43,8 +47,8 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
         try {
             const tasksData = await getProjectTasks(projectId)
             setTasks(Array.isArray(tasksData) ? tasksData : [])
-        } catch (error) {
-            console.error("Failed to load tasks:", error)
+        } catch (error: any) {
+            handleError(error)
         }
     }, [projectId, getProjectTasks])
 
@@ -74,13 +78,8 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
                 title: "Member removed",
                 description: "The member has been removed from the project.",
             })
-        } catch (error) {
-            console.error("Failed to remove member:", error)
-            toast({
-                title: "Failed to remove member",
-                description: "Could not remove member. Please try again.",
-                variant: "destructive",
-            })
+        } catch (error: any) {
+            handleError(error)
         }
     }, [projectId, removeProjectMember, refreshProject, toast])
 
@@ -94,15 +93,10 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
                 title: "Project updated",
                 description: "Your project has been updated.",
             })
-        } catch (error) {
-            console.error("Failed to update project:", error)
-            toast({
-                title: "Failed to update project",
-                description: "Could not update project. Please try again.",
-                variant: "destructive",
-            })
+        } catch (error: any) {
+            handleError(error)
         }
-    }, [projectId, updateProject, refreshProject, toast])
+    }, [projectId, updateProject, refreshProject, toast, handleError])
 
 
     if (loading) {
