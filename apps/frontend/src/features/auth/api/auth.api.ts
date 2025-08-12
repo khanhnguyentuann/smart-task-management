@@ -4,16 +4,17 @@
 */
 import { apiClient } from '@/core/services/api-client'
 import { API_ROUTES } from '@/core/constants/routes'
-import type { AuthApiResponse, AuthResponse, LoginCredentials, RegisterCredentials, User } from '../types'
+import type { AuthApiResponse, AuthResponse, LoginCredentials, RegisterCredentials } from '../types'
+import type { User } from '@/shared/lib/types'
 
 class AuthApi {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        const res = await apiClient.post<AuthApiResponse>(API_ROUTES.AUTH.LOGIN, credentials)
+        const res = await apiClient.post<AuthApiResponse>('/api/auth/login', credentials)
         return this.transformAuthResponse(res)
     }
 
     async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-        const res = await apiClient.post<AuthApiResponse>(API_ROUTES.AUTH.REGISTER, credentials)
+        const res = await apiClient.post<AuthApiResponse>('/api/auth/register', credentials)
         return this.transformAuthResponse(res)
     }
 

@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       refreshToken
     })
 
-    // Set new tokens in cookies
+    // Set new tokens in HttpOnly cookies for security
     const nextResponse = NextResponse.json(response)
 
     nextResponse.cookies.set(TOKEN_CONSTANTS.ACCESS_TOKEN, response.accessToken, {

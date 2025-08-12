@@ -43,7 +43,7 @@ class AuthService {
   }
 
   private saveTokens(data: AuthResponse) {
-    // Save to cookies for server-side access
+    // Save to cookies only (no localStorage for security)
     cookieUtils.setCookie(TOKEN_CONSTANTS.ACCESS_TOKEN, data.accessToken, {
       maxAge: 15 * 60 * 1000, // 15 minutes
       secure: process.env.NODE_ENV === 'production',
@@ -57,26 +57,12 @@ class AuthService {
         sameSite: 'lax'
       })
     }
-    
-    // Also save to localStorage for client-side access
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(TOKEN_CONSTANTS.ACCESS_TOKEN, data.accessToken)
-      if (data.refreshToken) {
-        localStorage.setItem(TOKEN_CONSTANTS.REFRESH_TOKEN, data.refreshToken)
-      }
-    }
   }
 
   private clearTokens() {
-    // Clear cookies
+    // Clear cookies only (no localStorage for security)
     cookieUtils.deleteCookie(TOKEN_CONSTANTS.ACCESS_TOKEN)
     cookieUtils.deleteCookie(TOKEN_CONSTANTS.REFRESH_TOKEN)
-    
-    // Clear localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(TOKEN_CONSTANTS.ACCESS_TOKEN)
-      localStorage.removeItem(TOKEN_CONSTANTS.REFRESH_TOKEN)
-    }
   }
 }
 

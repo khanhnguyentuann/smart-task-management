@@ -10,9 +10,9 @@ class ApiClient {
 
     constructor() {
         this.axiosInstance = axios.create({
-            baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
+            baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
             headers: { "Content-Type": "application/json" },
-            withCredentials: false,
+            withCredentials: true,
         })
 
         this.setupInterceptors()
@@ -21,9 +21,9 @@ class ApiClient {
     private setupInterceptors() {
         // Request interceptor - Attach token
         this.axiosInstance.interceptors.request.use((config) => {
-            // Get token from cookies (primary) or localStorage (fallback)
+            // Get token from cookies only (no localStorage for security)
             const token = typeof window !== 'undefined'
-                ? (cookieUtils.getCookie(TOKEN_CONSTANTS.ACCESS_TOKEN) || localStorage.getItem(TOKEN_CONSTANTS.ACCESS_TOKEN))
+                ? cookieUtils.getCookie(TOKEN_CONSTANTS.ACCESS_TOKEN)
                 : null
 
             if (token) {
@@ -60,7 +60,7 @@ class ApiClient {
 
     private async handleTokenRefresh(originalError: AxiosError) {
         const refreshToken = typeof window !== 'undefined'
-            ? (cookieUtils.getCookie(TOKEN_CONSTANTS.REFRESH_TOKEN) || localStorage.getItem(TOKEN_CONSTANTS.REFRESH_TOKEN))
+            ? cookieUtils.getCookie(TOKEN_CONSTANTS.REFRESH_TOKEN)
             : null
 
         if (!refreshToken) {
@@ -77,16 +77,12 @@ class ApiClient {
             const newToken = data?.accessToken || data?.token
 
             if (newToken) {
-                // Save new token to both cookies and localStorage
+                // Save new token to cookies only (no localStorage for security)
                 cookieUtils.setCookie(TOKEN_CONSTANTS.ACCESS_TOKEN, newToken, {
                     maxAge: 15 * 60 * 1000, // 15 minutes
                     secure: process.env.NODE_ENV === 'production',
                     sameSite: 'lax'
                 })
-                
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem(TOKEN_CONSTANTS.ACCESS_TOKEN, newToken)
-                }
 
                 // Retry original request with new token
                 const originalRequest = originalError.config!
@@ -100,15 +96,9 @@ class ApiClient {
     }
 
     private clearAuth() {
-        // Clear cookies
+        // Clear cookies only (no localStorage for security)
         cookieUtils.deleteCookie(TOKEN_CONSTANTS.ACCESS_TOKEN)
         cookieUtils.deleteCookie(TOKEN_CONSTANTS.REFRESH_TOKEN)
-        
-        // Clear localStorage
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem(TOKEN_CONSTANTS.ACCESS_TOKEN)
-            localStorage.removeItem(TOKEN_CONSTANTS.REFRESH_TOKEN)
-        }
     }
 
     // Generic request method - Used by feature services

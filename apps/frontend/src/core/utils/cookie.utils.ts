@@ -1,50 +1,27 @@
-// Cookie utility functions
+// Cookie utility functions for client-side only
+// Note: HttpOnly cookies can only be set from server-side
 export const cookieUtils = {
   setCookie(name: string, value: string, options: {
     maxAge?: number
-    httpOnly?: boolean
     secure?: boolean
     sameSite?: 'strict' | 'lax' | 'none'
   } = {}) {
-    if (typeof window === 'undefined') {
-      // Server-side: use document.cookie
-      let cookieString = `${name}=${value}`
-      
-      if (options.maxAge) {
-        cookieString += `; Max-Age=${options.maxAge}`
-      }
-      
-      if (options.httpOnly) {
-        cookieString += '; HttpOnly'
-      }
-      
-      if (options.secure) {
-        cookieString += '; Secure'
-      }
-      
-      if (options.sameSite) {
-        cookieString += `; SameSite=${options.sameSite}`
-      }
-      
-      document.cookie = cookieString
-    } else {
-      // Client-side: use document.cookie
-      let cookieString = `${name}=${value}`
-      
-      if (options.maxAge) {
-        cookieString += `; Max-Age=${options.maxAge}`
-      }
-      
-      if (options.secure) {
-        cookieString += '; Secure'
-      }
-      
-      if (options.sameSite) {
-        cookieString += `; SameSite=${options.sameSite}`
-      }
-      
-      document.cookie = cookieString
+    // Client-side cookies (non-HttpOnly for backward compatibility)
+    let cookieString = `${name}=${value}`
+    
+    if (options.maxAge) {
+      cookieString += `; Max-Age=${options.maxAge}`
     }
+    
+    if (options.secure) {
+      cookieString += '; Secure'
+    }
+    
+    if (options.sameSite) {
+      cookieString += `; SameSite=${options.sameSite}`
+    }
+    
+    document.cookie = cookieString
   },
 
   getCookie(name: string): string | null {
