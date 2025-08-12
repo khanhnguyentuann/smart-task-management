@@ -10,25 +10,24 @@ import { useRouter, usePathname } from "next/navigation"
 import { useEffect } from "react"
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
-  const { user, setUser, isLoading } = useUser()
+  const { user, clearUser, isLoading, isInitialized } = useUser()
   const { toast } = useToast()
   const { logout } = useLogout()
   const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (isInitialized && !user) {
       router.push("/")
     }
-  }, [user, isLoading, router])
+  }, [user, isInitialized, router])
 
   const handleLogout = async () => {
     const userName = user?.firstName || "User"
     try {
       await logout()
     } finally {
-      setUser(null)
-      localStorage.removeItem("smart-task-user")
+      clearUser()
       router.push("/")
       toast({
         title: "👋 See you soon!",

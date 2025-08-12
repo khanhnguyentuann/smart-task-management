@@ -1,22 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/core/utils/logger'
+import { proxyUtils } from '@/core/utils/proxy.utils'
+import { withAuthParams, AuthenticatedRequest } from '@/core/utils/auth.middleware'
 
-const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:3001'
-
-export async function GET(
-  request: NextRequest,
+export const GET = withAuthParams(async (
+  request: AuthenticatedRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/projects/${params.id}`, {
-      headers: {
-        'Authorization': request.headers.get('authorization') || '',
-        'Content-Type': 'application/json',
-      },
-    })
-
-    const data = await response.json()
-    return NextResponse.json(data, { status: response.status })
+    const token = request.headers.get('authorization')?.replace('Bearer ', '')
+    const { data, status } = await proxyUtils.get(`/api/projects/${params.id}`, token)
+    return NextResponse.json(data, { status })
   } catch (error) {
     logger.error('Project detail API proxy error', 'ProjectDetailAPI', error)
     return NextResponse.json(
@@ -24,26 +18,17 @@ export async function GET(
       { status: 500 }
     )
   }
-}
+})
 
-export async function PATCH(
-  request: NextRequest,
+export const PATCH = withAuthParams(async (
+  request: AuthenticatedRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
     const body = await request.json()
-
-    const response = await fetch(`${BACKEND_URL}/api/projects/${params.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': request.headers.get('authorization') || '',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    })
-
-    const data = await response.json()
-    return NextResponse.json(data, { status: response.status })
+    const token = request.headers.get('authorization')?.replace('Bearer ', '')
+    const { data, status } = await proxyUtils.patch(`/api/projects/${params.id}`, body, token)
+    return NextResponse.json(data, { status })
   } catch (error) {
     logger.error('Project update API proxy error', 'ProjectDetailAPI', error)
     return NextResponse.json(
@@ -51,23 +36,16 @@ export async function PATCH(
       { status: 500 }
     )
   }
-}
+})
 
-export async function DELETE(
-  request: NextRequest,
+export const DELETE = withAuthParams(async (
+  request: AuthenticatedRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/projects/${params.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': request.headers.get('authorization') || '',
-        'Content-Type': 'application/json',
-      },
-    })
-
-    const data = await response.json()
-    return NextResponse.json(data, { status: response.status })
+    const token = request.headers.get('authorization')?.replace('Bearer ', '')
+    const { data, status } = await proxyUtils.delete(`/api/projects/${params.id}`, token)
+    return NextResponse.json(data, { status })
   } catch (error) {
     logger.error('Project delete API proxy error', 'ProjectDetailAPI', error)
     return NextResponse.json(
@@ -75,4 +53,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-}
+})

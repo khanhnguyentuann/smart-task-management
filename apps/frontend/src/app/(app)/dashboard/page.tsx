@@ -6,11 +6,6 @@ import { useRouter } from "next/navigation"
 
 // Lazy load Dashboard component
 const Dashboard = dynamic(() => import("@/features/dashboard").then(mod => ({ default: mod.Dashboard })), {
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-6xl animate-spin">✨</div>
-    </div>
-  ),
   ssr: false
 })
 

@@ -3,26 +3,22 @@
 import { AuthModal } from "@/features/auth"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { userService } from "@/features/user"
+import { useUser, UserProvider } from "@/features/layout"
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(true)
+  const { user, isInitialized } = useUser()
 
   useEffect(() => {
-    // Check if user is already logged in
-    const savedUser = localStorage.getItem("smart-task-user")
-    if (savedUser) {
+    // Check if user is already logged in via UserContext
+    if (isInitialized && user) {
       router.push("/dashboard")
     }
-  }, [router])
+  }, [user, isInitialized, router])
 
   const handleLogin = (userData: any) => {
-    localStorage.setItem("smart-task-user", JSON.stringify(userData))
-    // Hydrate with full profile in background
-    userService.getProfile().then((profile) => {
-      localStorage.setItem("smart-task-user", JSON.stringify(profile))
-    }).catch(() => { })
+    // User data will be handled by UserContext
     router.push("/dashboard")
   }
 
@@ -38,5 +34,13 @@ export default function LoginPage() {
         onLogin={handleLogin}
       />
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <UserProvider>
+      <LoginPageContent />
+    </UserProvider>
   )
 }

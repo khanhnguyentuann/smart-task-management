@@ -6,11 +6,6 @@ import { useRouter } from "next/navigation"
 
 // Lazy load ProjectsList component
 const ProjectsList = dynamic(() => import("@/features/projects").then(mod => ({ default: mod.ProjectsList })), {
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-6xl animate-spin">✨</div>
-    </div>
-  ),
   ssr: false
 })
 

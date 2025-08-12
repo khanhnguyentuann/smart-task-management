@@ -8,12 +8,14 @@ import { Eye, EyeOff, Mail, Lock, Sparkles } from "lucide-react"
 import { useToast } from "@/shared/hooks/useToast"
 import { useLogin } from "@/features/auth"
 import { useErrorHandler } from "@/shared/hooks"
+import { useUser } from "@/features/layout"
 import { AUTH_CONSTANTS } from "../constants"
 import { LoginProps } from "../types"
 
 export function Login({ onSuccess, onClose }: LoginProps) {
     const { toast } = useToast()
     const { login } = useLogin()
+    const { refetchUser } = useUser()
     const { handleAuthError } = useErrorHandler({
         context: { component: 'Login' }
     })
@@ -28,6 +30,10 @@ export function Login({ onSuccess, onClose }: LoginProps) {
                 email: formData.email,
                 password: formData.password,
             })
+            
+            // Fetch full user profile after login
+            await refetchUser()
+            
             toast({
                 title: AUTH_CONSTANTS.MESSAGES.LOGIN_SUCCESS,
                 description: `Successfully logged in as ${user.firstName} ${user.lastName}`,

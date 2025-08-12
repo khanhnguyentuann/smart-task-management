@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/core/utils/logger'
+import { proxyUtils } from '@/core/utils/proxy.utils'
+import { withAuth, AuthenticatedRequest } from '@/core/utils/auth.middleware'
 
-const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:3001'
-
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: AuthenticatedRequest) => {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/users`, {
-            headers: {
-                'Authorization': request.headers.get('authorization') || '',
-                'Content-Type': 'application/json',
-            },
-        })
-
-        const data = await response.json()
-        return NextResponse.json(data, { status: response.status })
+        const token = request.headers.get('authorization')?.replace('Bearer ', '')
+        const { data, status } = await proxyUtils.get('/api/users', token)
+        return NextResponse.json(data, { status })
     } catch (error) {
         logger.error('Users API proxy error', 'UsersAPI', error)
         return NextResponse.json(
@@ -21,4 +15,4 @@ export async function GET(request: NextRequest) {
             { status: 500 }
         )
     }
-}
+})

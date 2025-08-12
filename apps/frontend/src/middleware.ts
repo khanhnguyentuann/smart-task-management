@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { TOKEN_CONSTANTS } from '@/core/constants/tokens'
-import { jwtUtils } from '@/core/utils/jwt.utils'
 import { logger } from '@/core/utils/logger'
 
 // Public routes that don't require authentication
@@ -94,78 +93,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // If token exists, validate it
+  // If token exists, allow access (token validation will be done in API routes)
   if (token) {
-    try {
-      // Verify JWT token
-      const payload = await jwtUtils.verifyToken(token)
-
-      // Check if token is expired
-      if (payload.exp && payload.exp < Date.now() / 1000) {
-        // Token expired, try to refresh
-        const refreshToken = request.cookies.get(TOKEN_CONSTANTS.REFRESH_TOKEN)?.value
-
-        if (refreshToken) {
-          try {
-            // Attempt to refresh token
-            const refreshResponse = await fetch(`${request.nextUrl.origin}/api/auth/refresh`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ refreshToken }),
-            })
-
-            if (refreshResponse.ok) {
-              const { accessToken } = await refreshResponse.json()
-
-              // Create response with new token
-              const response = NextResponse.next()
-              response.cookies.set(TOKEN_CONSTANTS.ACCESS_TOKEN, accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 15 * 60 * 1000, // 15 minutes
-              })
-
-              return response
-            }
-          } catch (error) {
-            // Refresh failed, redirect to login
-            logger.error('Token refresh failed', 'Middleware', error)
-          }
-        }
-
-        // No refresh token or refresh failed, redirect to login
-        if (isProtectedApiRoute) {
-          return NextResponse.json(
-            { success: false, message: 'Token expired' },
-            { status: 401 }
-          )
-        }
-
-        const loginUrl = new URL('/login', request.url)
-        loginUrl.searchParams.set('redirect', pathname)
-        return NextResponse.redirect(loginUrl)
-      }
-
-      // Token is valid, allow access
+    // For API routes, just pass the token through
+    if (isProtectedApiRoute) {
       return NextResponse.next()
-    } catch (error) {
-      // Token is invalid, redirect to login
-      logger.error('Token validation failed', 'Middleware', error)
-
-      if (isProtectedApiRoute) {
-        return NextResponse.json(
-          { success: false, message: 'Invalid token' },
-          { status: 401 }
-        )
-      }
-
-      const loginUrl = new URL('/login', request.url)
-      loginUrl.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(loginUrl)
     }
+
+    // For protected routes, allow access if token exists
+    return NextResponse.next()
   }
 
   // Default: allow access

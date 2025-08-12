@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { proxyUtils } from '@/core/utils/proxy.utils'
 import { logger } from '@/core/utils/logger'
+import { withAuth, AuthenticatedRequest } from '@/core/utils/auth.middleware'
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: AuthenticatedRequest) => {
     try {
         const token = request.headers.get('authorization')?.replace('Bearer ', '')
         const { data, status } = await proxyUtils.get('/api/projects', token)
@@ -15,9 +16,9 @@ export async function GET(request: NextRequest) {
             { status: 500 }
         )
     }
-}
+})
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: AuthenticatedRequest) => {
     try {
         const body = await request.json()
         const token = request.headers.get('authorization')?.replace('Bearer ', '')
@@ -31,4 +32,4 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         )
     }
-}
+})

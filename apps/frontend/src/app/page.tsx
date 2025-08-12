@@ -5,35 +5,33 @@ import { useRouter } from "next/navigation"
 import { WelcomeScreen } from "@/features/welcome"
 import { AuthModal } from "@/features/auth"
 import { motion, AnimatePresence } from "framer-motion"
-import { userService } from "@/features/user"
+import { useUser, UserProvider } from "@/features/layout"
 
-export default function Home() {
+function HomeContent() {
   const [showWelcome, setShowWelcome] = useState(true)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const { user, isInitialized } = useUser()
 
   useEffect(() => {
-    // Check for saved user in localStorage
-    const savedUser = localStorage.getItem("smart-task-user")
-    if (savedUser) {
-      setShowWelcome(false)
-      // Redirect to dashboard if user is logged in
-      router.push("/dashboard")
+    // Check if user is authenticated via UserContext
+    if (isInitialized) {
+      if (user) {
+        setShowWelcome(false)
+        // Redirect to dashboard if user is logged in
+        router.push("/dashboard")
+      }
+      setIsLoading(false)
     }
-    setIsLoading(false)
-  }, [router])
+  }, [user, isInitialized, router])
 
   const handleGetStarted = () => {
     setShowAuthModal(true)
   }
 
   const handleLogin = (userData: any) => {
-    localStorage.setItem("smart-task-user", JSON.stringify(userData))
-    // Hydrate with full profile in background
-    userService.getProfile().then((profile) => {
-      localStorage.setItem("smart-task-user", JSON.stringify(profile))
-    }).catch(() => { })
+    // User data will be handled by UserContext
     setShowWelcome(false)
     setShowAuthModal(false)
     router.push("/dashboard")
@@ -77,5 +75,13 @@ export default function Home() {
 
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} onLogin={handleLogin} />
     </>
+  )
+}
+
+export default function Home() {
+  return (
+    <UserProvider>
+      <HomeContent />
+    </UserProvider>
   )
 }

@@ -8,6 +8,7 @@ import { Eye, EyeOff, Lock, Sparkles, User } from "lucide-react"
 import { useToast } from "@/shared/hooks/useToast"
 import { useRegister } from "@/features/auth"
 import { useErrorHandler } from "@/shared/hooks"
+import { useUser } from "@/features/layout"
 import { AUTH_CONSTANTS } from "../constants"
 import { getStrengthMeta } from "../utils"
 import { registerSchema, validatePassword, type RegisterFormData } from "../validation"
@@ -17,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion"
 export function Register({ onSuccess, onClose }: RegisterProps) {
     const { toast } = useToast()
     const { register } = useRegister()
+    const { refetchUser } = useUser()
     const { handleAuthError, handleValidationError } = useErrorHandler({
         context: { component: 'Register' }
     })
@@ -56,6 +58,9 @@ export function Register({ onSuccess, onClose }: RegisterProps) {
                 email: formData.email,
                 password: formData.password,
             })
+
+            // Fetch full user profile after registration
+            await refetchUser()
 
             toast({
                 title: AUTH_CONSTANTS.MESSAGES.REGISTER_SUCCESS,

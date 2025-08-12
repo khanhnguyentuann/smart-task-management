@@ -6,11 +6,6 @@ import { useRouter } from "next/navigation"
 
 // Lazy load MyTasks component
 const MyTasks = dynamic(() => import("@/features/tasks/components/MyTasks").then(mod => ({ default: mod.MyTasks })), {
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-6xl animate-spin">✨</div>
-    </div>
-  ),
   ssr: false
 })
 
