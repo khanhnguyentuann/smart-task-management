@@ -6,9 +6,10 @@ import { Textarea } from "@/shared/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { Send } from 'lucide-react'
+import type { User } from "@/shared/lib/types"
 
 interface CommentEditorProps {
-    user: any
+    user: User
     newComment: string
     setNewComment: (value: string) => void
     onAddComment: () => void
@@ -42,10 +43,10 @@ export function CommentEditor({
                                 src={user.avatar && user.avatar.startsWith('data:image')
                                     ? user.avatar
                                     : (user.avatar || '/default-avatar.svg')}
-                                alt={user.name}
+                                alt={`${user.firstName} ${user.lastName}`}
                             />
                             <AvatarFallback>
-                                {user.name?.split(" ").map((n: any) => n[0]).join("") || "U"}
+                                {`${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` || "U"}
                             </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-2">

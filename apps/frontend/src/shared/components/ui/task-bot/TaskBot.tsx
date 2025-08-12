@@ -3,11 +3,12 @@
 import { motion } from "framer-motion"
 import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Plus } from "lucide-react"
+import type { User } from "@/shared/lib/types"
 
 interface TaskBotProps {
   mood: "happy" | "working"
   currentPage: string
-  user: any
+  user: User
   onCreateTask: () => void
   onNavigate: (page: string) => void
 }

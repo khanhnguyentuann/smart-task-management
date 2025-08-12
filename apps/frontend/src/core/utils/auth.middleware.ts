@@ -2,18 +2,24 @@ import { NextRequest, NextResponse } from 'next/server'
 import { jwtUtils } from './jwt.utils'
 import { logger } from './logger'
 import { TOKEN_CONSTANTS } from '@/core/constants/tokens'
+import type { User } from '@/shared/lib/types'
+
+// JWT payload only contains minimal user info
+interface JWTUser {
+    id: string
+    email: string
+    sub: string
+    iat?: number
+    exp?: number
+}
 
 export interface AuthenticatedRequest extends NextRequest {
-    user?: {
-        id: string
-        email: string
-        [key: string]: any
-    }
+    user?: JWTUser
 }
 
 export async function authenticateRequest(request: NextRequest): Promise<{
     success: boolean
-    user?: any
+    user?: JWTUser
     error?: string
     status?: number
 }> {
@@ -43,10 +49,20 @@ export async function authenticateRequest(request: NextRequest): Promise<{
         }
 
         // Extract user information from token
-        const user = {
+        if (!payload.sub || !payload.email) {
+            return {
+                success: false,
+                error: 'Invalid token payload',
+                status: 401
+            }
+        }
+
+        const user: JWTUser = {
             id: payload.sub,
             email: payload.email,
-            ...payload
+            sub: payload.sub,
+            iat: payload.iat,
+            exp: payload.exp
         }
 
         return {

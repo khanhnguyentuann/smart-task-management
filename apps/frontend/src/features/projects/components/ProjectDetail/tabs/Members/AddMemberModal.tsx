@@ -27,14 +27,6 @@ interface AddMemberModalProps {
     onAdded: () => void
 }
 
-interface User {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    avatar?: string
-}
-
 export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMemberModalProps) {
     const [selectedUsers, setSelectedUsers] = useState<string[]>([])
     const [searchQuery, setSearchQuery] = useState("")

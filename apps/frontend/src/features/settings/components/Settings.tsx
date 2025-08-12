@@ -11,9 +11,10 @@ import {
 } from "@/shared/components/ui"
 import { Settings as SettingsIcon, Bell, Shield, Palette, Globe, Database, Users } from "lucide-react"
 import { motion } from "framer-motion"
+import type { User } from "@/shared/lib/types"
 
 interface SettingsProps {
-  user: any
+  user: User
 }
 
 export function Settings({ user }: SettingsProps) {

@@ -3,9 +3,10 @@
 import { SidebarTrigger, CardContent, CardHeader, CardTitle, EnhancedButton, GlassmorphismCard } from "@/shared/components/ui"
 import { HelpCircle, BookOpen, MessageCircle, Mail, Phone, FileText, Video, Users } from "lucide-react"
 import { motion } from "framer-motion"
+import type { User } from "@/shared/lib/types"
 
 interface HelpSupportProps {
-  user: any
+  user: User
 }
 
 export function HelpSupport({ user }: HelpSupportProps) {

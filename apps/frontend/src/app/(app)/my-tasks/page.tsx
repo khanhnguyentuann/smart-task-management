@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
+import { ProtectedRoute } from "@/shared/components/auth"
 
 // Lazy load MyTasks component
 const MyTasks = dynamic(() => import("@/features/tasks/components/MyTasks").then(mod => ({ default: mod.MyTasks })), {
@@ -17,9 +18,9 @@ export default function MyTasksPage() {
     router.push(`/my-tasks/${task.id}`)
   }
 
-  if (!user) {
-    return null
-  }
-
-  return <MyTasks onTaskClick={handleTaskClick} />
+  return (
+    <ProtectedRoute>
+      <MyTasks onTaskClick={handleTaskClick} />
+    </ProtectedRoute>
+  )
 }

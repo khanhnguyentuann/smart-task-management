@@ -2,13 +2,14 @@
 
 import { Settings } from "@/features/settings"
 import { useUser } from "@/features/layout"
+import { ProtectedRoute } from "@/shared/components/auth"
 
 export default function SettingsPage() {
   const { user } = useUser()
 
-  if (!user) {
-    return null
-  }
-
-  return <Settings user={user} />
+  return (
+    <ProtectedRoute>
+      <Settings user={user!} />
+    </ProtectedRoute>
+  )
 }

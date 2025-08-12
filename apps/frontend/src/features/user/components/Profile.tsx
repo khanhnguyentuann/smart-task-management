@@ -26,6 +26,9 @@ import { userService } from "../services/user.service"
 export function Profile() {
   const { toast } = useToast()
   const { user, setUser, refetchUser } = useUser()
+  
+  // user is guaranteed to be non-null since this component is wrapped in ProtectedRoute
+  const currentUser = user!
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState<Partial<UserProfile>>({})
   const [errors, setErrors] = useState<Record<string, string | null>>({})
@@ -53,7 +56,7 @@ export function Profile() {
     return false
   }
 
-  if (!user) return null
+
 
   const onSelectAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -69,8 +72,8 @@ export function Profile() {
     setLoading(true)
     try {
       const result = await userService.uploadAvatarFile(file)
-      if (result?.avatar && user) {
-        const updated = { ...user, avatar: result.avatar }
+      if (result?.avatar) {
+        const updated = { ...currentUser, avatar: result.avatar }
         setUser(updated)
         toast({
           title: "Ảnh đại diện đã được cập nhật",
@@ -102,10 +105,10 @@ export function Profile() {
       const updated = await userService.updateProfile(payload)
       setUser(updated)
       const changed: string[] = []
-      if (payload.firstName && payload.firstName !== user?.firstName) changed.push("First name")
-      if (payload.lastName && payload.lastName !== user?.lastName) changed.push("Last name")
-      if (payload.department && payload.department !== user?.department) changed.push("Department")
-      if (payload.dateOfBirth && payload.dateOfBirth !== (user as any)?.dateOfBirth) changed.push("Date of birth")
+      if (payload.firstName && payload.firstName !== currentUser.firstName) changed.push("First name")
+      if (payload.lastName && payload.lastName !== currentUser.lastName) changed.push("Last name")
+      if (payload.department && payload.department !== currentUser.department) changed.push("Department")
+      if (payload.dateOfBirth && payload.dateOfBirth !== (currentUser as any).dateOfBirth) changed.push("Date of birth")
       const desc = changed.length > 0 ? `Đã cập nhật: ${changed.join(", ")}.` : "Không có thay đổi đáng kể."
       toast({
         title: "Cập nhật hồ sơ thành công",
@@ -142,9 +145,9 @@ export function Profile() {
                   <div className="relative">
                     <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
                       <Avatar className="h-20 w-20 ring-4 ring-blue-500/20 hover:ring-blue-500/40 transition-all">
-                        <AvatarImage src={(form?.avatar ?? user.avatar) && (form?.avatar ?? user.avatar)?.startsWith('data:image') ? (form?.avatar ?? user.avatar) : ((form?.avatar ?? user.avatar) || '/default-avatar.svg')} alt={`${user.firstName} ${user.lastName}`} />
+                        <AvatarImage src={(form?.avatar ?? currentUser.avatar) && (form?.avatar ?? currentUser.avatar)?.startsWith('data:image') ? (form?.avatar ?? currentUser.avatar) : ((form?.avatar ?? currentUser.avatar) || '/default-avatar.svg')} alt={`${currentUser.firstName} ${currentUser.lastName}`} />
                         <AvatarFallback className="text-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                          {`${user.firstName}${user.lastName}`}
+                          {`${currentUser.firstName}${currentUser.lastName}`}
                         </AvatarFallback>
                       </Avatar>
                     </motion.div>
@@ -158,11 +161,11 @@ export function Profile() {
                     </motion.button>
                   </div>
                   <div className="space-y-2">
-                    <h2 className="text-2xl font-semibold">{user.firstName} {user.lastName}</h2>
+                    <h2 className="text-2xl font-semibold">{currentUser.firstName} {currentUser.lastName}</h2>
                     <div className="flex items-center gap-2">
-                      {user.department && (
+                      {currentUser.department && (
                         <Badge variant="outline" className="text-sm">
-                          {user.department}
+                          {currentUser.department}
                         </Badge>
                       )}
                     </div>
@@ -175,7 +178,7 @@ export function Profile() {
                       <Label htmlFor="firstName">First Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="firstName" value={(form.firstName ?? user.firstName) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), firstName: e.target.value }))} className="pl-10" />
+                        <Input id="firstName" value={(form.firstName ?? currentUser.firstName) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), firstName: e.target.value }))} className="pl-10" />
                       </div>
                       {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName}</p>}
                     </div>
@@ -183,7 +186,7 @@ export function Profile() {
                       <Label htmlFor="lastName">Last Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="lastName" value={(form.lastName ?? user.lastName) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), lastName: e.target.value }))} className="pl-10" />
+                        <Input id="lastName" value={(form.lastName ?? currentUser.lastName) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), lastName: e.target.value }))} className="pl-10" />
                       </div>
                       {errors.lastName && <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>}
                     </div>
@@ -193,7 +196,7 @@ export function Profile() {
                     <Label htmlFor="email">Email Address</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="email" type="email" value={user.email} disabled className="pl-10" />
+                      <Input id="email" type="email" value={currentUser.email} disabled className="pl-10" />
                     </div>
                   </div>
 
@@ -201,7 +204,7 @@ export function Profile() {
                     <Label htmlFor="dateOfBirth">Birthday</Label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="dateOfBirth" type="date" value={toInputDate((form as any).dateOfBirth ?? (user as any).dateOfBirth ?? (user as any).birthday ?? '')} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), dateOfBirth: e.target.value }))} className="pl-10" />
+                      <Input id="dateOfBirth" type="date" value={toInputDate((form as any).dateOfBirth ?? (currentUser as any).dateOfBirth ?? (currentUser as any).birthday ?? '')} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), dateOfBirth: e.target.value }))} className="pl-10" />
                     </div>
                     {errors.dateOfBirth && <p className="text-xs text-red-500 mt-1">{errors.dateOfBirth}</p>}
                   </div>
@@ -210,7 +213,7 @@ export function Profile() {
                     <Label htmlFor="department">Department</Label>
                     <div className="relative">
                       <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="department" value={(form.department ?? user.department) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), department: e.target.value }))} className="pl-10" />
+                      <Input id="department" value={(form.department ?? currentUser.department) || ''} onBlur={() => validate(form)} onChange={(e) => setForm(f => ({ ...(f ?? {}), department: e.target.value }))} className="pl-10" />
                     </div>
                     {errors.department && <p className="text-xs text-red-500 mt-1">{errors.department}</p>}
                   </div>

@@ -4,6 +4,7 @@ import { TaskDetail } from "@/features/tasks"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
 import { use } from "react"
+import { ProtectedRoute } from "@/shared/components/auth"
 
 export default function TaskDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -18,15 +19,13 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
     router.push("/my-tasks")
   }
 
-  if (!user) {
-    return null
-  }
-
   return (
-    <TaskDetail
-      taskId={resolvedParams.id}
-      onBack={handleBack}
-      onDelete={handleDelete}
-    />
+    <ProtectedRoute>
+      <TaskDetail
+        taskId={resolvedParams.id}
+        onBack={handleBack}
+        onDelete={handleDelete}
+      />
+    </ProtectedRoute>
   )
 }

@@ -36,11 +36,12 @@ import { X, Users, CalendarIcon, Save, FolderPlus, Search } from 'lucide-react'
 import { useUsers, useToast, useErrorHandler } from "@/shared/hooks"
 import { PROJECTS_CONSTANTS, validateCreateProject, getTemplateById } from "../../lib"
 import type { CreateProjectData, ProjectTemplate, TeamMember } from "../../lib"
+import type { User } from "@/shared/lib/types"
 
 interface CreateProjectModalProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    currentUser: any
+    currentUser: User
     onCreated: (projectData: CreateProjectData) => void
 }
 
@@ -92,7 +93,7 @@ export function CreateProjectModal({ open, onOpenChange, currentUser, onCreated 
         setStep("details")
     }
 
-    const handleMemberToggle = (user: any) => {
+    const handleMemberToggle = (user: User) => {
         const member: TeamMember = {
             id: user.id,
             firstName: user.firstName,

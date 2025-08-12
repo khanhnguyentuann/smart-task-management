@@ -6,6 +6,7 @@ import { Search, Users, Loader2 } from 'lucide-react'
 import { useUsers, useErrorHandler } from "@/shared/hooks"
 import { useProjectMembers } from "@/features/projects/hooks/useProjectMembers"
 import { useToast } from "@/shared/hooks/useToast"
+import type { User } from "@/shared/lib/types"
 
 interface AddMemberModalProps {
     open: boolean
@@ -13,14 +14,6 @@ interface AddMemberModalProps {
     projectId: string
     onAdded: () => void
     existingMembers?: any[] // Add existing members prop
-}
-
-interface User {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    avatar?: string
 }
 
 export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existingMembers = [] }: AddMemberModalProps) {
@@ -49,7 +42,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
     }, [searchQuery, fetchUsers])
 
     // Filter out existing project members
-    const availableUsers = users.filter((user: any) =>
+    const availableUsers = users.filter((user: User) =>
         !existingMembers.some((member: any) => member.user?.id === user.id)
     )
 
@@ -119,7 +112,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
                                 Searching users...
                             </div>
                         ) : availableUsers.length > 0 ? (
-                            availableUsers.map((user: any) => (
+                            availableUsers.map((user: User) => (
                                 <div
                                     key={user.id}
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
@@ -158,8 +151,8 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
                             <Label>Selected Users ({selectedUsers.length})</Label>
                             <div className="flex flex-wrap gap-2">
                                 {availableUsers
-                                    .filter((user: any) => selectedUsers.includes(user.id))
-                                    .map((user: any) => (
+                                    .filter((user: User) => selectedUsers.includes(user.id))
+                                    .map((user: User) => (
                                         <Badge key={user.id} variant="secondary" className="flex items-center gap-1">
                                             {user.firstName} {user.lastName}
                                             <button

@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
+import { ProtectedRoute } from "@/shared/components/auth"
 
 // Lazy load Dashboard component
 const Dashboard = dynamic(() => import("@/features/dashboard").then(mod => ({ default: mod.Dashboard })), {
@@ -17,9 +18,9 @@ export default function DashboardPage() {
     router.push(`/${page}`)
   }
 
-  if (!user) {
-    return null
-  }
-
-  return <Dashboard user={user} onNavigate={handleNavigate} />
+  return (
+    <ProtectedRoute>
+      <Dashboard user={user!} onNavigate={handleNavigate} />
+    </ProtectedRoute>
+  )
 }

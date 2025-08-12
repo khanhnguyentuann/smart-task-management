@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
+import { ProtectedRoute } from "@/shared/components/auth"
 
 // Lazy load ProjectsList component
 const ProjectsList = dynamic(() => import("@/features/projects").then(mod => ({ default: mod.ProjectsList })), {
@@ -17,14 +18,12 @@ export default function ProjectsPage() {
     router.push(`/projects/${id}`)
   }
 
-  if (!user) {
-    return null
-  }
-
   return (
-    <ProjectsList
-      user={user}
-      onProjectSelect={handleProjectSelect}
-    />
+    <ProtectedRoute>
+      <ProjectsList
+        user={user!}
+        onProjectSelect={handleProjectSelect}
+      />
+    </ProtectedRoute>
   )
 }
