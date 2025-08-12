@@ -2,9 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Plus, Eye } from "lucide-react"
-import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card"
-import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
+import { CardHeader, CardTitle, CardContent, EnhancedButton, GlassmorphismCard } from "@/shared/components/ui"
 
 interface QuickActionsProps {
     onNavigate: (page: string) => void

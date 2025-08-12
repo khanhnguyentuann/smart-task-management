@@ -1,11 +1,8 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
-import { SidebarTrigger } from "@/shared/components/ui/sidebar"
+import { SidebarTrigger, CardContent, CardHeader, CardTitle, EnhancedButton, GlassmorphismCard } from "@/shared/components/ui"
 import { HelpCircle, BookOpen, MessageCircle, Mail, Phone, FileText, Video, Users } from "lucide-react"
 import { motion } from "framer-motion"
-import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 
 interface HelpSupportProps {
   user: any

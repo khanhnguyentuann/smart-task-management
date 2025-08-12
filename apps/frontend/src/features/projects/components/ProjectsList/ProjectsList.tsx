@@ -1,9 +1,11 @@
 "use client"
 
-import React, { useState, useRef, useCallback, useMemo } from "react"
-import { Button, buttonVariants } from "@/shared/components/ui/button"
+import React, { useState, useRef } from "react"
+import {
+    Button,
+    SidebarTrigger
+} from "@/shared/components/ui"
 import { Plus, Loader2 } from 'lucide-react'
-import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { CreateProjectModal } from "../Modals/CreateProjectModal"
 import { EditProjectModal } from "../Modals/EditProjectModal"
 import { DeleteProjectConfirm } from "../Modals/DeleteProjectConfirm"

@@ -1,9 +1,13 @@
 "use client"
 
 import React from "react"
-import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
-import { Badge } from "@/shared/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
+import { 
+  GlassmorphismCard,
+  Badge,
+  Avatar, 
+  AvatarFallback, 
+  AvatarImage 
+} from "@/shared/components/ui"
 import { Calendar } from 'lucide-react'
 import { motion } from "framer-motion"
 import { cn } from "@/shared/lib/utils/cn"

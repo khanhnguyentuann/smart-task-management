@@ -1,8 +1,7 @@
 "use client"
 
 import React from 'react'
-import { Button } from '@/shared/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui'
 import { AlertTriangle, RefreshCw, Home, Wifi, Shield, Database } from 'lucide-react'
 
 export interface ErrorFallbackProps {

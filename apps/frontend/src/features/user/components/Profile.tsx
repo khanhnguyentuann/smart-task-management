@@ -1,15 +1,21 @@
 "use client"
 
-import { CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
-import { Input } from "@/shared/components/ui/input"
-import { Label } from "@/shared/components/ui/label"
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { Badge } from "@/shared/components/ui/badge"
-import { SidebarTrigger } from "@/shared/components/ui/sidebar"
+import {
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  SidebarTrigger,
+  GlassmorphismCard,
+  EnhancedButton
+} from "@/shared/components/ui"
 import { Camera, Mail, User, Building, Calendar, MapPin } from "lucide-react"
 import { motion } from "framer-motion"
-import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { useState } from "react"
 import { useToast } from "@/shared/hooks/useToast"
 import { useUser } from "@/features/layout"

@@ -1,14 +1,20 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog"
-import { Button, buttonVariants } from "@/shared/components/ui/button"
-import { Input } from "@/shared/components/ui/input"
-import { Label } from "@/shared/components/ui/label"
-import { Badge } from "@/shared/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { ScrollArea } from "@/shared/components/ui/scroll-area"
-import { Checkbox } from "@/shared/components/ui/checkbox"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    Button,
+    Input,
+    Label,
+    Badge,
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+    Checkbox
+} from "@/shared/components/ui"
 import { Search, Users, X, Loader2 } from 'lucide-react'
 import { useUsers, useErrorHandler } from "@/shared/hooks"
 import { useProjectMembers } from "@/features/projects/hooks/useProjectMembers"
@@ -36,7 +42,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded }: AddMe
     const { handleError } = useErrorHandler({
         context: { component: 'AddMemberModal' }
     })
-    
+
     // Use hooks instead of direct API calls
     const { users, loading: usersLoading, error, fetchUsers } = useUsers()
     const { addProjectMembers } = useProjectMembers()

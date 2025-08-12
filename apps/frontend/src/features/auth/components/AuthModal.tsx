@@ -2,8 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog"
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, EnhancedButton } from "@/shared/components/ui"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles } from "lucide-react"
 import { useToast } from "@/shared/hooks/useToast"

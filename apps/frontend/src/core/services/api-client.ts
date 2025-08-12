@@ -4,11 +4,17 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios"
 import { cookieUtils } from "@/core/utils/cookie.utils"
 import { errorService } from "@/core/services/error.service"
 import { logger } from "@/core/utils/logger"
+import { RetryUtils } from "@/core/utils/retry.utils"
 
 // Base API Client - Just handle HTTP communication
 class ApiClient {
     private axiosInstance: AxiosInstance
     private isDev = process.env.NODE_ENV === 'development'
+    private retryConfig = {
+        maxAttempts: 3,
+        baseDelay: 1000,
+        maxDelay: 30000
+    }
 
     constructor() {
         this.axiosInstance = axios.create({
@@ -50,13 +56,13 @@ class ApiClient {
                     }
                 }
 
-                // Use centralized error service
+                // Use centralized error service for logging
                 const appError = errorService.handleApiError(error, {
                     url: error.config?.url,
                     method: error.config?.method,
                 })
 
-                // Log error with context
+                // Log error with context (but don't handle retry here)
                 logger.error('API request failed', 'ApiClient', {
                     url: error.config?.url,
                     method: error.config?.method,
@@ -65,7 +71,8 @@ class ApiClient {
                     code: appError.code
                 })
 
-                return Promise.reject(new Error(appError.message))
+                // Return the original error for retry logic to handle
+                return Promise.reject(error)
             }
         )
     }
@@ -123,17 +130,33 @@ class ApiClient {
             ...config,
         }
 
-        try {
+        return RetryUtils.retry(async () => {
             const response = await this.axiosInstance.request<T>(axiosConfig)
             const raw = response.data as any
             if (raw && typeof raw === 'object' && 'success' in raw && 'data' in raw) {
                 return raw.data as T
             }
             return raw as T
-        } catch (error) {
-            // Error is handled in interceptor
-            throw error
-        }
+        }, {
+            maxAttempts: this.retryConfig.maxAttempts,
+            baseDelay: this.retryConfig.baseDelay,
+            maxDelay: this.retryConfig.maxDelay,
+            onRetry: (attempt, error) => {
+                logger.info('Retrying API request', 'ApiClient', {
+                    url: endpoint,
+                    method: config.method || 'GET',
+                    attempt,
+                    error: error.message
+                })
+            },
+            onMaxAttemptsReached: (error) => {
+                logger.error('Max retry attempts reached for API request', 'ApiClient', {
+                    url: endpoint,
+                    method: config.method || 'GET',
+                    error: error.message
+                })
+            }
+        })
     }
 
 
@@ -167,6 +190,33 @@ class ApiClient {
 
     delete<T = any>(url: string, config?: AxiosRequestConfig) {
         return this.request<T>(url, { method: 'DELETE', ...config })
+    }
+
+    // Retry configuration methods
+    setRetryConfig(config: Partial<typeof this.retryConfig>) {
+        this.retryConfig = { ...this.retryConfig, ...config }
+    }
+
+    getRetryConfig() {
+        return { ...this.retryConfig }
+    }
+
+    // Disable retry for specific requests
+    async requestWithoutRetry<T = any>(
+        endpoint: string,
+        config: AxiosRequestConfig = {}
+    ): Promise<T> {
+        const axiosConfig: AxiosRequestConfig = {
+            url: endpoint,
+            ...config,
+        }
+
+        const response = await this.axiosInstance.request<T>(axiosConfig)
+        const raw = response.data as any
+        if (raw && typeof raw === 'object' && 'success' in raw && 'data' in raw) {
+            return raw.data as T
+        }
+        return raw as T
     }
 }
 

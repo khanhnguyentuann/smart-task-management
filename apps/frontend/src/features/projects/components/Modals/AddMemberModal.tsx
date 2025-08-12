@@ -1,13 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog"
-import { Button, buttonVariants } from "@/shared/components/ui/button"
-import { Input } from "@/shared/components/ui/input"
-import { Label } from "@/shared/components/ui/label"
-import { Badge } from "@/shared/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { Checkbox } from "@/shared/components/ui/checkbox"
+import { Button, Input, Label, Badge, Avatar, AvatarFallback, AvatarImage, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui"
 import { Search, Users, Loader2 } from 'lucide-react'
 import { useUsers, useErrorHandler } from "@/shared/hooks"
 import { useProjectMembers } from "@/features/projects/hooks/useProjectMembers"
@@ -55,7 +49,7 @@ export function AddMemberModal({ open, onOpenChange, projectId, onAdded, existin
     }, [searchQuery, fetchUsers])
 
     // Filter out existing project members
-    const availableUsers = users.filter((user: any) => 
+    const availableUsers = users.filter((user: any) =>
         !existingMembers.some((member: any) => member.user?.id === user.id)
     )
 

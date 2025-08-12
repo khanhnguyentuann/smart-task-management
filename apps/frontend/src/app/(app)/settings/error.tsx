@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Button } from '@/shared/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui'
 import { RefreshCw, Settings } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 

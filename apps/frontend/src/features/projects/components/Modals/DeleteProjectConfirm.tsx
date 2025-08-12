@@ -8,12 +8,9 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/shared/components/ui/dialog"
-import { Button, buttonVariants } from "@/shared/components/ui/button"
-import { Input } from "@/shared/components/ui/input"
-import { Label } from "@/shared/components/ui/label"
+} from "@/shared/components/ui"
+import { Button, Input, Label, Alert, AlertDescription } from "@/shared/components/ui"
 import { AlertTriangle, Trash2 } from "lucide-react"
-import { Alert, AlertDescription } from "@/shared/components/ui/alert"
 import { DeleteProjectDialogProps } from "../../lib"
 
 export function DeleteProjectConfirm({

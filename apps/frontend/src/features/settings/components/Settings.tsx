@@ -1,11 +1,16 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
-import { SidebarTrigger } from "@/shared/components/ui/sidebar"
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle,
+  SidebarTrigger,
+  GlassmorphismCard,
+  EnhancedButton 
+} from "@/shared/components/ui"
 import { Settings as SettingsIcon, Bell, Shield, Palette, Globe, Database, Users } from "lucide-react"
 import { motion } from "framer-motion"
-import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 
 interface SettingsProps {
   user: any

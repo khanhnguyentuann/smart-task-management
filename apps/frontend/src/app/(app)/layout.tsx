@@ -1,9 +1,7 @@
 "use client"
 
-import { SidebarProvider, SidebarInset } from "@/shared/components/ui/sidebar"
+import { SidebarProvider, SidebarInset, TaskBot, AnimatedBackground } from "@/shared/components/ui"
 import { AppSidebar, UserProvider, useUser } from "@/features/layout"
-import { AnimatedBackground } from "@/shared/components/ui/animated-background"
-import { TaskBot } from "@/shared/components/ui/task-bot"
 import { useLogout } from "@/features/auth"
 import { useToast } from "@/shared/hooks/useToast"
 import { useRouter, usePathname } from "next/navigation"

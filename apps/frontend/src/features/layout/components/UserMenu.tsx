@@ -1,17 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu"
+  Avatar, AvatarFallback, AvatarImage, EnhancedThemeToggle
+} from "@/shared/components/ui"
 import { User, Bell, Settings, HelpCircle, LogOut } from "lucide-react"
 import { motion } from "framer-motion"
-import { EnhancedThemeToggle } from "@/shared/components/ui/enhanced-theme-toggle"
 import { useRouter } from "next/navigation"
 
 interface UserMenuProps {

@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { SidebarTrigger } from "@/shared/components/ui/sidebar"
+import { SidebarTrigger } from "@/shared/components/ui"
 import { getGreeting } from "../lib"
-import { User } from "../types/dashboard.types"
+import { User } from "@/shared/lib"
 
 interface DashboardHeaderProps {
     user: User | null

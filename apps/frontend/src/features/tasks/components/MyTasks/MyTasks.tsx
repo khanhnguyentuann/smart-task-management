@@ -2,11 +2,18 @@
 
 import React, { useCallback } from "react"
 import { useState } from "react"
-import { Input } from "@/shared/components/ui/input"
+import {
+    Input,
+    SidebarTrigger,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Button,
+    buttonVariants
+} from "@/shared/components/ui"
 import { Search, CheckSquare, Clock, AlertTriangle, Calendar } from 'lucide-react'
-import { SidebarTrigger } from "@/shared/components/ui/sidebar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Task } from "../../types/task.types"
 import { TaskCard } from "./TaskCard"
 import { EmptyState } from "./EmptyState"
@@ -30,12 +37,12 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
         if (!user) return null
         const priorityMap: Record<string, Task["priority"]> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High" }
         const statusMap: Record<string, Task["status"]> = { TODO: "TODO", IN_PROGRESS: "IN_PROGRESS", DONE: "DONE" }
-        
+
         // Use actual assignee data if available, otherwise use current user
-        const assigneeName = t.assignee?.firstName && t.assignee?.lastName 
+        const assigneeName = t.assignee?.firstName && t.assignee?.lastName
             ? `${t.assignee.firstName} ${t.assignee.lastName}`
             : t.assignee?.email || user.email
-            
+
         return {
             id: t.id,
             title: t.title,
@@ -47,9 +54,9 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
             projectId: t.projectId,
             deadline: (t as any).dueDate || t.deadline || new Date().toISOString(),
             dueDate: (t as any).dueDate ? new Date((t as any).dueDate) : null,
-            assignee: { 
+            assignee: {
                 id: t.assignee?.id || user.id,
-                name: assigneeName, 
+                name: assigneeName,
                 avatar: t.assignee?.avatar || user.avatar || "",
                 email: t.assignee?.email || user.email
             },
@@ -60,7 +67,7 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
 
     React.useEffect(() => {
         if (!user) return
-        
+
         const fetchTasks = async () => {
             try {
                 setLoading(true)

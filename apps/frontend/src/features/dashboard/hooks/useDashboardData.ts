@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useUser } from "@/features/layout"
 import { DashboardService } from "../services/dashboard.service"
 import { DashboardData, DashboardStats, Activity } from "../types/dashboard.types"
@@ -16,7 +16,7 @@ export const useDashboardData = () => {
         loading: true
     })
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         if (!currentUser) return
 
         setData(prev => ({ ...prev, loading: true }))
@@ -28,11 +28,11 @@ export const useDashboardData = () => {
             console.error("Failed to fetch dashboard data:", error)
             setData(prev => ({ ...prev, loading: false }))
         }
-    }
+    }, [currentUser])
 
     useEffect(() => {
         fetchData()
-    }, [currentUser])
+    }, [fetchData])
 
     const refreshData = () => {
         fetchData()

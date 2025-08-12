@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion"
 import { LayoutDashboard, FolderKanban, CheckSquare, User } from "lucide-react"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/shared/components/ui/sidebar"
-import { useSidebar } from "@/shared/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/shared/components/ui"
 import { UserMenu } from "./UserMenu"
 import { useRouter, usePathname } from "next/navigation"
 

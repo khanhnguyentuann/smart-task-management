@@ -1,9 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Input } from "@/shared/components/ui/input"
-import { Label } from "@/shared/components/ui/label"
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
+import { Input, Label, EnhancedButton } from "@/shared/components/ui"
 import { Eye, EyeOff, Lock, Sparkles, User } from "lucide-react"
 import { useToast } from "@/shared/hooks/useToast"
 import { useRegister } from "@/features/auth"

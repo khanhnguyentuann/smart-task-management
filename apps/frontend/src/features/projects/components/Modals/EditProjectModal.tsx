@@ -1,17 +1,29 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog"
-import { Button, buttonVariants } from "@/shared/components/ui/button"
-import { Input } from "@/shared/components/ui/input"
-import { Label } from "@/shared/components/ui/label"
-import { Textarea } from "@/shared/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Calendar } from "@/shared/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    Button,
+    buttonVariants,
+    Input,
+    Label,
+    Textarea,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Calendar,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    EnhancedButton
+} from "@/shared/components/ui"
 import { format } from "date-fns"
 import { CalendarIcon, Save } from 'lucide-react'
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { useToast, useErrorHandler } from "@/shared/hooks"
 import { PROJECTS_CONSTANTS, validateUpdateProject } from "../../lib"
 

@@ -1,11 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CardContent } from "@/shared/components/ui/card"
-import { SidebarTrigger } from "@/shared/components/ui/sidebar"
-import { Badge } from "@/shared/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
+import { CardContent, SidebarTrigger, Badge, Avatar, AvatarFallback, AvatarImage, Tabs, TabsContent, TabsList, TabsTrigger, GlassmorphismCard, EnhancedButton } from "@/shared/components/ui"
 import {
   Bell,
   CheckCircle,
@@ -18,8 +14,6 @@ import {
   Settings,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 
 interface User {
   id: string
