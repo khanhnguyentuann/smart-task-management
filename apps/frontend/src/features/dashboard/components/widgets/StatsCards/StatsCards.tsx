@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { motion } from "framer-motion"
 import { DashboardService } from "../../../services"
 import { DashboardStats } from "../../../types/dashboard.types"
@@ -10,7 +11,7 @@ interface StatsCardsProps {
     loading: boolean
 }
 
-export function StatsCards({ stats, loading }: StatsCardsProps) {
+export const StatsCards = React.memo(function StatsCards({ stats, loading }: StatsCardsProps) {
     const statsData = DashboardService.getStatCards(stats)
 
     return (
@@ -30,4 +31,4 @@ export function StatsCards({ stats, loading }: StatsCardsProps) {
             ))}
         </motion.div>
     )
-}
+})

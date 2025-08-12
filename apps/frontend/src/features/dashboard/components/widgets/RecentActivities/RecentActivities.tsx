@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Activity } from "lucide-react"
 import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card"
@@ -13,7 +14,7 @@ interface RecentActivitiesProps {
     loading: boolean
 }
 
-export function RecentActivities({ activities, loading }: RecentActivitiesProps) {
+export const RecentActivities = React.memo(function RecentActivities({ activities, loading }: RecentActivitiesProps) {
     return (
         <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -66,4 +67,4 @@ export function RecentActivities({ activities, loading }: RecentActivitiesProps)
             </GlassmorphismCard>
         </motion.div>
     )
-}
+})

@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { GlassmorphismCard } from "@/shared/components/ui/glassmorphism-card"
 import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
@@ -9,7 +10,7 @@ import { cn } from "@/shared/lib/utils/cn"
 import { AnimatedTaskCardProps } from "../../types/task.types"
 import { getPriorityColor } from "@/features/projects"
 
-export function TaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
+export const TaskCard = React.memo(function TaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
     const getPriorityAnimation = (priority: string) => {
         switch (priority) {
             case "High":
@@ -120,4 +121,4 @@ export function TaskCard({ task, className, onClick }: AnimatedTaskCardProps) {
             </GlassmorphismCard>
         </motion.div>
     )
-}
+})

@@ -1,8 +1,18 @@
 "use client"
 
-import { Dashboard } from "@/features/dashboard"
+import dynamic from "next/dynamic"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
+
+// Lazy load Dashboard component
+const Dashboard = dynamic(() => import("@/features/dashboard").then(mod => ({ default: mod.Dashboard })), {
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-6xl animate-spin">✨</div>
+    </div>
+  ),
+  ssr: false
+})
 
 export default function DashboardPage() {
   const { user } = useUser()

@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Badge } from "@/shared/components/ui/badge"
@@ -14,7 +15,7 @@ interface ProjectCardProps {
     onDelete: (projectId: string, projectName: string) => void
 }
 
-export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardProps) {
+export const ProjectCard = React.memo(function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardProps) {
     return (
         <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
             <CardHeader className="pb-3">
@@ -110,4 +111,4 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
             </CardContent>
         </Card>
     )
-}
+})

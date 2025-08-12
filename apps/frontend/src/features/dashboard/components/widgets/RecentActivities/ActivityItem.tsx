@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { motion } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { Activity } from "../../../types/dashboard.types"
@@ -10,7 +11,7 @@ interface ActivityItemProps {
     index: number
 }
 
-export function ActivityItem({ activity, index }: ActivityItemProps) {
+export const ActivityItem = React.memo(function ActivityItem({ activity, index }: ActivityItemProps) {
     return (
         <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -65,4 +66,4 @@ export function ActivityItem({ activity, index }: ActivityItemProps) {
             </div>
         </motion.div>
     )
-}
+})

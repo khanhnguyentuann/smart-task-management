@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { motion } from "framer-motion"
 import { TrendingUp } from "lucide-react"
 import { CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card"
@@ -13,7 +14,7 @@ interface StatCardProps {
     loading?: boolean
 }
 
-export function StatCard({ stat, index, loading = false }: StatCardProps) {
+export const StatCard = React.memo(function StatCard({ stat, index, loading = false }: StatCardProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -78,4 +79,4 @@ export function StatCard({ stat, index, loading = false }: StatCardProps) {
             </GlassmorphismCard>
         </motion.div>
     )
-}
+})

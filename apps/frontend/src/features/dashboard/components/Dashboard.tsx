@@ -1,15 +1,16 @@
 "use client"
 
+import React from "react"
 import { motion } from "framer-motion"
 import { useUser } from "@/features/layout"
 import { useDashboardData } from "../hooks"
-import { DashboardContentProps, User } from "../types/dashboard.types"
+import { DashboardContentProps } from "../types/dashboard.types"
 import { DashboardHeader } from "./DashboardHeader"
 import { StatsCards } from "./widgets/StatsCards/StatsCards"
 import { RecentActivities } from "./widgets/RecentActivities/RecentActivities"
 import { QuickActions } from "./widgets/QuickActions/QuickActions"
 
-export function Dashboard({ user, onNavigate }: DashboardContentProps) {
+export const Dashboard = React.memo(function Dashboard({ user, onNavigate }: DashboardContentProps) {
     const { user: currentUser } = useUser()
     const { stats, activities, loading } = useDashboardData()
 
@@ -78,4 +79,4 @@ export function Dashboard({ user, onNavigate }: DashboardContentProps) {
             </div>
         </div>
     )
-}
+})

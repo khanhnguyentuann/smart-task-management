@@ -1,8 +1,18 @@
 "use client"
 
-import { MyTasks } from "@/features/tasks"
+import dynamic from "next/dynamic"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
+
+// Lazy load MyTasks component
+const MyTasks = dynamic(() => import("@/features/tasks/components/MyTasks").then(mod => ({ default: mod.MyTasks })), {
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-6xl animate-spin">✨</div>
+    </div>
+  ),
+  ssr: false
+})
 
 export default function MyTasksPage() {
   const { user } = useUser()
@@ -16,9 +26,5 @@ export default function MyTasksPage() {
     return null
   }
 
-  return (
-    <MyTasks
-      onTaskClick={handleTaskClick}
-    />
-  )
+  return <MyTasks onTaskClick={handleTaskClick} />
 }

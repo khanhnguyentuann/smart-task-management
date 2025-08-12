@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import React, { useState, useRef, useCallback, useMemo } from "react"
 import { Button, buttonVariants } from "@/shared/components/ui/button"
 import { Plus, Loader2 } from 'lucide-react'
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
@@ -16,7 +16,7 @@ import { useErrorHandler } from "@/shared/hooks"
 import type { ProjectsListProps } from "@/features/projects/lib"
 import { PROJECTS_CONSTANTS, validateSearchQuery, filterProjectsByQuery, formatProjectError } from "../../lib"
 
-export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
+export const ProjectsList = React.memo(function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -263,4 +263,4 @@ export function ProjectsList({ user, onProjectSelect }: ProjectsListProps) {
             />
         </div>
     )
-}
+})
