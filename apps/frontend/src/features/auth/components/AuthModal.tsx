@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, En
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles } from "lucide-react"
 import { useToast } from "@/shared/hooks/useToast"
-import { AUTH_CONSTANTS } from "../constants"
+import { AUTH_CONSTANTS } from "@/shared/constants"
 import type { AuthModalProps } from "../types"
 import { Login } from "./Login"
 import { Register } from "./Register"

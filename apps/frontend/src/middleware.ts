@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { TOKEN_CONSTANTS } from '@/core/constants/tokens'
+import { TOKEN_CONSTANTS } from '@/shared/constants'
 import { logger } from '@/core/utils/logger'
 
 // Public routes that don't require authentication

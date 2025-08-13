@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AUTH_CONSTANTS, type PasswordStrength } from '../constants'
+import { AUTH_CONSTANTS, type PasswordStrength } from '@/shared/constants'
 
 // Unified validation schema for Register form
 export const registerSchema = z.object({

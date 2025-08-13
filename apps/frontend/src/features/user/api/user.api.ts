@@ -1,5 +1,5 @@
 import { apiClient } from '@/core/services/api-client'
-import { API_ROUTES } from '@/core/constants/routes'
+import { API_ROUTES } from '@/shared/constants'
 import type { UpdateProfilePayload, UserProfile } from '../types/user.types'
 
 class UserApi {

@@ -15,9 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus, Sparkles, CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/shared/lib/utils/cn"
-import { PROJECTS_CONSTANTS } from "@/features/projects/lib"
 import { apiClient } from "@/core/services/api-client"
-import { API_ROUTES } from "@/core/constants/routes"
+import { API_ROUTES, PROJECTS_CONSTANTS } from "@/shared/constants"
 import { useToast } from "@/shared/hooks/useToast"
 import { useUser } from "@/features/layout"
 

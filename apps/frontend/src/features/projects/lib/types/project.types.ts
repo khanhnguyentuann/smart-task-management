@@ -1,4 +1,4 @@
-import { PROJECTS_CONSTANTS } from "../constants";
+import { PROJECTS_CONSTANTS } from "@/shared/constants";
 import type { BaseUser } from '@/shared/lib/types'
 
 // BaseUser interface is now imported from shared types

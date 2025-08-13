@@ -1,4 +1,4 @@
-import { AUTH_CONSTANTS, type PasswordStrength } from '../constants'
+import { AUTH_CONSTANTS, type PasswordStrength } from '@/shared/constants'
 
 export const getStrengthMeta = (
   strength: PasswordStrength

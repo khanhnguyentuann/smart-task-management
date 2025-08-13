@@ -1,5 +1,5 @@
 import { CalendarIcon, FolderPlus, Star, Target } from 'lucide-react'
-import { PROJECTS_CONSTANTS, type Priority } from './constants'
+import { PROJECTS_CONSTANTS, type Priority } from '@/shared/constants'
 import type { Project, ProjectTask } from './types'
 
 // Color utilities

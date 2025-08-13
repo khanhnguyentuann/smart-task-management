@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtUtils } from './jwt.utils'
 import { logger } from './logger'
-import { TOKEN_CONSTANTS } from '@/core/constants/tokens'
+import { TOKEN_CONSTANTS } from '@/shared/constants'
 import type { User } from '@/shared/lib/types'
 
 // JWT payload only contains minimal user info

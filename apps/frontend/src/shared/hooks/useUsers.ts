@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { apiClient } from '@/core/services/api-client'
-import { API_ROUTES } from '@/core/constants/routes'
+import { API_ROUTES } from '@/shared/constants'
 import type { User } from '@/shared/lib/types'
 
 export const useUsers = () => {

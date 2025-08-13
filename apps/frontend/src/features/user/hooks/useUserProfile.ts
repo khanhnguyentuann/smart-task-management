@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { userService } from '../services/user.service'
 import { useErrorHandler } from '@/shared/hooks'
 import { cookieUtils } from '@/core/utils/cookie.utils'
-import { TOKEN_CONSTANTS } from '@/core/constants/tokens'
+import { TOKEN_CONSTANTS } from '@/shared/constants'
 import type { UserProfile, UpdateProfilePayload } from '../types/user.types'
 
 // Query keys for consistent caching

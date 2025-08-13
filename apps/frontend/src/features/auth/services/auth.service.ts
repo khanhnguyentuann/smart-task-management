@@ -4,7 +4,7 @@
 */
 import { authApi } from '../api'
 import type { LoginCredentials, RegisterCredentials, AuthResponse } from '../types'
-import { TOKEN_CONSTANTS } from '@/core/constants/tokens'
+import { TOKEN_CONSTANTS } from '@/shared/constants'
 import { cookieUtils } from '@/core/utils/cookie.utils'
 
 class AuthService {

@@ -3,7 +3,7 @@
     No business logic, just transform response if needed.
 */
 import { apiClient } from '@/core/services/api-client'
-import { API_ROUTES } from '@/core/constants/routes'
+import { API_ROUTES } from '@/shared/constants'
 import type { AuthApiResponse, AuthResponse, LoginCredentials, RegisterCredentials } from '../types'
 import type { User } from '@/shared/lib/types'
 

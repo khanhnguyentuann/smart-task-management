@@ -1,4 +1,4 @@
-import { DASHBOARD_CONSTANTS } from "./constants"
+import { DASHBOARD_CONSTANTS } from "@/shared/constants"
 
 export const formatTimeAgo = (dateString: string): string => {
     const date = new Date(dateString)

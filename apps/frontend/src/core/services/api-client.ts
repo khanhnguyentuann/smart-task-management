@@ -1,5 +1,5 @@
-import { API_ROUTES } from "@/core/constants/routes"
-import { TOKEN_CONSTANTS } from "@/core/constants/tokens"
+import { API_ROUTES } from "@/shared/constants"
+import { TOKEN_CONSTANTS } from "@/shared/constants"
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios"
 import { cookieUtils } from "@/core/utils/cookie.utils"
 import { errorService } from "@/core/services/error.service"

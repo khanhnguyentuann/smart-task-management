@@ -4,7 +4,7 @@ import { createContext, useContext, useCallback, ReactNode } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useUserProfile, userKeys } from "@/features/user"
 import { cookieUtils } from "@/core/utils/cookie.utils"
-import { TOKEN_CONSTANTS } from "@/core/constants/tokens"
+import { TOKEN_CONSTANTS } from "@/shared/constants"
 import type { UserProfile } from "@/features/user/types/user.types"
 
 interface UserContextType {

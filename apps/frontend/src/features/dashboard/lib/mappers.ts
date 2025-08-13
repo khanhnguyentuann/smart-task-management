@@ -1,6 +1,6 @@
 import { CheckSquare, FolderKanban } from "lucide-react"
 import { Activity, DashboardStats, StatCard } from "../types/dashboard.types"
-import { DASHBOARD_CONSTANTS } from "./constants"
+import { DASHBOARD_CONSTANTS } from "@/shared/constants"
 import { calculateProgress, getTrendDirection } from "./utils"
 
 export const mapApiDataToStats = (projects: any[], tasks: any[]): DashboardStats => {

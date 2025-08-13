@@ -7,7 +7,7 @@ import { useToast } from "@/shared/hooks/useToast"
 import { useLogin } from "@/features/auth"
 import { useErrorHandler } from "@/shared/hooks"
 import { useUser } from "@/features/layout"
-import { AUTH_CONSTANTS } from "../constants"
+import { AUTH_CONSTANTS } from "@/shared/constants"
 import { LoginProps } from "../types"
 
 export function Login({ onSuccess, onClose }: LoginProps) {

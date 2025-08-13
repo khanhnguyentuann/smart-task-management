@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { PROJECTS_CONSTANTS } from './constants'
+import { PROJECTS_CONSTANTS } from '@/shared/constants'
 
 // Schema for creating a project
 export const createProjectSchema = z.object({

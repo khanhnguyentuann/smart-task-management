@@ -1,13 +1,13 @@
 import { apiClient } from "@/core/services/api-client"
-import { DASHBOARD_API_ROUTES } from "../lib/constants"
+import { API_ROUTES } from "@/shared/constants"
 
 export const dashboardApi = {
     async getProjects() {
-        return apiClient.get(DASHBOARD_API_ROUTES.PROJECTS)
+        return apiClient.get(API_ROUTES.PROJECTS.LIST)
     },
 
     async getTasks() {
-        return apiClient.get(DASHBOARD_API_ROUTES.TASKS)
+        return apiClient.get(API_ROUTES.TASKS.LIST)
     },
 
     async getDashboardData() {

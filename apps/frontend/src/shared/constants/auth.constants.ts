@@ -39,7 +39,6 @@ export const AUTH_CONSTANTS = {
         LOGIN_SUCCESS: '🎉 Welcome back!',
         REGISTER_SUCCESS: '🎉 Account created!',
         LOGOUT_SUCCESS: '👋 See you soon!',
-        // Removed unused generic messages to keep constants lean
         SOCIAL_COMING_SOON: '🚀 Coming Soon!'
     },
 
@@ -48,7 +47,6 @@ export const AUTH_CONSTANTS = {
         REGISTER_FAILED: 'Registration failed',
         LOGOUT_FAILED: 'Logout failed',
         INVALID_CREDENTIALS: 'Invalid email or password',
-        // Removed unused specific error; surface backend message directly
         NETWORK_ERROR: 'Network error. Please try again.'
     }
 } as const

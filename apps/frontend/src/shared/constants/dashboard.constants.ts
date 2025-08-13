@@ -36,8 +36,3 @@ export const DASHBOARD_CONSTANTS = {
         overdueTasks: 5
     }
 } as const
-
-export const DASHBOARD_API_ROUTES = {
-    PROJECTS: '/api/projects',
-    TASKS: '/api/tasks'
-} as const
