@@ -23,7 +23,7 @@ export class AuthService {
         });
 
         if (existingUser) {
-            throw new ConflictException('Email đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập.');
+            throw new ConflictException('EMAIL_ALREADY_EXISTS');
         }
 
         const hashedPassword = await argon2.hash(password);
@@ -59,13 +59,13 @@ export class AuthService {
         });
 
         if (!user) {
-            throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
+            throw new UnauthorizedException('INVALID_CREDENTIALS');
         }
 
         const passwordMatches = await argon2.verify(user.passwordHash, password);
 
         if (!passwordMatches) {
-            throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
+            throw new UnauthorizedException('INVALID_CREDENTIALS');
         }
 
         const tokens = await this.generateTokens(user.id, user.email);

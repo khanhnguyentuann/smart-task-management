@@ -78,11 +78,19 @@ export function useErrorHandler(options: UseErrorHandlerOptions = {}) {
     const handleAuthError = useCallback((
         error: any
     ) => {
-        const appError = errorService.createError(error, ErrorType.AUTHENTICATION, undefined, context)
+        const appError = errorService.handleApiError(error, context)
 
         if (showToast) {
+            // Use dynamic title based on error type
+            let title = 'Error'
+            if (appError.type === ErrorType.VALIDATION) {
+                title = 'Validation Error'
+            } else if (appError.type === ErrorType.AUTHENTICATION) {
+                title = 'Login Error'
+            }
+            
             toast({
-                title: 'Authentication Error',
+                title,
                 description: appError.message,
                 variant: 'destructive',
             })

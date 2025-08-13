@@ -1,88 +1,65 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react"
-import { userService } from "@/features/user"
-import { useErrorHandler } from "@/shared/hooks"
+import { createContext, useContext, useCallback, ReactNode } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useUserProfile, userKeys } from "@/features/user"
 import { cookieUtils } from "@/core/utils/cookie.utils"
 import { TOKEN_CONSTANTS } from "@/core/constants/tokens"
-import type { User } from "@/shared/lib/types"
+import type { UserProfile } from "@/features/user/types/user.types"
 
 interface UserContextType {
-  user: User | null
-  setUser: (user: User | null) => void
+  user: UserProfile | null
+  setUser: (user: UserProfile | null) => void
   isLoading: boolean
   isInitialized: boolean
-  refetchUser: () => Promise<User | null>
+  refetchUser: () => Promise<UserProfile | null>
   clearUser: () => void
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isInitialized, setIsInitialized] = useState(false)
-  const { handleError } = useErrorHandler({
-    context: { component: 'UserProvider' }
-  })
-  
-  // Use ref to store handleError to avoid dependency issues
-  const handleErrorRef = useRef(handleError)
-  handleErrorRef.current = handleError
+  const queryClient = useQueryClient()
 
-  const refetchUser = useCallback(async () => {
-    try {
-      const profile = await userService.getProfile()
-      setUser(profile)
-      return profile
-    } catch (error: any) {
-      handleErrorRef.current(error)
-      // If token is invalid, clear user state
-      if (error?.response?.status === 401) {
-        setUser(null)
-        cookieUtils.deleteCookie(TOKEN_CONSTANTS.ACCESS_TOKEN)
-        cookieUtils.deleteCookie(TOKEN_CONSTANTS.REFRESH_TOKEN)
-      }
-      throw error
-    }
-  }, [])
+  // Sử dụng useUserProfile hook với caching
+  const {
+    data: user,
+    isLoading,
+    isFetched,
+    refetch
+  } = useUserProfile()
+
+  const setUser = useCallback((newUser: UserProfile | null) => {
+    // Update cache trực tiếp thay vì state
+    queryClient.setQueryData(userKeys.profile(), newUser)
+  }, [queryClient])
+
+  const refetchUser = useCallback(async (): Promise<UserProfile | null> => {
+    const result = await refetch()
+    return (result.data as UserProfile) || null
+  }, [refetch])
 
   const clearUser = useCallback(() => {
-    setUser(null)
-    setIsInitialized(false)
-  }, [])
+    // Clear user data và remove từ cache
+    queryClient.setQueryData(userKeys.profile(), null)
+    queryClient.removeQueries({ queryKey: userKeys.profile() })
 
-  useEffect(() => {
-    // Check if user has valid token before fetching profile
-    const hasToken = cookieUtils.getCookie(TOKEN_CONSTANTS.ACCESS_TOKEN)
-    
-    if (hasToken) {
-      // Only fetch user profile if token exists
-      refetchUser()
-        .then(() => {
-          setIsLoading(false)
-          setIsInitialized(true)
-        })
-        .catch(() => {
-          // If fetch fails, still mark as initialized
-          setIsLoading(false)
-          setIsInitialized(true)
-        })
-    } else {
-      // No token, mark as initialized without user
-      setIsLoading(false)
-      setIsInitialized(true)
-    }
-  }, [refetchUser])
+    // Clear cookies
+    cookieUtils.deleteCookie(TOKEN_CONSTANTS.ACCESS_TOKEN)
+    cookieUtils.deleteCookie(TOKEN_CONSTANTS.REFRESH_TOKEN)
+  }, [queryClient])
+
+  // Tính toán isInitialized dựa trên query state
+  const isInitialized = isFetched || !cookieUtils.getCookie(TOKEN_CONSTANTS.ACCESS_TOKEN)
 
   return (
-    <UserContext.Provider value={{ 
-      user, 
-      setUser, 
-      isLoading, 
-      isInitialized, 
-      refetchUser, 
-      clearUser 
+    <UserContext.Provider value={{
+      user: (user as UserProfile) || null,
+      setUser,
+      isLoading,
+      isInitialized,
+      refetchUser,
+      clearUser
     }}>
       {children}
     </UserContext.Provider>

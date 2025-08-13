@@ -2,30 +2,55 @@
 
 import { TaskDetail } from "@/features/tasks"
 import { useUser } from "@/features/layout"
-import { useRouter } from "next/navigation"
-import { use } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { use, Suspense } from "react"
 import { ProtectedRoute } from "@/shared/components/auth"
 
-export default function TaskDetailPage({ params }: { params: Promise<{ id: string }> }) {
+function TaskDetailPageContent({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
   const { user } = useUser()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const handleBack = () => {
-    router.push("/my-tasks")
+    // Check if user came from a specific project
+    const from = searchParams.get('from')
+    const projectId = searchParams.get('projectId')
+    
+    if (from === 'project' && projectId) {
+      router.push(`/projects/${projectId}`)
+    } else {
+      router.push("/my-tasks")
+    }
   }
 
   const handleDelete = () => {
-    router.push("/my-tasks")
+    // Same logic for delete
+    const from = searchParams.get('from')
+    const projectId = searchParams.get('projectId')
+    
+    if (from === 'project' && projectId) {
+      router.push(`/projects/${projectId}`)
+    } else {
+      router.push("/my-tasks")
+    }
   }
 
   return (
+    <TaskDetail
+      taskId={resolvedParams.id}
+      onBack={handleBack}
+      onDelete={handleDelete}
+    />
+  )
+}
+
+export default function TaskDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
     <ProtectedRoute>
-      <TaskDetail
-        taskId={resolvedParams.id}
-        onBack={handleBack}
-        onDelete={handleDelete}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <TaskDetailPageContent params={params} />
+      </Suspense>
     </ProtectedRoute>
   )
 }

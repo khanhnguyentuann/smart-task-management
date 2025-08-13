@@ -64,8 +64,8 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
     }
 
     const handleTaskClick = (task: any) => {
-        // Navigate to task detail page instead of showing inline
-        router.push(`/my-tasks/${task.id}`)
+        // Navigate to task detail page with project context
+        router.push(`/my-tasks/${task.id}?from=project&projectId=${projectId}`)
     }
 
     const handleKickMember = useCallback(async (memberId: string) => {

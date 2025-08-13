@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/features/layout"
 import { Toaster } from "@/shared/components/ui"
 import { ErrorBoundary } from "@/shared/components/error"
+import { QueryProvider } from "@/core/providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,15 +22,17 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ErrorBoundary>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster />
-          </ThemeProvider>
+          <QueryProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </QueryProvider>
         </ErrorBoundary>
       </body>
     </html>

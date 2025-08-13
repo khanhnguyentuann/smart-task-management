@@ -63,6 +63,12 @@ export const ERROR_CODES = {
     CLIENT_FORBIDDEN: 'CLIENT_FORBIDDEN',
     CLIENT_BAD_REQUEST: 'CLIENT_BAD_REQUEST',
 
+    // Auth specific errors
+    EMAIL_ALREADY_EXISTS: 'EMAIL_ALREADY_EXISTS',
+    INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+    USER_NOT_FOUND: 'USER_NOT_FOUND',
+    WRONG_PASSWORD: 'WRONG_PASSWORD',
+
     // Unknown errors
     UNKNOWN_ERROR: 'UNKNOWN_ERROR'
 } as const
@@ -90,6 +96,11 @@ export const ERROR_MESSAGES = {
     [ERROR_CODES.CLIENT_NOT_FOUND]: 'The requested resource was not found.',
     [ERROR_CODES.CLIENT_FORBIDDEN]: 'You don\'t have permission to access this resource.',
     [ERROR_CODES.CLIENT_BAD_REQUEST]: 'Invalid request. Please check your input.',
+
+    [ERROR_CODES.EMAIL_ALREADY_EXISTS]: 'Email đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập.',
+    [ERROR_CODES.INVALID_CREDENTIALS]: 'Email hoặc mật khẩu không đúng. Vui lòng thử lại.',
+    [ERROR_CODES.USER_NOT_FOUND]: 'Tài khoản không tồn tại. Vui lòng kiểm tra lại email.',
+    [ERROR_CODES.WRONG_PASSWORD]: 'Mật khẩu không đúng. Vui lòng thử lại.',
 
     [ERROR_CODES.UNKNOWN_ERROR]: 'An unexpected error occurred. Please try again.'
 } as const
@@ -187,6 +198,7 @@ class ErrorService {
     // Handle API errors specifically
     handleApiError(error: any, context?: AppError['context']): AppError {
         const status = error?.response?.status || error?.status
+        const serverMessage = error?.response?.data?.message || error?.message
 
         let type = ErrorType.UNKNOWN
         let severity = ErrorSeverity.MEDIUM
@@ -194,10 +206,13 @@ class ErrorService {
         if (status >= 500) {
             type = ErrorType.SERVER
             severity = ErrorSeverity.HIGH
-        } else if (status === 401 || status === 403) {
+        } else if (status === 401) {
             type = ErrorType.AUTHENTICATION
             severity = ErrorSeverity.MEDIUM
-        } else if (status === 400 || status === 422) {
+        } else if (status === 403) {
+            type = ErrorType.AUTHENTICATION
+            severity = ErrorSeverity.MEDIUM
+        } else if (status === 400 || status === 422 || status === 409) {
             type = ErrorType.VALIDATION
             severity = ErrorSeverity.LOW
         } else if (status === 404) {
@@ -208,7 +223,28 @@ class ErrorService {
             severity = ErrorSeverity.MEDIUM
         }
 
-        return this.createError(error, type, severity, context)
+        // Use server message as error code if it's a known error code
+        const errorCode = serverMessage && ERROR_MESSAGES[serverMessage as keyof typeof ERROR_MESSAGES] 
+            ? serverMessage 
+            : this.determineErrorCode(error, type)
+
+        const appError: AppError = {
+            type,
+            severity,
+            message: ERROR_MESSAGES[errorCode as keyof typeof ERROR_MESSAGES] || serverMessage || 'Unknown error',
+            code: errorCode,
+            details: error,
+            timestamp: new Date().toISOString(),
+            context: {
+                url: typeof window !== 'undefined' ? window.location.href : undefined,
+                ...context
+            }
+        }
+
+        this.logError(appError)
+        this.queueError(appError)
+
+        return appError
     }
 
     // Handle validation errors
