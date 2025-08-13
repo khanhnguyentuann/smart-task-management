@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { apiClient } from '@/core/services/api-client'
-import { API_ROUTES } from '@/core/constants/routes'
-import { TOKEN_CONSTANTS } from '@/core/constants/tokens'
+import { proxyUtils } from '@/core/utils/proxy.utils'
 import { logger } from '@/core/utils/logger'
 
 export async function POST(request: NextRequest) {
@@ -17,33 +15,35 @@ export async function POST(request: NextRequest) {
     }
 
     // Call backend to refresh token
-    const response = await apiClient.post(API_ROUTES.AUTH.REFRESH, {
-      refreshToken
-    })
+    const { data, status } = await proxyUtils.post('/api/auth/refresh', { refreshToken })
 
-    // Set new tokens in HttpOnly cookies for security
-    const nextResponse = NextResponse.json(response)
-
-    nextResponse.cookies.set(TOKEN_CONSTANTS.ACCESS_TOKEN, response.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 15 * 60 * 1000, // 15 minutes
-    })
-
-    if (response.refreshToken) {
-      nextResponse.cookies.set(TOKEN_CONSTANTS.REFRESH_TOKEN, response.refreshToken, {
+    if ((status === 200 || status === 201) && data?.accessToken) {
+      const response = NextResponse.json(data, { status })
+      
+      // Set access token cookie
+      response.cookies.set('access_token', data.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        maxAge: 15 * 60 * 1000, // 15 minutes
       })
+
+      // Set refresh token cookie if provided
+      if (data.refreshToken) {
+        response.cookies.set('refresh_token', data.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        })
+      }
+
+      return response
     }
 
-    return nextResponse
+    return NextResponse.json(data, { status })
   } catch (error: any) {
     logger.error('Token refresh failed', 'AuthRefreshAPI', error)
-
     return NextResponse.json(
       {
         success: false,

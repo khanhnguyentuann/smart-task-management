@@ -23,6 +23,7 @@ export function useStableCallback<T extends (...args: any[]) => any>(
     callback: T,
     dependencies: React.DependencyList
 ): T {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return React.useCallback(callback, dependencies)
 }
 
@@ -36,6 +37,7 @@ export function useStableValue<T>(
     factory: () => T,
     dependencies: React.DependencyList
 ): T {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return React.useMemo(factory, dependencies)
 }
 

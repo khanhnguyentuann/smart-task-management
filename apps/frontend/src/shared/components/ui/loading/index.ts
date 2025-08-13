@@ -1,1 +1,1 @@
-export { PageLoading, RouteLoading } from './PageLoading'
+export * from './PageLoading'
