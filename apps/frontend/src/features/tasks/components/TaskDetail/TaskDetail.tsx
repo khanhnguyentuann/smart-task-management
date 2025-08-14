@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useMemo, useCallback } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Archive } from 'lucide-react'
+import { ArrowLeft, Archive, RotateCcw } from 'lucide-react'
 
 // UI Components
 import { Button, Separator, SidebarTrigger } from "@/shared/components/ui"
@@ -219,6 +219,34 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             setLoading(false)
         }
     }, [editedTask, toast, handleError])
+
+    const handleArchive = useCallback(async () => {
+        if (!task) return
+        try {
+            setLoading(true)
+            const { taskService } = await import('../../services/task.service')
+            await taskService.archiveTask(task.id)
+            toast({ title: 'Task archived' })
+        } catch (error: any) {
+            handleError(error)
+        } finally {
+            setLoading(false)
+        }
+    }, [task, toast, handleError])
+
+    const handleRestore = useCallback(async () => {
+        if (!task) return
+        try {
+            setLoading(true)
+            const { taskService } = await import('../../services/task.service')
+            await taskService.restoreTask(task.id)
+            toast({ title: 'Task restored' })
+        } catch (error: any) {
+            handleError(error)
+        } finally {
+            setLoading(false)
+        }
+    }, [task, toast, handleError])
 
     const handleCancel = useCallback(() => {
         setEditedTask(null)
@@ -439,10 +467,16 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             {canDelete && (
-                                <Button variant="outline" size="sm">
-                                    <Archive className="h-4 w-4 mr-2" />
-                                    Archive
-                                </Button>
+                                <>
+                                    <Button variant="outline" size="sm" onClick={handleArchive} disabled={loading}>
+                                        <Archive className="h-4 w-4 mr-2" />
+                                        Archive
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={handleRestore} disabled={loading}>
+                                        <RotateCcw className="h-4 w-4 mr-2" />
+                                        Restore
+                                    </Button>
+                                </>
                             )}
                             {canDelete && (
                                 <DeleteTaskModal

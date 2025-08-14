@@ -45,6 +45,14 @@ class TaskService {
         return this.transformTask(task)
     }
 
+    async archiveTask(id: string): Promise<void> {
+        await taskApi.archiveTask(id)
+    }
+
+    async restoreTask(id: string): Promise<void> {
+        await taskApi.restoreTask(id)
+    }
+
     // Transform backend data to frontend format
     private transformTask(task: any): Task {
         return {

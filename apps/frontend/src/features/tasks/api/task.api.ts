@@ -38,6 +38,14 @@ class TaskApi {
     async assignTask(id: string, userId: string): Promise<Task> {
         return apiClient.patch<Task>(`/tasks/${id}/assign`, { userId })
     }
+
+    async archiveTask(id: string): Promise<{ message: string }> {
+        return apiClient.post<{ message: string }>(`/tasks/${id}/archive`)
+    }
+
+    async restoreTask(id: string): Promise<{ message: string }> {
+        return apiClient.post<{ message: string }>(`/tasks/${id}/restore`)
+    }
 }
 
 export const taskApi = new TaskApi()
