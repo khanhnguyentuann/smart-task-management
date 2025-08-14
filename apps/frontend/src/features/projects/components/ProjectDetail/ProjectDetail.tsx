@@ -19,6 +19,7 @@ import { useProjectMembers } from "../../hooks/useProjectMembers"
 import { useProjectForm } from "../../hooks/useProjectForm"
 import { useUser } from "@/features/layout"
 import { useRouter } from "next/navigation"
+import { getProjectPermissions } from "@/shared/lib/permissions"
 import { useToast } from "@/shared/hooks/useToast"
 import { useErrorHandler } from "@/shared/hooks"
 
@@ -49,14 +50,14 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
         } catch (error: any) {
             handleError(error)
         }
-    }, [projectId, getProjectTasks])
+    }, [projectId, getProjectTasks]) // Fixed: removed handleError to prevent recreating function
 
-    // Load tasks when projectId changes
+    // Load tasks when projectId changes - FIX: Remove loadTasks from deps to prevent infinite loop
     useEffect(() => {
         if (projectId) {
             loadTasks()
         }
-    }, [projectId, loadTasks])
+    }, [projectId]) // Fixed: removed loadTasks dependency
 
     const refreshTasks = async () => {
         await loadTasks()
@@ -80,7 +81,7 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
         } catch (error: any) {
             handleError(error)
         }
-    }, [projectId, removeProjectMember, refreshProject, toast])
+    }, [projectId, removeProjectMember, refreshProject, toast, handleError])
 
     const handleUpdateProject = useCallback(async (projectData: any) => {
         if (!projectId) return
@@ -179,19 +180,21 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
                                         )}
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        {project.ownerId === user?.id && (
+                                        {/* All members can create tasks */}
+                                        {getProjectPermissions(project, user).canCreateTask && (
                                             <Button onClick={() => setShowCreateTask(true)}>
                                                 <Plus className="h-4 w-4 mr-2" />
                                                 Add Task
                                             </Button>
                                         )}
-                                        {project.ownerId === user?.id && (
+                                        {/* Only owner can edit project */}
+                                        {getProjectPermissions(project, user).canEditProject && (
                                             <Button
                                                 variant="outline"
                                                 onClick={() => setShowEditModal(true)}
                                             >
                                                 <Edit className="h-4 w-4 mr-2" />
-                                                Edit
+                                                Edit Project
                                             </Button>
                                         )}
                                     </div>
@@ -225,9 +228,9 @@ export function ProjectDetail({ projectId, onBack }: Omit<ProjectDetailProps, 'u
                                         {tasks.length} task{tasks.length !== 1 ? 's' : ''} in this project
                                     </p>
                                 </div>
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     onClick={loadTasks}
                                 >
                                     Refresh Tasks

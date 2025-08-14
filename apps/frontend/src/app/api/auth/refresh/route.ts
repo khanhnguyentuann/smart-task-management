@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call backend to refresh token
-    const { data, status } = await proxyUtils.post('/api/auth/refresh', { refreshToken })
+    const { data, status } = await proxyUtils.post('/auth/refresh', { refreshToken })
 
     if ((status === 200 || status === 201) && data?.accessToken) {
       const response = NextResponse.json(data, { status })

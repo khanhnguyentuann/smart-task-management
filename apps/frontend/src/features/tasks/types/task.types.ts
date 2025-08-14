@@ -37,7 +37,6 @@ export interface UpdateTaskPayload {
   description?: string
   priority?: string
   status?: string
-  assigneeId?: string
   dueDate?: string | null
 }
 

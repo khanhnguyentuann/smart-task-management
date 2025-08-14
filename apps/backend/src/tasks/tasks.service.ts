@@ -77,6 +77,7 @@ export class TasksService {
     async findAllByProject(projectId: string, filterDto: TaskFilterDto) {
         const where: Prisma.TaskWhereInput = {
             projectId,
+            deletedAt: null, // Only show non-deleted tasks
         };
 
         // Apply filters
@@ -167,6 +168,7 @@ export class TasksService {
         const task = await this.prisma.task.findFirst({
             where: {
                 id,
+                deletedAt: null, // Only show non-deleted tasks
                 project: {
                     OR: [
                         { ownerId: userId },
@@ -226,35 +228,33 @@ export class TasksService {
         const isAssignee = task.assigneeId === userId;
         const isCreator = task.createdById === userId;
 
-        // Members can only update tasks assigned to them or created by them
+        // Project Owner: can edit ALL tasks
+        // Members: can only edit tasks they created OR are assigned to
         if (!isProjectOwner && !isAssignee && !isCreator) {
             throw new ForbiddenException('You can only update tasks assigned to you or created by you');
         }
 
-        // If changing assignee, verify new assignee is project member
-        if (updateTaskDto.assigneeId !== undefined) {
-            if (updateTaskDto.assigneeId) {
-                const assigneeInProject = await this.prisma.projectMember.findFirst({
-                    where: {
-                        projectId: task.projectId,
-                        userId: updateTaskDto.assigneeId,
-                    },
-                });
+        // Prepare update data
+        const updateData: any = { ...updateTaskDto };
 
-                if (!assigneeInProject) {
-                    throw new BadRequestException('New assignee must be a member of the project');
-                }
-            }
+        // Handle null dueDate to clear it
+        if (updateTaskDto.dueDate === null) {
+            updateData.dueDate = null;
+        } else if (updateTaskDto.dueDate) {
+            updateData.dueDate = new Date(updateTaskDto.dueDate);
         }
 
         return this.prisma.task.update({
             where: { id },
-            data: updateTaskDto,
+            data: updateData,
             include: {
                 assignee: {
                     select: {
                         id: true,
                         email: true,
+                        avatar: true,
+                        firstName: true,
+                        lastName: true,
                     },
                 },
                 createdBy: {
@@ -267,16 +267,89 @@ export class TasksService {
                     select: {
                         id: true,
                         name: true,
+                        description: true,
+                        ownerId: true,
                     },
                 },
             },
         });
     }
 
+    async archive(id: string, userId: string) {
+        const task = await this.findOne(id, userId);
+
+        // Check permissions (same as update)
+        const projectOwner = await this.prisma.project.findFirst({
+            where: { id: task.projectId, ownerId: userId },
+            select: { id: true },
+        });
+        const isProjectOwner = !!projectOwner;
+        const isAssignee = task.assigneeId === userId;
+        const isCreator = task.createdById === userId;
+
+        if (!isProjectOwner && !isAssignee && !isCreator) {
+            throw new ForbiddenException('You can only archive tasks assigned to you or created by you');
+        }
+
+        await this.prisma.task.update({
+            where: { id },
+            data: { isArchived: true },
+        });
+
+        return { message: 'Task archived successfully' };
+    }
+
+    async restore(id: string, userId: string) {
+        // Find archived task (including archived ones)
+        const task = await this.prisma.task.findFirst({
+            where: {
+                id,
+                isArchived: true,
+                deletedAt: null, // Only restore non-deleted tasks
+                project: {
+                    OR: [
+                        { ownerId: userId },
+                        {
+                            members: {
+                                some: {
+                                    userId,
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        });
+
+        if (!task) {
+            throw new NotFoundException('Archived task not found or access denied');
+        }
+
+        // Check permissions (same as update)
+        const projectOwner = await this.prisma.project.findFirst({
+            where: { id: task.projectId, ownerId: userId },
+            select: { id: true },
+        });
+        const isProjectOwner = !!projectOwner;
+        const isAssignee = task.assigneeId === userId;
+        const isCreator = task.createdById === userId;
+
+        if (!isProjectOwner && !isAssignee && !isCreator) {
+            throw new ForbiddenException('You can only restore tasks assigned to you or created by you');
+        }
+
+        await this.prisma.task.update({
+            where: { id },
+            data: { isArchived: false },
+        });
+
+        return { message: 'Task restored successfully' };
+    }
+
     async remove(id: string, userId: string) {
         const task = await this.findOne(id, userId);
 
-        // Only project owner or task creator can delete
+        // Check delete permissions
         const projectOwner = await this.prisma.project.findFirst({
             where: { id: task.projectId, ownerId: userId },
             select: { id: true },
@@ -284,12 +357,16 @@ export class TasksService {
         const isProjectOwner = !!projectOwner;
         const isCreator = task.createdById === userId;
 
+        // Project Owner: can delete ALL tasks
+        // Members: can ONLY delete tasks they created (NOT assigned tasks)
         if (!isProjectOwner && !isCreator) {
             throw new ForbiddenException('Only project owner or task creator can delete tasks');
         }
 
-        await this.prisma.task.delete({
+        // Soft delete
+        await this.prisma.task.update({
             where: { id },
+            data: { deletedAt: new Date() },
         });
 
         return { message: 'Task deleted successfully' };
@@ -297,7 +374,8 @@ export class TasksService {
 
     async getUserTasks(userId: string, filterDto: TaskFilterDto) {
         const where: Prisma.TaskWhereInput = {
-            assigneeId: userId // Only tasks assigned to current user
+            assigneeId: userId, // Only tasks assigned to current user
+            deletedAt: null, // Only show non-deleted tasks
         };
 
         // Apply same filters as findAllByProject

@@ -20,7 +20,9 @@ export const cookieUtils = {
     if (options.sameSite) {
       cookieString += `; SameSite=${options.sameSite}`
     }
-    
+    // Make cookie available across the entire site
+    cookieString += '; Path=/'
+
     document.cookie = cookieString
   },
 

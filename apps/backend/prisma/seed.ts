@@ -15,9 +15,9 @@ async function main() {
     process.stdout.write(`📍 Database URL: ${process.env.DATABASE_URL?.replace(/:[^:]*@/, ':****@')}\n`);
 
     // Seed entities
-    const { owner, member } = await seedUsers(prisma);
-    const project = await seedProject(prisma, owner, member);
-    await seedTasks(prisma, project, owner, member);
+    const { owner, creator, member, viewer } = await seedUsers(prisma);
+    const project = await seedProject(prisma, owner, creator, member, viewer);
+    await seedTasks(prisma, project, owner, creator, member, viewer);
 
     process.stdout.write('🌱 Database seed completed!\n');
 }

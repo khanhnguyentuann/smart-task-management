@@ -141,7 +141,7 @@ export async function refreshTokenIfNeeded(request: NextRequest): Promise<{
         }
 
         // Call refresh endpoint
-        const response = await fetch(`${request.nextUrl.origin}/api/auth/refresh`, {
+        const response = await fetch(`${request.nextUrl.origin}/auth/refresh`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

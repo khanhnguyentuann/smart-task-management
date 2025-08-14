@@ -20,7 +20,7 @@ class TaskApi {
     }
 
     async updateTask(id: string, payload: UpdateTaskPayload): Promise<Task> {
-        return apiClient.put<Task>(`/tasks/${id}`, payload)
+        return apiClient.patch<Task>(`/tasks/${id}`, payload)
     }
 
     async deleteTask(id: string): Promise<void> {
@@ -28,7 +28,7 @@ class TaskApi {
     }
 
     async getMyTasks(): Promise<Task[]> {
-        return apiClient.get<Task[]>('/tasks/users/me/tasks')
+        return apiClient.get<Task[]>('/users/me/tasks')
     }
 
     async updateTaskStatus(id: string, status: string): Promise<Task> {

@@ -30,7 +30,7 @@ import { validationSchema } from '../config/validation.schema';
             useFactory: (configService: ConfigService) => [
                 {
                     ttl: configService.get('rateLimit.ttl') * 1000,
-                    limit: configService.get('rateLimit.limit'),
+                    limit: process.env.NODE_ENV === 'development' ? 1000 : configService.get('rateLimit.limit'), // Increase limit for dev
                 },
             ],
             inject: [ConfigService],

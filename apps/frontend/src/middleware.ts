@@ -10,11 +10,11 @@ const PUBLIC_ROUTES = [
   '/register',
   '/forgot-password',
   '/reset-password',
-  '/api/auth/login',
-  '/api/auth/register',
-  '/api/auth/refresh',
-  '/api/auth/forgot-password',
-  '/api/auth/reset-password',
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh',
+  '/auth/forgot-password',
+  '/auth/reset-password',
   '/health',
   '/favicon.ico',
   '/_next',
@@ -36,10 +36,10 @@ const PROTECTED_ROUTES = [
 
 // API routes that require authentication
 const PROTECTED_API_ROUTES = [
-  '/api/projects',
-  '/api/tasks',
-  '/api/users',
-  '/api/dashboard'
+  '/projects',
+  '/tasks',
+  '/users',
+  '/dashboard'
 ]
 
 export async function middleware(request: NextRequest) {

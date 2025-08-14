@@ -9,12 +9,12 @@ import type { User } from '@/shared/lib/types'
 
 class AuthApi {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        const res = await apiClient.post<AuthApiResponse>('/api/auth/login', credentials)
+        const res = await apiClient.post<AuthApiResponse>('/auth/login', credentials)
         return this.transformAuthResponse(res)
     }
 
     async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-        const res = await apiClient.post<AuthApiResponse>('/api/auth/register', credentials)
+        const res = await apiClient.post<AuthApiResponse>('/auth/register', credentials)
         return this.transformAuthResponse(res)
     }
 

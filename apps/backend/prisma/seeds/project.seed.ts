@@ -1,17 +1,19 @@
 import { PrismaClient, User, MemberRole } from '@prisma/client';
 
-export async function seedProject(prisma: PrismaClient, owner: User, member: User) {
+export async function seedProject(prisma: PrismaClient, owner: User, creator: User, member: User, viewer: User) {
     // Find or create project
     let project = await prisma.project.findFirst({
-        where: { name: 'Base Project', ownerId: owner.id },
+        where: { name: 'Smart Task Management Demo', ownerId: owner.id },
     });
 
     if (!project) {
         project = await prisma.project.create({
             data: {
-                name: 'Base Project',
-                description: 'Initial project created by demo user',
+                name: 'Smart Task Management Demo',
+                description: 'Demo project to test permissions: Owner, Creator, Member roles',
                 owner: { connect: { id: owner.id } },
+                status: 'ACTIVE',
+                priority: 'HIGH',
             },
         });
         process.stdout.write(`✅ Created project: ${project.name}\n`);
@@ -19,10 +21,11 @@ export async function seedProject(prisma: PrismaClient, owner: User, member: Use
         process.stdout.write(`ℹ️  Found existing project: ${project.name}\n`);
     }
 
-    // Ensure owner and member are both in project_members
+    // Add creator, member, and viewer as project members (owner is automatically owner)
     const membersToAdd: Array<{ user: User; role: MemberRole }> = [
-        { user: owner, role: MemberRole.OWNER },
+        { user: creator, role: MemberRole.MEMBER },
         { user: member, role: MemberRole.MEMBER },
+        { user: viewer, role: MemberRole.MEMBER },
     ];
 
     for (const m of membersToAdd) {
@@ -40,7 +43,7 @@ export async function seedProject(prisma: PrismaClient, owner: User, member: Use
                 role: m.role,
             },
         });
-        process.stdout.write(`✅ Ensured member ${m.user.email} with role ${m.role} in project\n`);
+        process.stdout.write(`✅ Added member ${m.user.email} with role ${m.role} in project\n`);
     }
 
     return project;

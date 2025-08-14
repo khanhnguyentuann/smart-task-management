@@ -1,87 +1,72 @@
 import { PrismaClient, Project, User, TaskStatus, Priority } from '@prisma/client';
 
-export async function seedTasks(prisma: PrismaClient, project: Project, owner: User, member: User) {
-  // Task 1 for owner - IN_PROGRESS
+export async function seedTasks(prisma: PrismaClient, project: Project, owner: User, creator: User, member: User, viewer: User) {
+  // Creator creates 3 tasks and assigns to different people
+  
+  // Task 1: Assigned to Owner, Created by Creator
   const task1 = await prisma.task.create({
     data: {
       project: { connect: { id: project.id } },
-      title: 'Design Homepage Layout',
-      description: 'Create responsive homepage design with modern UI components',
-      status: TaskStatus.IN_PROGRESS,
+      title: 'Setup Project Architecture',
+      description: 'Design and implement the basic project structure and architecture',
+      status: TaskStatus.TODO,
       priority: Priority.HIGH,
-      assignee: { connect: { id: owner.id } },
-      createdBy: { connect: { id: owner.id } },
-      dueDate: new Date('2024-12-25'),
+      assignee: { connect: { id: owner.id } },      // Assigned to owner
+      createdBy: { connect: { id: creator.id } },   // Created by creator
+      dueDate: new Date('2025-01-15'),
     },
   });
 
-  process.stdout.write(`✅ Created task: ${task1.title}\n`);
+  process.stdout.write(`✅ Created task: ${task1.title} (created by creator, assigned to owner)\n`);
 
-  // Task 2 for member - DONE
+  // Task 2: Assigned to Creator (self), Created by Creator
   const task2 = await prisma.task.create({
     data: {
       project: { connect: { id: project.id } },
-      title: 'Setup Database Schema',
-      description: 'Initialize database tables and relationships',
-      status: TaskStatus.DONE,
+      title: 'Implement User Authentication',
+      description: 'Create login, register and user management features',
+      status: TaskStatus.IN_PROGRESS,
       priority: Priority.MEDIUM,
-      assignee: { connect: { id: member.id } },
-      createdBy: { connect: { id: owner.id } },
-      dueDate: new Date('2024-12-20'),
-      completedAt: new Date('2024-12-19'),
+      assignee: { connect: { id: creator.id } },    // Assigned to creator (self)
+      createdBy: { connect: { id: creator.id } },   // Created by creator
+      dueDate: new Date('2025-01-20'),
     },
   });
 
-  process.stdout.write(`✅ Created task: ${task2.title}\n`);
+  process.stdout.write(`✅ Created task: ${task2.title} (created by creator, assigned to creator)\n`);
 
-  // Task 3 for owner - TODO
+  // Task 3: Assigned to Member, Created by Creator
   const task3 = await prisma.task.create({
     data: {
       project: { connect: { id: project.id } },
-      title: 'Implement User Authentication',
-      description: 'Add JWT-based authentication system',
+      title: 'Design UI/UX Components',
+      description: 'Create responsive and modern UI components for the application',
       status: TaskStatus.TODO,
-      priority: Priority.HIGH,
-      assignee: { connect: { id: owner.id } },
-      createdBy: { connect: { id: owner.id } },
-      dueDate: new Date('2024-12-30'),
+      priority: Priority.MEDIUM,
+      assignee: { connect: { id: member.id } },     // Assigned to member
+      createdBy: { connect: { id: creator.id } },   // Created by creator
+      dueDate: new Date('2025-01-25'),
     },
   });
 
-  process.stdout.write(`✅ Created task: ${task3.title}\n`);
+  process.stdout.write(`✅ Created task: ${task3.title} (created by creator, assigned to member)\n`);
 
-  // Task 4 for member - DONE
+  // Task 4: Owner creates a task and assigns to themselves
   const task4 = await prisma.task.create({
     data: {
       project: { connect: { id: project.id } },
-      title: 'Write API Documentation',
-      description: 'Create comprehensive API documentation',
-      status: TaskStatus.DONE,
-      priority: Priority.LOW,
-      assignee: { connect: { id: member.id } },
-      createdBy: { connect: { id: owner.id } },
-      dueDate: new Date('2024-12-18'),
-      completedAt: new Date('2024-12-17'),
-    },
-  });
-
-  process.stdout.write(`✅ Created task: ${task4.title}\n`);
-
-  // Task 5 for owner - IN_PROGRESS (overdue)
-  const task5 = await prisma.task.create({
-    data: {
-      project: { connect: { id: project.id } },
-      title: 'Fix Bug in Login System',
-      description: 'Resolve authentication bug in production',
+      title: 'Project Planning & Strategy',
+      description: 'Define project roadmap, milestones, and overall strategy for the development team',
       status: TaskStatus.IN_PROGRESS,
       priority: Priority.HIGH,
-      assignee: { connect: { id: owner.id } },
-      createdBy: { connect: { id: owner.id } },
-      dueDate: new Date('2024-12-15'), // Overdue
+      assignee: { connect: { id: owner.id } },      // Assigned to owner (self)
+      createdBy: { connect: { id: owner.id } },     // Created by owner
+      dueDate: new Date('2025-01-10'),
     },
   });
 
-  process.stdout.write(`✅ Created task: ${task5.title}\n`);
+  process.stdout.write(`✅ Created task: ${task4.title} (created by owner, assigned to owner)\n`);
+  process.stdout.write(`✅ Viewer (${viewer.email}) has no tasks assigned or created\n`);
 
-  return [task1, task2, task3, task4, task5];
+  return [task1, task2, task3, task4];
 }

@@ -18,7 +18,7 @@ class ApiClient {
 
     constructor() {
         this.axiosInstance = axios.create({
-            baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
+            baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
             headers: { "Content-Type": "application/json" },
             withCredentials: true,
         })
@@ -49,7 +49,7 @@ class ApiClient {
             async (error: AxiosError) => {
                 // Handle 401 - Token expired
                 if (error.response?.status === 401) {
-                    const isAuthEndpoint = error.config?.url?.startsWith('/api/auth/')
+                    const isAuthEndpoint = error.config?.url?.startsWith('/auth/')
 
                     if (!isAuthEndpoint) {
                         return this.handleTokenRefresh(error)

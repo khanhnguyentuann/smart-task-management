@@ -12,6 +12,7 @@ import { useToast, useErrorHandler } from "@/shared/hooks"
 
 // Feature Imports
 import { useUser } from "@/features/layout"
+import { getTaskPermissions } from "@/shared/lib/permissions"
 
 // Types
 import { TaskDetail as TaskDetailType } from "../../types/task.types"
@@ -29,7 +30,7 @@ interface TaskDetailProps {
 
 export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const { user } = useUser()
-    
+
     // State management
     const [isEditing, setIsEditing] = useState(false)
     const [editedTask, setEditedTask] = useState<any>(null)
@@ -135,7 +136,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             try {
                 setLoading(true)
                 setError(null)
-                
+
                 // Dynamic imports
                 const { apiClient } = await import("@/core/services/api-client")
                 const { API_ROUTES } = await import("@/shared/constants")
@@ -158,56 +159,66 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
 
     const detailedTask = useMemo<TaskDetailType | null>(() => (task ? convertToDetailedTask(task) : null), [task, convertToDetailedTask])
     const currentTask = editedTask || detailedTask
-    
-    // Check edit permissions
-    const isProjectOwner = task?.project?.ownerId === user?.id
-    const isAssignee = task?.assigneeId === user?.id
-    const isCreator = task?.createdById === user?.id
-    const canEdit = isProjectOwner || isAssignee || isCreator
-    const canDelete = isProjectOwner
+
+    // Check task permissions using helper
+    const { canEdit, canDelete } = getTaskPermissions(task, user)
 
     // Handler functions
     const handleEdit = useCallback(() => {
         setEditedTask({ ...currentTask })
         setIsEditing(true)
+        // Auto-switch to Details tab for easier editing
+        setActiveTab("details")
     }, [currentTask])
 
     const handleSave = useCallback(async () => {
-        if (editedTask) {
-            try {
-                // Dynamic imports
-                const { apiClient } = await import("@/core/services/api-client")
-                const { API_ROUTES } = await import("@/shared/constants")
-                const statusMap: Record<string, string> = { TODO: 'TODO', IN_PROGRESS: 'IN_PROGRESS', DONE: 'DONE' }
-                const priorityMap: Record<string, string> = { LOW: 'LOW', MEDIUM: 'MEDIUM', HIGH: 'HIGH' }
+        if (!editedTask) return
 
-                const payload: any = {
-                    title: editedTask.title,
-                    description: editedTask.description,
-                    status: statusMap[editedTask.status] || 'TODO',
-                    priority: priorityMap[editedTask.priority] || 'MEDIUM',
-                    dueDate: editedTask.dueDate ? new Date(editedTask.dueDate).toISOString() : undefined,
-                }
+        try {
+            setLoading(true)
 
-                await apiClient.put(API_ROUTES.TASKS.UPDATE(editedTask.id), payload)
+            // Validate form data
+            const { updateTaskSchema } = await import('../../validation/task.schema')
 
-                // Refresh task data after update
-                const resp = await apiClient.get(API_ROUTES.TASKS.DETAIL(editedTask.id))
-                const taskData = (resp as any).data || resp
-                setTask(taskData)
+            const payload = {
+                title: editedTask.title?.trim(),
+                description: editedTask.description?.trim() || undefined,
+                status: editedTask.status,
+                priority: editedTask.priority,
+                dueDate: editedTask.dueDate ? new Date(editedTask.dueDate).toISOString() : null,
+            }
 
-                setIsEditing(false)
-                setEditedTask(null)
+            // Validate payload
+            const validatedPayload = updateTaskSchema.parse(payload)
 
+            // Use task service
+            const { taskService } = await import('../../services')
+            const updatedTask = await taskService.updateTask(editedTask.id, validatedPayload)
+
+            // Update local state
+            setTask(updatedTask)
+            setIsEditing(false)
+            setEditedTask(null)
+
+            toast({
+                title: "Task Updated",
+                description: "Your changes have been saved successfully.",
+            })
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                const firstError = error.errors[0]
                 toast({
-                    title: "Task Updated",
-                    description: "Your changes have been saved successfully.",
+                    title: "Validation Error",
+                    description: firstError.message,
+                    variant: "destructive"
                 })
-            } catch (error: any) {
+            } else {
                 handleError(error)
             }
+        } finally {
+            setLoading(false)
         }
-    }, [editedTask, toast])
+    }, [editedTask, toast, handleError])
 
     const handleCancel = useCallback(() => {
         setEditedTask(null)
@@ -391,6 +402,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         isEditing={isEditing}
                         editedTask={editedTask}
                         canEdit={canEdit}
+                        loading={loading}
                         onEdit={handleEdit}
                         onSave={handleSave}
                         onCancel={handleCancel}

@@ -32,16 +32,12 @@ async function bootstrap() {
     app.useGlobalInterceptors(new ResponseInterceptor(reflector));
 
     // CORS configuration
+    const frontendUrls = process.env.FRONTEND_URL?.split(',') || ['http://localhost:3000']
     app.enableCors({
-        origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+        origin: frontendUrls,
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
-    });
-
-    // Global prefix
-    app.setGlobalPrefix('api', {
-        exclude: ['health'],
     });
 
     // Security headers
@@ -57,12 +53,12 @@ async function bootstrap() {
 
     // Add delay to let frontend show its URL first
     setTimeout(() => {
-        // Only log API URL when in quiet mode
+        // Only log URLs when in quiet mode
         if (process.env.LOG_LEVEL === 'warn') {
-            console.log(`📚 API available at http://localhost:${port}/api`);
+            console.log(`📚 API available at http://localhost:${port}`);
         } else {
             console.log(`🚀 Backend server is running on http://localhost:${port}`);
-            console.log(`📚 API available at http://localhost:${port}/api`);
+            console.log(`📚 API base at http://localhost:${port}`);
             console.log(`🏥 Health check at http://localhost:${port}/health`);
         }
     }, 2000); // 2 second delay

@@ -179,10 +179,12 @@ model Task {
   tags        String[]   @default([])
   position    Int        @default(0) // For ordering
   isRecurring Boolean    @default(false)
+  isArchived  Boolean    @default(false)
   
   // Timestamps
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
   
   // Relations
   project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)

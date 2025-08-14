@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { UserPlus } from "lucide-react"
 import { MemberRow } from "./MemberRow"
 import { useUser } from "@/features/layout"
+import { getProjectPermissions } from "@/shared/lib/permissions"
 
 interface ProjectMembersProps {
     project: any
@@ -16,13 +17,14 @@ interface ProjectMembersProps {
 
 export function ProjectMembers({ project, onAddMember, onRemoveMember }: ProjectMembersProps) {
     const { user } = useUser()
+    const { canManageMembers } = getProjectPermissions(project, user)
 
     return (
         <Card>
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle>Project Members</CardTitle>
-                    {project.ownerId === user?.id && (
+                    {canManageMembers && (
                         <Button onClick={onAddMember} size="sm">
                             <UserPlus className="h-4 w-4 mr-2" />
                             Add Member
@@ -37,7 +39,7 @@ export function ProjectMembers({ project, onAddMember, onRemoveMember }: Project
                             key={index}
                             member={m}
                             isOwner={m.user?.id === project.ownerId}
-                            canRemove={project.ownerId === user?.id && m.user?.id !== user?.id}
+                            canRemove={canManageMembers && m.user?.id !== user?.id}
                             onRemove={onRemoveMember}
                         />
                     ))}

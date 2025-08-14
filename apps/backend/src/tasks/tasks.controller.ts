@@ -63,7 +63,19 @@ export class TasksController {
         return this.tasksService.update(id, updateTaskDto, user.id);
     }
 
-    // Delete task (only ADMIN or task creator)
+    // Archive task
+    @Post('tasks/:id/archive')
+    archive(@Param('id') id: string, @CurrentUser() user: User) {
+        return this.tasksService.archive(id, user.id);
+    }
+
+    // Restore task from archive
+    @Post('tasks/:id/restore')
+    restore(@Param('id') id: string, @CurrentUser() user: User) {
+        return this.tasksService.restore(id, user.id);
+    }
+
+    // Soft delete task (only project owner or task creator)
     @Delete('tasks/:id')
     remove(@Param('id') id: string, @CurrentUser() user: User) {
         return this.tasksService.remove(id, user.id);

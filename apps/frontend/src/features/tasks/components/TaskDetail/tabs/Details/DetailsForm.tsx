@@ -2,13 +2,15 @@
 
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Label } from "@/shared/components/ui/label"
+import { Input } from "@/shared/components/ui/input"
 import { Textarea } from "@/shared/components/ui/textarea"
 import { Badge } from "@/shared/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
-import { Button, buttonVariants } from "@/shared/components/ui/button"
+import { Button } from "@/shared/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
 import { Calendar } from "@/shared/components/ui/calendar"
-import { Edit3, Users, CalendarIcon, Plus } from 'lucide-react'
+import { Edit3, Users, CalendarIcon, FileText, Flag, Tag, CheckSquare } from 'lucide-react'
 import { format } from "date-fns"
 import { motion } from "framer-motion"
 import { TaskDetail } from "../../../../types/task.types"
@@ -26,8 +28,127 @@ export function DetailsForm({
     editedTask,
     onFieldChange
 }: DetailsFormProps) {
+    const getPriorityColor = (priority: string) => {
+        switch (priority) {
+            case "URGENT":
+                return "bg-red-600 text-white"
+            case "HIGH":
+                return "bg-red-500 text-white"
+            case "MEDIUM":
+                return "bg-yellow-500 text-white"
+            case "LOW":
+                return "bg-green-500 text-white"
+            default:
+                return "bg-gray-500 text-white"
+        }
+    }
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "DONE":
+                return "bg-green-500 text-white"
+            case "IN_PROGRESS":
+                return "bg-blue-500 text-white"
+            case "IN_REVIEW":
+                return "bg-purple-500 text-white"
+            case "TODO":
+                return "bg-gray-500 text-white"
+            default:
+                return "bg-gray-500 text-white"
+        }
+    }
+
     return (
         <div className="space-y-6">
+            {/* Title */}
+            <Card>
+                <CardHeader>
+                    <Label className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Title
+                    </Label>
+                </CardHeader>
+                <CardContent>
+                    {isEditing ? (
+                        <Input
+                            value={editedTask?.title ?? ""}
+                            onChange={(e) => onFieldChange('title', e.target.value)}
+                            placeholder="Enter task title..."
+                            className="font-medium"
+                        />
+                    ) : (
+                        <div className="p-3 bg-muted/30 rounded-lg">
+                            <h3 className="font-medium text-lg">{currentTask?.title || "Untitled Task"}</h3>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Status & Priority */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Status */}
+                <Card>
+                    <CardHeader>
+                        <Label className="flex items-center gap-2">
+                            <Flag className="h-4 w-4" />
+                            Status
+                        </Label>
+                    </CardHeader>
+                    <CardContent>
+                        {isEditing ? (
+                            <Select
+                                value={editedTask?.status ?? "TODO"}
+                                onValueChange={(value) => onFieldChange('status', value)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="TODO">To Do</SelectItem>
+                                    <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                                    <SelectItem value="DONE">Done</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <Badge className={getStatusColor(currentTask?.status || "TODO")}>
+                                {currentTask?.status?.replace('_', ' ') || "TODO"}
+                            </Badge>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Priority */}
+                <Card>
+                    <CardHeader>
+                        <Label className="flex items-center gap-2">
+                            <Flag className="h-4 w-4" />
+                            Priority
+                        </Label>
+                    </CardHeader>
+                    <CardContent>
+                        {isEditing ? (
+                            <Select
+                                value={editedTask?.priority ?? "MEDIUM"}
+                                onValueChange={(value) => onFieldChange('priority', value)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select priority" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="HIGH">High</SelectItem>
+                                    <SelectItem value="MEDIUM">Medium</SelectItem>
+                                    <SelectItem value="LOW">Low</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <Badge className={getPriorityColor(currentTask?.priority || "MEDIUM")}>
+                                {currentTask?.priority || "MEDIUM"}
+                            </Badge>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
             {/* Description */}
             <Card>
                 <CardHeader>
@@ -54,41 +175,6 @@ export function DetailsForm({
                             )}
                         </div>
                     )}
-                </CardContent>
-            </Card>
-
-            {/* Assignees */}
-            <Card>
-                <CardHeader>
-                    <Label className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        Assignees
-                    </Label>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {currentTask?.assignees?.map((assignee: any) => (
-                            <motion.div
-                                key={assignee.id}
-                                whileHover={{ scale: 1.05 }}
-                                className="flex items-center gap-2 bg-muted/50 rounded-full px-3 py-1"
-                            >
-                                <Avatar className="h-6 w-6">
-                                    <AvatarImage src={assignee.avatar ?? undefined} alt={assignee.name} />
-                                    <AvatarFallback className="text-xs">
-                                        {assignee.name.split(" ").map((n: string) => n[0]).join("")}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <span className="text-sm">{assignee.name}</span>
-                            </motion.div>
-                        ))}
-                        {isEditing && (
-                            <Button variant="outline" size="sm" className="rounded-full">
-                                <Plus className="h-4 w-4 mr-1" />
-                                Add
-                            </Button>
-                        )}
-                    </div>
                 </CardContent>
             </Card>
 
@@ -132,6 +218,91 @@ export function DetailsForm({
                     )}
                 </CardContent>
             </Card>
+
+            {/* Assignees (Read-only) */}
+            <Card>
+                <CardHeader>
+                    <Label className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        Assignees
+                    </Label>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {currentTask?.assignees?.map((assignee: any) => (
+                            <motion.div
+                                key={assignee.id}
+                                whileHover={{ scale: 1.05 }}
+                                className="flex items-center gap-2 bg-muted/50 rounded-full px-3 py-1"
+                            >
+                                <Avatar className="h-6 w-6">
+                                    <AvatarImage src={assignee.avatar ?? undefined} alt={assignee.name} />
+                                    <AvatarFallback className="text-xs">
+                                        {assignee.name.split(" ").map((n: string) => n[0]).join("")}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <span className="text-sm">{assignee.name}</span>
+                            </motion.div>
+                        ))}
+                        {(!currentTask?.assignees || currentTask.assignees.length === 0) && (
+                            <span className="text-sm text-muted-foreground">No assignees</span>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Labels (Read-only) */}
+            <Card>
+                <CardHeader>
+                    <Label className="flex items-center gap-2">
+                        <Tag className="h-4 w-4" />
+                        Labels
+                    </Label>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {currentTask?.labels?.map((label: any) => (
+                            <Badge
+                                key={label.id}
+                                className={`${label.color} text-white`}
+                            >
+                                {label.name}
+                            </Badge>
+                        ))}
+                        {(!currentTask?.labels || currentTask.labels.length === 0) && (
+                            <span className="text-sm text-muted-foreground">No labels</span>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Subtasks (Read-only) */}
+            <Card>
+                <CardHeader>
+                    <Label className="flex items-center gap-2">
+                        <CheckSquare className="h-4 w-4" />
+                        Subtasks
+                    </Label>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        {currentTask?.subtasks?.map((subtask: any) => (
+                            <div key={subtask.id} className="flex items-center gap-2">
+                                <CheckSquare 
+                                    className={`h-4 w-4 ${subtask.completed ? 'text-green-600' : 'text-gray-400'}`}
+                                />
+                                <span className={`text-sm ${subtask.completed ? 'line-through text-muted-foreground' : ''}`}>
+                                    {subtask.title}
+                                </span>
+                            </div>
+                        ))}
+                        {(!currentTask?.subtasks || currentTask.subtasks.length === 0) && (
+                            <span className="text-sm text-muted-foreground">No subtasks</span>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+
         </div>
     )
 }

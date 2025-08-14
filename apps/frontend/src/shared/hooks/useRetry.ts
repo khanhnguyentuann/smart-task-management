@@ -57,7 +57,7 @@ export function useRetry(options: UseRetryOptions = {}) {
         }
 
         throw new Error('Max retry attempts reached')
-    }, [maxAttempts, baseDelay, maxDelay, onRetry, onMaxAttemptsReached])
+    }, [maxAttempts, onRetry, onMaxAttemptsReached])
 
     const retryWithBackoff = useCallback(async <T>(
         operation: () => Promise<T>,

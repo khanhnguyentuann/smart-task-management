@@ -11,6 +11,7 @@ interface TaskDetailHeaderProps {
     isEditing: boolean
     editedTask: any
     canEdit: boolean
+    loading?: boolean
     onEdit: () => void
     onSave: () => void
     onCancel: () => void
@@ -25,6 +26,7 @@ export function TaskDetailHeader({
     isEditing,
     editedTask,
     canEdit,
+    loading = false,
     onEdit,
     onSave,
     onCancel,
@@ -64,83 +66,54 @@ export function TaskDetailHeader({
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-2">
-                        {isEditing ? (
-                            <Input
-                                value={editedTask?.title ?? ""}
-                                onChange={(e) => onFieldChange('title', e.target.value)}
-                                className="text-2xl font-bold border-0 bg-transparent p-0 focus-visible:ring-0"
-                                placeholder="Task title..."
-                            />
-                        ) : (
-                            <CardTitle className="text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                {currentTask?.title}
-                            </CardTitle>
-                        )}
+                        <CardTitle className="text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            {currentTask?.title}
+                        </CardTitle>
 
                         <div className="flex items-center gap-2 flex-wrap">
-                            {isEditing ? (
-                                <>
-                                    <Select
-                                        value={editedTask?.priority}
-                                        onValueChange={(value) => onFieldChange('priority', value)}
-                                    >
-                                        <SelectTrigger className="w-32">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="LOW">Low</SelectItem>
-                                            <SelectItem value="MEDIUM">Medium</SelectItem>
-                                            <SelectItem value="HIGH">High</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </>
-                            ) : (
-                                <Badge className={getPriorityColor(currentTask?.priority || "MEDIUM")}>
-                                    <Flag className="h-3 w-3 mr-1" />
-                                    {currentTask?.priority === "HIGH" ? "High" : currentTask?.priority === "MEDIUM" ? "Medium" : "Low"}
-                                </Badge>
-                            )}
+                            <Badge className={getPriorityColor(currentTask?.priority || "MEDIUM")}>
+                                <Flag className="h-3 w-3 mr-1" />
+                                {currentTask?.priority === "HIGH" ? "High" : currentTask?.priority === "MEDIUM" ? "Medium" : "Low"}
+                            </Badge>
 
-                            {isEditing ? (
-                                <Select
-                                    value={editedTask?.status}
-                                    onValueChange={(value) => onFieldChange('status', value)}
-                                >
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="TODO">To Do</SelectItem>
-                                        <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                                        <SelectItem value="DONE">Done</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            ) : (
-                                <Badge className={getStatusColor(currentTask?.status || "TODO")}>
-                                    {currentTask?.status === "TODO" && <Square className="h-3 w-3 mr-1" />}
-                                    {currentTask?.status === "IN_PROGRESS" && <Clock className="h-3 w-3 mr-1" />}
-                                    {currentTask?.status === "DONE" && <CheckSquare className="h-3 w-3 mr-1" />}
-                                    {currentTask?.status === "TODO" ? "To Do" : currentTask?.status === "IN_PROGRESS" ? "In Progress" : "Done"}
-                                </Badge>
-                            )}
+                            <Badge className={getStatusColor(currentTask?.status || "TODO")}>
+                                {currentTask?.status === "TODO" && <Square className="h-3 w-3 mr-1" />}
+                                {currentTask?.status === "IN_PROGRESS" && <Clock className="h-3 w-3 mr-1" />}
+                                {currentTask?.status === "DONE" && <CheckSquare className="h-3 w-3 mr-1" />}
+                                {currentTask?.status === "TODO" ? "To Do" : currentTask?.status === "IN_PROGRESS" ? "In Progress" : "Done"}
+                            </Badge>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                         {isEditing ? (
                             <>
-                                <EnhancedButton onClick={onSave} size="sm">
+                                <EnhancedButton
+                                    onClick={onSave}
+                                    size="sm"
+                                    disabled={loading}
+                                >
                                     <Save className="h-4 w-4 mr-2" />
-                                    Save
+                                    {loading ? 'Saving...' : 'Save'}
                                 </EnhancedButton>
-                                <EnhancedButton onClick={onCancel} variant="outline" size="sm">
+                                <EnhancedButton
+                                    onClick={onCancel}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={loading}
+                                >
                                     Cancel
                                 </EnhancedButton>
                             </>
                         ) : (
                             <>
                                 {canEdit && (
-                                    <EnhancedButton onClick={onEdit} variant="outline" size="sm">
+                                    <EnhancedButton
+                                        onClick={onEdit}
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={loading}
+                                    >
                                         <Edit3 className="h-4 w-4 mr-2" />
                                         Edit
                                     </EnhancedButton>
