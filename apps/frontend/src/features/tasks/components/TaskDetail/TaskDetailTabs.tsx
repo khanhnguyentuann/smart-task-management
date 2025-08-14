@@ -1,6 +1,6 @@
 "use client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui"
 import { DetailsTab } from "./tabs/Details/DetailsTab"
 import { CommentsTab } from "./tabs/Comments/CommentsTab"
 import { FilesTab } from "./tabs/Files/FilesTab"
@@ -13,6 +13,7 @@ interface TaskDetailTabsProps {
     currentTask: TaskDetail | null
     isEditing: boolean
     editedTask: any
+    canEdit: boolean
     onFieldChange: (field: string, value: any) => void
     newComment: string
     setNewComment: (value: string) => void
@@ -33,6 +34,7 @@ export function TaskDetailTabs({
     currentTask,
     isEditing,
     editedTask,
+    canEdit,
     onFieldChange,
     newComment,
     setNewComment,

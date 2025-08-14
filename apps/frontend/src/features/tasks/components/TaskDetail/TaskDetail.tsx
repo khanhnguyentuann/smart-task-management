@@ -1,17 +1,22 @@
 "use client"
 
 import React, { useState, useRef, useMemo, useCallback } from "react"
-import { Button, buttonVariants } from "@/shared/components/ui/button"
-import { Separator } from "@/shared/components/ui/separator"
-import { ArrowLeft, Archive } from 'lucide-react'
-import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { motion } from "framer-motion"
-import { TaskDetail as TaskDetailType } from "../../types/task.types"
-import { useToast } from "@/shared/hooks/useToast"
-import { useErrorHandler } from "@/shared/hooks"
+import { ArrowLeft, Archive } from 'lucide-react'
+
+// UI Components
+import { Button, Separator, SidebarTrigger } from "@/shared/components/ui"
+
+// Shared Hooks
+import { useToast, useErrorHandler } from "@/shared/hooks"
+
+// Feature Imports
 import { useUser } from "@/features/layout"
 
-// Import modular components
+// Types
+import { TaskDetail as TaskDetailType } from "../../types/task.types"
+
+// Components
 import { TaskDetailHeader } from "./TaskDetailHeader"
 import { TaskDetailTabs } from "./TaskDetailTabs"
 import { DeleteTaskModal } from "../Modals/DeleteTaskModal"
@@ -130,8 +135,10 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             try {
                 setLoading(true)
                 setError(null)
+                
+                // Dynamic imports
                 const { apiClient } = await import("@/core/services/api-client")
-                const { API_ROUTES } = await import("@/core/constants/routes")
+                const { API_ROUTES } = await import("@/shared/constants")
                 const resp = await apiClient.get(API_ROUTES.TASKS.DETAIL(taskId))
                 const taskData = (resp as any).data || resp
 
@@ -151,7 +158,13 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
 
     const detailedTask = useMemo<TaskDetailType | null>(() => (task ? convertToDetailedTask(task) : null), [task, convertToDetailedTask])
     const currentTask = editedTask || detailedTask
-    const isOwner = task?.project?.ownerId === user?.id
+    
+    // Check edit permissions
+    const isProjectOwner = task?.project?.ownerId === user?.id
+    const isAssignee = task?.assigneeId === user?.id
+    const isCreator = task?.createdById === user?.id
+    const canEdit = isProjectOwner || isAssignee || isCreator
+    const canDelete = isProjectOwner
 
     // Handler functions
     const handleEdit = useCallback(() => {
@@ -162,8 +175,9 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const handleSave = useCallback(async () => {
         if (editedTask) {
             try {
+                // Dynamic imports
                 const { apiClient } = await import("@/core/services/api-client")
-                const { API_ROUTES } = await import("@/core/constants/routes")
+                const { API_ROUTES } = await import("@/shared/constants")
                 const statusMap: Record<string, string> = { TODO: 'TODO', IN_PROGRESS: 'IN_PROGRESS', DONE: 'DONE' }
                 const priorityMap: Record<string, string> = { LOW: 'LOW', MEDIUM: 'MEDIUM', HIGH: 'HIGH' }
 
@@ -208,8 +222,9 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         if (!currentTask) return
 
         try {
+            // Dynamic imports
             const { apiClient } = await import("@/core/services/api-client")
-            const { API_ROUTES } = await import("@/core/constants/routes")
+            const { API_ROUTES } = await import("@/shared/constants")
             await apiClient.delete(API_ROUTES.TASKS.DELETE(currentTask.id))
 
             toast({
@@ -375,6 +390,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         currentTask={currentTask}
                         isEditing={isEditing}
                         editedTask={editedTask}
+                        canEdit={canEdit}
                         onEdit={handleEdit}
                         onSave={handleSave}
                         onCancel={handleCancel}
@@ -391,6 +407,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         currentTask={currentTask}
                         isEditing={isEditing}
                         editedTask={editedTask}
+                        canEdit={canEdit}
                         onFieldChange={handleFieldChange}
                         newComment={newComment}
                         setNewComment={setNewComment}
@@ -409,13 +426,13 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                     <Separator />
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            {isOwner && (
+                            {canDelete && (
                                 <Button variant="outline" size="sm">
                                     <Archive className="h-4 w-4 mr-2" />
                                     Archive
                                 </Button>
                             )}
-                            {isOwner && (
+                            {canDelete && (
                                 <DeleteTaskModal
                                     taskTitle={currentTask?.title}
                                     onDelete={handleDelete}

@@ -1,11 +1,7 @@
 "use client"
 
-import { Card, CardHeader, CardTitle } from "@/shared/components/ui/card"
-import { Input } from "@/shared/components/ui/input"
-import { Badge } from "@/shared/components/ui/badge"
+import { Card, CardHeader, CardTitle, Input, Badge, Progress, EnhancedButton } from "@/shared/components/ui"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Progress } from "@/shared/components/ui/progress"
-import { EnhancedButton } from "@/shared/components/ui/enhanced-button"
 import { Edit3, Save, Flag, Square, Clock, CheckSquare, Share2 } from 'lucide-react'
 import { TaskDetail } from "../../types/task.types"
 import { ShareTaskModal } from "../Modals/ShareTaskModal"
@@ -14,6 +10,7 @@ interface TaskDetailHeaderProps {
     currentTask: TaskDetail | null
     isEditing: boolean
     editedTask: any
+    canEdit: boolean
     onEdit: () => void
     onSave: () => void
     onCancel: () => void
@@ -27,6 +24,7 @@ export function TaskDetailHeader({
     currentTask,
     isEditing,
     editedTask,
+    canEdit,
     onEdit,
     onSave,
     onCancel,
@@ -141,10 +139,12 @@ export function TaskDetailHeader({
                             </>
                         ) : (
                             <>
-                                <EnhancedButton onClick={onEdit} variant="outline" size="sm">
-                                    <Edit3 className="h-4 w-4 mr-2" />
-                                    Edit
-                                </EnhancedButton>
+                                {canEdit && (
+                                    <EnhancedButton onClick={onEdit} variant="outline" size="sm">
+                                        <Edit3 className="h-4 w-4 mr-2" />
+                                        Edit
+                                    </EnhancedButton>
+                                )}
                                 <ShareTaskModal
                                     taskId={currentTask?.id || ""}
                                     taskTitle={currentTask?.title}

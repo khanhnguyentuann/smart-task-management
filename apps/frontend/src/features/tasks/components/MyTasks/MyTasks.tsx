@@ -10,8 +10,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-    Button,
-    buttonVariants
+    Button
 } from "@/shared/components/ui"
 import { Search, CheckSquare, Clock, AlertTriangle, Calendar } from 'lucide-react'
 import { Task } from "../../types/task.types"
@@ -73,7 +72,7 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
                 setLoading(true)
                 setError(null)
                 const { apiClient } = await import("@/core/services/api-client")
-                const { API_ROUTES } = await import("@/core/constants/routes")
+                const { API_ROUTES } = await import("@/shared/constants")
                 const resp = await apiClient.get(API_ROUTES.TASKS.LIST)
                 const tasksData = (resp as any).data || resp
                 const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
