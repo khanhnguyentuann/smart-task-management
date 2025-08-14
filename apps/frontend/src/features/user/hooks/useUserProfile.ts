@@ -22,15 +22,15 @@ export function useUserProfile() {
   return useQuery({
     queryKey: userKeys.profile(),
     queryFn: () => userService.getProfile(),
-    // Chỉ fetch khi có token
+    // Only fetch when token is available
     enabled: !!cookieUtils.getCookie(TOKEN_CONSTANTS.ACCESS_TOKEN),
-    // Stale time: 3 minutes - profile không thay đổi thường xuyên
+    // Stale time: 3 minutes - profile doesn't change frequently
     staleTime: 3 * 60 * 1000,
     // Cache time: 15 minutes
     gcTime: 15 * 60 * 1000,
-    // Retry ít hơn cho profile vì thường là lỗi auth
+    // Fewer retries for profile since errors are usually auth-related
     retry: (failureCount: number, error: any) => {
-      // Không retry nếu là lỗi auth (401, 403)
+      // Don't retry if it's an auth error (401, 403)
       if (error?.response?.status === 401 || error?.response?.status === 403) {
         return false
       }

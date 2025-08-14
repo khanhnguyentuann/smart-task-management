@@ -97,10 +97,10 @@ export const ERROR_MESSAGES = {
     [ERROR_CODES.CLIENT_FORBIDDEN]: 'You don\'t have permission to access this resource.',
     [ERROR_CODES.CLIENT_BAD_REQUEST]: 'Invalid request. Please check your input.',
 
-    [ERROR_CODES.EMAIL_ALREADY_EXISTS]: 'Email đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập.',
-    [ERROR_CODES.INVALID_CREDENTIALS]: 'Email hoặc mật khẩu không đúng. Vui lòng thử lại.',
-    [ERROR_CODES.USER_NOT_FOUND]: 'Tài khoản không tồn tại. Vui lòng kiểm tra lại email.',
-    [ERROR_CODES.WRONG_PASSWORD]: 'Mật khẩu không đúng. Vui lòng thử lại.',
+    [ERROR_CODES.EMAIL_ALREADY_EXISTS]: 'This email is already in use. Please choose a different email or sign in.',
+    [ERROR_CODES.INVALID_CREDENTIALS]: 'Invalid email or password. Please try again.',
+    [ERROR_CODES.USER_NOT_FOUND]: 'Account not found. Please check your email address.',
+    [ERROR_CODES.WRONG_PASSWORD]: 'Incorrect password. Please try again.',
 
     [ERROR_CODES.UNKNOWN_ERROR]: 'An unexpected error occurred. Please try again.'
 } as const

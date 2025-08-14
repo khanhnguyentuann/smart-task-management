@@ -10,24 +10,24 @@ export const AUTH_CONSTANTS = {
     },
 
     VALIDATION: {
-        EMAIL_INVALID: 'Email không hợp lệ',
+        EMAIL_INVALID: 'Invalid email address',
 
-        FIRST_NAME_MIN: `Tên phải có ít nhất ${2} ký tự`,
-        FIRST_NAME_MAX: `Tên không được vượt quá ${20} ký tự`,
-        FIRST_NAME_PATTERN: 'Tên chỉ được chứa chữ cái, khoảng trắng, dấu nháy đơn hoặc gạch ngang',
+        FIRST_NAME_MIN: `First name must be at least ${2} characters`,
+        FIRST_NAME_MAX: `First name must not exceed ${20} characters`,
+        FIRST_NAME_PATTERN: 'First name can only contain letters, spaces, apostrophes, or hyphens',
 
-        LAST_NAME_MIN: `Họ phải có ít nhất ${2} ký tự`,
-        LAST_NAME_MAX: `Họ không được vượt quá ${20} ký tự`,
-        LAST_NAME_PATTERN: 'Họ chỉ được chứa chữ cái, khoảng trắng, dấu nháy đơn hoặc gạch ngang',
+        LAST_NAME_MIN: `Last name must be at least ${2} characters`,
+        LAST_NAME_MAX: `Last name must not exceed ${20} characters`,
+        LAST_NAME_PATTERN: 'Last name can only contain letters, spaces, apostrophes, or hyphens',
 
-        PASSWORD_MIN: `Mật khẩu phải có ít nhất ${6} ký tự`,
-        PASSWORD_MAX: `Mật khẩu không được vượt quá ${12} ký tự`,
-        PASSWORD_UPPER: 'Mật khẩu phải chứa ít nhất một chữ hoa',
-        PASSWORD_LOWER: 'Mật khẩu phải chứa ít nhất một chữ thường',
-        PASSWORD_DIGIT: 'Mật khẩu phải chứa ít nhất một chữ số',
-        PASSWORD_SPECIAL: 'Mật khẩu phải chứa ít nhất một ký tự đặc biệt (@$!%*?&)',
+        PASSWORD_MIN: `Password must be at least ${6} characters`,
+        PASSWORD_MAX: `Password must not exceed ${12} characters`,
+        PASSWORD_UPPER: 'Password must contain at least one uppercase letter',
+        PASSWORD_LOWER: 'Password must contain at least one lowercase letter',
+        PASSWORD_DIGIT: 'Password must contain at least one digit',
+        PASSWORD_SPECIAL: 'Password must contain at least one special character (@$!%*?&)',
 
-        CONFIRM_PASSWORD_MISMATCH: "Mật khẩu xác nhận không khớp",
+        CONFIRM_PASSWORD_MISMATCH: "Passwords do not match",
     },
 
     SOCIAL_PROVIDERS: {

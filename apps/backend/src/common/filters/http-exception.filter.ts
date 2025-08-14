@@ -27,7 +27,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
                 ? exceptionResponse.message[0] 
                 : exceptionResponse.message;
         } else {
-            message = 'Đã xảy ra lỗi';
+            message = 'An error occurred';
         }
 
         const errorResponse = {

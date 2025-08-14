@@ -76,13 +76,13 @@ export function Profile() {
         const updated = { ...currentUser, avatar: result.avatar }
         setUser(updated)
         toast({
-          title: "Ảnh đại diện đã được cập nhật",
-          description: `${updated.firstName} ${updated.lastName} ảnh mới đã được lưu thành công.`,
+          title: "Profile picture updated",
+          description: `${updated.firstName} ${updated.lastName}'s new picture has been saved successfully.`,
           variant: "default",
         })
       }
     } catch {
-      toast({ title: "Tải ảnh thất bại", description: "Vui lòng thử lại sau.", variant: "destructive" })
+      toast({ title: "Image upload failed", description: "Please try again later.", variant: "destructive" })
     } finally {
       setLoading(false)
     }
@@ -90,7 +90,7 @@ export function Profile() {
 
   const onSave = async () => {
     if (!validate(form)) {
-      toast({ title: "Thông tin chưa hợp lệ", description: "Vui lòng kiểm tra lại các trường nhập.", variant: "destructive" })
+      toast({ title: "Invalid information", description: "Please check your input fields.", variant: "destructive" })
       return
     }
     setLoading(true)
@@ -109,9 +109,9 @@ export function Profile() {
       if (payload.lastName && payload.lastName !== currentUser.lastName) changed.push("Last name")
       if (payload.department && payload.department !== currentUser.department) changed.push("Department")
       if (payload.dateOfBirth && payload.dateOfBirth !== (currentUser as any).dateOfBirth) changed.push("Date of birth")
-      const desc = changed.length > 0 ? `Đã cập nhật: ${changed.join(", ")}.` : "Không có thay đổi đáng kể."
+      const desc = changed.length > 0 ? `Updated: ${changed.join(", ")}.` : "No significant changes."
       toast({
-        title: "Cập nhật hồ sơ thành công",
+        title: "Profile updated successfully",
         description: desc,
         variant: "default",
       })
