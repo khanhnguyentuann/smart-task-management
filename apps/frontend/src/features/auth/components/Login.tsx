@@ -9,6 +9,7 @@ import { useErrorHandler } from "@/shared/hooks"
 import { useUser } from "@/features/layout"
 import { AUTH_CONSTANTS } from "@/shared/constants"
 import { LoginProps } from "../types"
+import { TransitionLoading } from "./TransitionLoading"
 
 export function Login({ onSuccess, onClose }: LoginProps) {
     const { toast } = useToast()
@@ -20,79 +21,119 @@ export function Login({ onSuccess, onClose }: LoginProps) {
 
     const [showPassword, setShowPassword] = useState(false)
     const [formData, setFormData] = useState({ email: "", password: "" })
+    const [isLoading, setIsLoading] = useState(false)
+    const [showTransition, setShowTransition] = useState(false)
+    const [userName, setUserName] = useState("")
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setIsLoading(true)
+
         try {
             const { user } = await login({
                 email: formData.email,
                 password: formData.password,
             })
-            
+
+            // Set user name for transition
+            setUserName(user.firstName || "User")
+
+            // Show transition loading
+            setShowTransition(true)
+
             // Fetch full user profile after login
             await refetchUser()
-            
-            toast({
-                title: AUTH_CONSTANTS.MESSAGES.LOGIN_SUCCESS,
-                description: `Successfully logged in as ${user.firstName} ${user.lastName}`,
-                variant: "default",
-            })
-            onSuccess(user)
-            onClose()
+
+            // Wait for transition to complete before closing
+            setTimeout(() => {
+                toast({
+                    title: AUTH_CONSTANTS.MESSAGES.LOGIN_SUCCESS,
+                    description: `Successfully logged in as ${user.firstName} ${user.lastName}`,
+                    variant: "default",
+                })
+                onSuccess(user)
+                onClose()
+            }, 2000)
+
         } catch (error: any) {
+            setIsLoading(false)
             handleAuthError(error)
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        id="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="pl-10"
-                        required
-                    />
-                </div>
-            </div>
+        <>
+            <TransitionLoading
+                userName={userName}
+                show={showTransition}
+                onComplete={() => {
+                    // Additional cleanup if needed
+                }}
+            />
 
-            <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="pl-10 pr-10"
-                        required
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            className="pl-10"
+                            required
+                            disabled={isLoading}
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter your password"
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            className="pl-10 pr-10"
+                            required
+                            disabled={isLoading}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            disabled={isLoading}
+                        >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex justify-center">
+                    <EnhancedButton
+                        type="submit"
+                        className="w-full max-w-xs"
+                        disabled={isLoading}
                     >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
+                        {isLoading ? (
+                            <>
+                                <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                Signing in...
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles className="h-4 w-4 mr-2" />
+                                Sign In
+                            </>
+                        )}
+                    </EnhancedButton>
                 </div>
-            </div>
-
-            <div className="flex justify-center">
-                <EnhancedButton type="submit" className="w-full max-w-xs">
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Sign In
-                </EnhancedButton>
-            </div>
-        </form>
+            </form>
+        </>
     )
 }
-
-
