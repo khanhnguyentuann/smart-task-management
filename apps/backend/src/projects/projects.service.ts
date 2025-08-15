@@ -96,15 +96,19 @@ export class ProjectsService {
                         description: true,
                         status: true,
                         priority: true,
-                        assigneeId: true,
-                        assignee: {
-                            select: {
-                                id: true,
-                                firstName: true,
-                                lastName: true,
-                                email: true,
-                                avatar: true,
+                        assignees: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        email: true,
+                                        avatar: true,
+                                    },
+                                },
                             },
+                            orderBy: { assignedAt: 'asc' },
                         },
                         createdAt: true,
                         updatedAt: true,
@@ -171,13 +175,17 @@ export class ProjectsService {
                         description: true,
                         status: true,
                         priority: true,
-                        assigneeId: true,
-                        assignee: {
-                            select: {
-                                id: true,
-                                firstName: true,
-                                lastName: true,
+                        assignees: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                    },
+                                },
                             },
+                            orderBy: { assignedAt: 'asc' },
                         },
                         createdAt: true,
                         updatedAt: true,
@@ -330,13 +338,17 @@ export class ProjectsService {
                         description: true,
                         status: true,
                         priority: true,
-                        assigneeId: true,
-                        assignee: {
-                            select: {
-                                id: true,
-                                firstName: true,
-                                lastName: true,
+                        assignees: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                    },
+                                },
                             },
+                            orderBy: { assignedAt: 'asc' },
                         },
                         createdAt: true,
                         updatedAt: true,
@@ -461,13 +473,17 @@ export class ProjectsService {
                         description: true,
                         status: true,
                         priority: true,
-                        assigneeId: true,
-                        assignee: {
-                            select: {
-                                id: true,
-                                firstName: true,
-                                lastName: true,
+                        assignees: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                    },
+                                },
                             },
+                            orderBy: { assignedAt: 'asc' },
                         },
                         createdAt: true,
                         updatedAt: true,

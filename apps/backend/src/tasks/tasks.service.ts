@@ -2,7 +2,6 @@ import {
     Injectable,
     NotFoundException,
     ForbiddenException,
-    BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -27,44 +26,14 @@ export class TasksService {
             throw new ForbiddenException('You are not a member of this project');
         }
 
-        // If assignee is specified, verify they are also project member
-        if (createTaskDto.assigneeId) {
-            const assigneeInProject = await this.prisma.projectMember.findFirst({
-                where: {
-                    projectId,
-                    userId: createTaskDto.assigneeId,
-                },
-            });
-
-            if (!assigneeInProject) {
-                throw new BadRequestException('Assignee must be a member of the project');
-            }
-        }
-
         return this.prisma.task.create({
             data: {
                 ...createTaskDto,
                 projectId,
                 createdById: userId,
                 // AI summary will be added in M4
-                // Also create TaskAssignee record if assigneeId is provided
-                assignees: createTaskDto.assigneeId ? {
-                    create: {
-                        userId: createTaskDto.assigneeId,
-                        assignedBy: userId,
-                    }
-                } : undefined,
             },
             include: {
-                assignee: {
-                    select: {
-                        id: true,
-                        email: true,
-                        avatar: true,
-                        firstName: true,
-                        lastName: true,
-                    },
-                },
                 assignees: {
                     include: {
                         user: {
@@ -118,7 +87,11 @@ export class TasksService {
         }
 
         if (filterDto.assigneeId) {
-            where.assigneeId = filterDto.assigneeId;
+            where.assignees = {
+                some: {
+                    userId: filterDto.assigneeId,
+                },
+            };
         }
 
         if (filterDto.search) {
@@ -158,14 +131,19 @@ export class TasksService {
             this.prisma.task.findMany({
                 where,
                 include: {
-                    assignee: {
-                        select: {
-                            id: true,
-                            email: true,
-                            avatar: true,
-                            firstName: true,
-                            lastName: true,
+                    assignees: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    email: true,
+                                    avatar: true,
+                                    firstName: true,
+                                    lastName: true,
+                                },
+                            },
                         },
+                        orderBy: { assignedAt: 'asc' },
                     },
                     createdBy: {
                         select: {
@@ -211,15 +189,6 @@ export class TasksService {
                 },
             },
             include: {
-                assignee: {
-                    select: {
-                        id: true,
-                        email: true,
-                        avatar: true,
-                        firstName: true,
-                        lastName: true,
-                    },
-                },
                 assignees: {
                     include: {
                         user: {
@@ -274,7 +243,7 @@ export class TasksService {
             select: { id: true },
         });
         const isProjectOwner = !!projectOwner;
-        const isAssignee = task.assigneeId === userId;
+        const isAssignee = task.assignees.some(assignee => assignee.userId === userId);
         const isCreator = task.createdById === userId;
 
         // Project Owner: can edit ALL tasks
@@ -293,35 +262,11 @@ export class TasksService {
             updateData.dueDate = new Date(updateTaskDto.dueDate);
         }
 
-        // If assigneeId is being updated, also sync TaskAssignee table
-        if (updateTaskDto.assigneeId !== undefined) {
-            // Remove all existing assignees
-            updateData.assignees = {
-                deleteMany: {}, // Remove all existing assignees
-            };
-            
-            // Add new assignee if provided
-            if (updateTaskDto.assigneeId) {
-                updateData.assignees.create = {
-                    userId: updateTaskDto.assigneeId,
-                    assignedBy: userId,
-                };
-            }
-        }
 
         return this.prisma.task.update({
             where: { id },
             data: updateData,
             include: {
-                assignee: {
-                    select: {
-                        id: true,
-                        email: true,
-                        avatar: true,
-                        firstName: true,
-                        lastName: true,
-                    },
-                },
                 assignees: {
                     include: {
                         user: {
@@ -361,114 +306,6 @@ export class TasksService {
         });
     }
 
-    async assignTask(taskId: string, assigneeUserId: string, currentUserId: string) {
-        const task = await this.findOne(taskId, currentUserId);
-
-        // Check if assignee is project member
-        const assigneeInProject = await this.prisma.projectMember.findFirst({
-            where: {
-                projectId: task.projectId,
-                userId: assigneeUserId,
-            },
-        });
-
-        if (!assigneeInProject) {
-            throw new BadRequestException('Assignee must be a member of the project');
-        }
-
-        // Update both assigneeId and TaskAssignee table
-        return this.prisma.task.update({
-            where: { id: taskId },
-            data: {
-                assigneeId: assigneeUserId,
-                // Also update TaskAssignee table
-                assignees: {
-                    deleteMany: {}, // Remove all existing assignees
-                    create: {
-                        userId: assigneeUserId,
-                        assignedBy: currentUserId,
-                    }
-                }
-            },
-            include: {
-                assignee: {
-                    select: {
-                        id: true,
-                        email: true,
-                        avatar: true,
-                        firstName: true,
-                        lastName: true,
-                    },
-                },
-                assignees: {
-                    include: {
-                        user: {
-                            select: {
-                                id: true,
-                                email: true,
-                                avatar: true,
-                                firstName: true,
-                                lastName: true,
-                            },
-                        },
-                        assignedByUser: {
-                            select: {
-                                id: true,
-                                firstName: true,
-                                lastName: true,
-                            },
-                        },
-                    },
-                    orderBy: { assignedAt: 'asc' },
-                },
-                createdBy: {
-                    select: {
-                        id: true,
-                        email: true,
-                    },
-                },
-                project: {
-                    select: {
-                        id: true,
-                        name: true,
-                        description: true,
-                        ownerId: true,
-                    },
-                },
-            },
-        });
-    }
-
-    // Migration method to sync existing assigneeId to TaskAssignee table
-    async syncExistingAssignees() {
-        const tasksWithAssignee = await this.prisma.task.findMany({
-            where: {
-                assigneeId: { not: null },
-                assignees: { none: {} } // No records in TaskAssignee table
-            },
-            select: {
-                id: true,
-                assigneeId: true,
-                createdById: true,
-            }
-        });
-
-        for (const task of tasksWithAssignee) {
-            try {
-                await this.prisma.taskAssignee.create({
-                    data: {
-                        taskId: task.id,
-                        userId: task.assigneeId!,
-                        assignedBy: task.createdById,
-                    }
-                });
-            } catch (error) {
-                console.error(`Failed to sync task ${task.id}:`, error);
-            }
-        }
-
-        return { syncedCount: tasksWithAssignee.length };
-    }
 
     async archive(id: string, userId: string) {
         const task = await this.findOne(id, userId);
@@ -479,7 +316,7 @@ export class TasksService {
             select: { id: true },
         });
         const isProjectOwner = !!projectOwner;
-        const isAssignee = task.assigneeId === userId;
+        const isAssignee = task.assignees.some(assignee => assignee.userId === userId);
         const isCreator = task.createdById === userId;
 
         if (!isProjectOwner && !isAssignee && !isCreator) {
@@ -514,6 +351,13 @@ export class TasksService {
                     ],
                 },
             },
+            include: {
+                assignees: {
+                    select: {
+                        userId: true,
+                    },
+                },
+            },
         });
 
         if (!task) {
@@ -526,7 +370,7 @@ export class TasksService {
             select: { id: true },
         });
         const isProjectOwner = !!projectOwner;
-        const isAssignee = task.assigneeId === userId;
+        const isAssignee = task.assignees.some(assignee => assignee.userId === userId);
         const isCreator = task.createdById === userId;
 
         if (!isProjectOwner && !isAssignee && !isCreator) {
@@ -569,7 +413,11 @@ export class TasksService {
 
     async getUserTasks(userId: string, filterDto: TaskFilterDto) {
         const where: Prisma.TaskWhereInput = {
-            assigneeId: userId, // Only tasks assigned to current user
+            assignees: {
+                some: {
+                    userId: userId,
+                },
+            },
             deletedAt: null, // Only show non-deleted tasks
         };
 
@@ -592,14 +440,19 @@ export class TasksService {
         const tasks = await this.prisma.task.findMany({
             where,
             include: {
-                assignee: {
-                    select: {
-                        id: true,
-                        firstName: true,
-                        lastName: true,
-                        email: true,
-                        avatar: true,
+                assignees: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                                email: true,
+                                avatar: true,
+                            },
+                        },
                     },
+                    orderBy: { assignedAt: 'asc' },
                 },
                 project: {
                     select: {
@@ -633,7 +486,6 @@ export class TasksService {
             orderBy: { createdAt: 'asc' },
         });
 
-        console.log('🔍 Backend: Task labels for taskId:', taskId, 'Labels:', labels);
         return labels;
     }
 
@@ -649,7 +501,6 @@ export class TasksService {
             orderBy: { createdAt: 'asc' },
         });
 
-        console.log('🔍 Backend: Task subtasks for taskId:', taskId, 'Subtasks:', subtasks);
         return subtasks;
     }
 }

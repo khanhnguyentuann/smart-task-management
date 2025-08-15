@@ -69,21 +69,6 @@ export class TasksController {
         return this.tasksService.update(id, updateTaskDto, user.id);
     }
 
-    // Assign task to user
-    @Patch('tasks/:id/assign')
-    assignTask(
-        @Param('id') id: string,
-        @Body() body: { userId: string },
-        @CurrentUser() user: User,
-    ) {
-        return this.tasksService.assignTask(id, body.userId, user.id);
-    }
-
-    // Migration endpoint to sync existing assignees
-    @Post('tasks/sync-assignees')
-    syncAssignees(@CurrentUser() user: User) {
-        return this.tasksService.syncExistingAssignees();
-    }
 
     // Archive task
     @Post('tasks/:id/archive')

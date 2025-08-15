@@ -34,9 +34,30 @@ export function ProjectTasks({ tasks, project, onTaskClick }: ProjectTasksProps)
     const toUiTask = (task: any) => {
         const priorityMap: Record<string, string> = { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High' }
         const statusMap: Record<string, string> = { TODO: 'todo', IN_PROGRESS: 'inProgress', DONE: 'done' }
-        const assigneeFullName = task.assignee?.firstName || task.assignee?.lastName
-            ? `${task.assignee?.firstName || ''} ${task.assignee?.lastName || ''}`.trim()
-            : undefined
+        
+        // Handle multi-assignee data
+        const assignees = task.assignees || []
+        let assigneeDisplay = { name: 'Unassigned', avatar: '' }
+        
+        if (assignees.length > 0) {
+            const firstAssignee = assignees[0]
+            const firstName = firstAssignee.user?.firstName || ''
+            const lastName = firstAssignee.user?.lastName || ''
+            const fullName = `${firstName} ${lastName}`.trim()
+            
+            if (assignees.length === 1) {
+                assigneeDisplay = {
+                    name: fullName || firstAssignee.user?.email || 'Assigned',
+                    avatar: firstAssignee.user?.avatar || '',
+                }
+            } else {
+                assigneeDisplay = {
+                    name: `${fullName || 'User'} +${assignees.length - 1} more`,
+                    avatar: firstAssignee.user?.avatar || '',
+                }
+            }
+        }
+        
         return {
             id: task.id,
             title: task.title,
@@ -45,10 +66,8 @@ export function ProjectTasks({ tasks, project, onTaskClick }: ProjectTasksProps)
             status: statusMap[task.status] || 'todo',
             project: project?.name || '',
             deadline: (task as any).dueDate || task.deadline || '',
-            assignee: {
-                name: assigneeFullName || task.assignee?.email || 'Unassigned',
-                avatar: task.assignee?.avatar || '',
-            },
+            assignee: assigneeDisplay,
+            assignees: assignees, // Keep original assignees data for detailed view
         }
     }
 

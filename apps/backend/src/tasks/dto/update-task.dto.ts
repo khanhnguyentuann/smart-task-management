@@ -5,7 +5,6 @@ import {
     IsDateString,
     MinLength,
     MaxLength,
-    IsUUID,
 } from 'class-validator';
 import { TaskStatus, Priority } from '@prisma/client';
 
@@ -32,8 +31,4 @@ export class UpdateTaskDto {
     @IsOptional()
     @IsDateString()
     dueDate?: string | null; // Allow null to clear due date
-
-    @IsOptional()
-    @IsUUID('4')
-    assigneeId?: string | null; // Allow null to clear assignee
 }

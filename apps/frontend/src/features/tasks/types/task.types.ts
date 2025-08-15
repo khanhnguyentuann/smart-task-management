@@ -1,18 +1,31 @@
 import { PROJECTS_CONSTANTS } from "@/features/projects"
 import { User } from "@/shared/lib"
 
+export interface TaskAssignee {
+  id: string
+  userId: string
+  assignedAt: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    email: string
+    avatar?: string
+  }
+  assignedByUser: {
+    id: string
+    firstName: string
+    lastName: string
+  }
+}
+
 export interface Task {
   id: string
   title: string
   description?: string
   aiSummary: string
   priority: typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]
-  assignee: {
-    id?: string
-    name: string
-    avatar: string
-    email?: string
-  }
+  assignees: TaskAssignee[]
   deadline?: string
   dueDate?: Date | null
   status: typeof PROJECTS_CONSTANTS.TASK_STATUS[keyof typeof PROJECTS_CONSTANTS.TASK_STATUS]
@@ -29,7 +42,6 @@ export interface CreateTaskPayload {
   priority: string
   status?: string
   projectId: string
-  assigneeId?: string
   dueDate?: string
 }
 
@@ -142,7 +154,6 @@ export interface CreateTaskData {
   title: string
   description: string
   priority: "low" | "medium" | "high"
-  assignee: string
   project: string
   dueDate: string
 }

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { assigneeApi, TaskAssignee, ProjectMember, AddAssigneeRequest, ReplaceAssigneesRequest } from '../api/assignee.api';
 import { useToast } from '@/shared/hooks';
 
-export function useTaskAssignees(taskId: string) {
+export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void) {
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -65,8 +65,13 @@ export function useTaskAssignees(taskId: string) {
     // Add single assignee mutation
     const addAssigneeMutation = useMutation({
         mutationFn: (data: AddAssigneeRequest) => assigneeApi.addTaskAssignee(taskId, data),
-        onSuccess: () => {
+        onSuccess: (newAssignee) => {
+            // Invalidate queries to refresh data from server (safer approach)
             queryClient.invalidateQueries({ queryKey: ['task-assignees', taskId] });
+            queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Update task lists
+            queryClient.invalidateQueries({ queryKey: ['projects'] }); // Update project task lists
+            // Call callback to refresh other hooks
+            onAssigneesChange?.();
             toast({
                 title: 'Success',
                 description: 'Assignee added successfully',
@@ -84,8 +89,13 @@ export function useTaskAssignees(taskId: string) {
     // Remove assignee mutation
     const removeAssigneeMutation = useMutation({
         mutationFn: (userId: string) => assigneeApi.removeTaskAssignee(taskId, userId),
-        onSuccess: () => {
+        onSuccess: (_, userId) => {
+            // Invalidate queries to refresh data from server (safer approach)
             queryClient.invalidateQueries({ queryKey: ['task-assignees', taskId] });
+            queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Update task lists
+            queryClient.invalidateQueries({ queryKey: ['projects'] }); // Update project task lists
+            // Call callback to refresh other hooks
+            onAssigneesChange?.();
             toast({
                 title: 'Success',
                 description: 'Assignee removed successfully',

@@ -13,10 +13,21 @@ import {
     Button
 } from "@/shared/components/ui"
 import { Search, CheckSquare, Clock, AlertTriangle, Calendar } from 'lucide-react'
-import { Task } from "../../types/task.types"
+import { Task, TaskAssignee } from "../../types/task.types"
 import { TaskCard } from "./TaskCard"
 import { EmptyState } from "./EmptyState"
 import { useUser } from "@/features/layout"
+
+// Temporary interface for UI compatibility
+interface UITask extends Omit<Task, 'assignees'> {
+    assignee: {
+        id: string
+        name: string
+        avatar: string
+        email: string
+    }
+    assignees: TaskAssignee[]
+}
 
 interface MyTasksProps {
     onTaskClick: (task: Task) => void
@@ -27,20 +38,47 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [statusFilter, setStatusFilter] = useState("all")
     const [priorityFilter, setPriorityFilter] = useState("all")
-    const [tasks, setTasks] = useState<Task[]>([])
+    const [tasks, setTasks] = useState<UITask[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     // Map backend task to UI task shape
-    const toUiTask = React.useCallback((t: any): Task | null => {
+    const toUiTask = React.useCallback((t: any): UITask | null => {
         if (!user) return null
         const priorityMap: Record<string, Task["priority"]> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High" }
         const statusMap: Record<string, Task["status"]> = { TODO: "TODO", IN_PROGRESS: "IN_PROGRESS", DONE: "DONE" }
 
-        // Use actual assignee data if available, otherwise use current user
-        const assigneeName = t.assignee?.firstName && t.assignee?.lastName
-            ? `${t.assignee.firstName} ${t.assignee.lastName}`
-            : t.assignee?.email || user.email
+        // Handle multi-assignee data
+        const assignees = t.assignees || []
+        let assigneeDisplay = {
+            id: user.id,
+            name: user.email,
+            avatar: user.avatar || "",
+            email: user.email
+        }
+
+        if (assignees.length > 0) {
+            const firstAssignee = assignees[0]
+            const firstName = firstAssignee.user?.firstName || ''
+            const lastName = firstAssignee.user?.lastName || ''
+            const fullName = `${firstName} ${lastName}`.trim()
+            
+            if (assignees.length === 1) {
+                assigneeDisplay = {
+                    id: firstAssignee.user?.id || user.id,
+                    name: fullName || firstAssignee.user?.email || 'Assigned',
+                    avatar: firstAssignee.user?.avatar || "",
+                    email: firstAssignee.user?.email || user.email
+                }
+            } else {
+                assigneeDisplay = {
+                    id: firstAssignee.user?.id || user.id,
+                    name: `${fullName || 'User'} +${assignees.length - 1} more`,
+                    avatar: firstAssignee.user?.avatar || "",
+                    email: firstAssignee.user?.email || user.email
+                }
+            }
+        }
 
         return {
             id: t.id,
@@ -53,12 +91,8 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
             projectId: t.projectId,
             deadline: (t as any).dueDate || t.deadline || new Date().toISOString(),
             dueDate: (t as any).dueDate ? new Date((t as any).dueDate) : null,
-            assignee: {
-                id: t.assignee?.id || user.id,
-                name: assigneeName,
-                avatar: t.assignee?.avatar || user.avatar || "",
-                email: t.assignee?.email || user.email
-            },
+            assignee: assigneeDisplay,
+            assignees: assignees, // Keep original assignees data
             createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
             updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(),
         }
@@ -76,7 +110,7 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
                 const resp = await apiClient.get(API_ROUTES.TASKS.LIST)
                 const tasksData = (resp as any).data || resp
                 const tasksArray = Array.isArray(tasksData) ? tasksData : tasksData?.tasks
-                const mappedTasks = Array.isArray(tasksArray) ? tasksArray.map(toUiTask).filter((task): task is Task => task !== null) : []
+                const mappedTasks = Array.isArray(tasksArray) ? tasksArray.map(toUiTask).filter((task): task is UITask => task !== null) : []
                 setTasks(mappedTasks)
             } catch (e: any) {
                 console.error("Failed to fetch tasks:", e)
@@ -162,7 +196,7 @@ export function MyTasks({ onTaskClick }: MyTasksProps) {
         later: filteredTasks.filter((task) => getDeadlineStatus((task as any).dueDate || task.deadline).category === "later"),
     }
 
-    const TaskGroup = ({ title, tasks, icon }: { title: string; tasks: Task[]; icon: React.ReactNode }) => {
+    const TaskGroup = ({ title, tasks, icon }: { title: string; tasks: UITask[]; icon: React.ReactNode }) => {
         if (tasks.length === 0) return null
 
         return (

@@ -2,7 +2,6 @@ import {
     IsString,
     IsOptional,
     IsEnum,
-    IsUUID,
     IsDateString,
     MinLength,
     MaxLength,
@@ -27,10 +26,6 @@ export class CreateTaskDto {
     @IsOptional()
     @IsEnum(Priority)
     priority?: Priority = Priority.MEDIUM;
-
-    @IsOptional()
-    @IsUUID('4')
-    assigneeId?: string;
 
     @IsOptional()
     @IsDateString()

@@ -33,7 +33,6 @@ export function CreateTaskModal({ open, onOpenChange, projectId, members = [], o
     const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [priority, setPriority] = useState<typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]>(PROJECTS_CONSTANTS.PRIORITY.MEDIUM)
-  const [assignee, setAssignee] = useState("")
   const [dueDate, setDueDate] = useState<Date>()
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
   const [aiSummary, setAiSummary] = useState("")
@@ -61,22 +60,19 @@ export function CreateTaskModal({ open, onOpenChange, projectId, members = [], o
         title,
         description,
         priority: priority === PROJECTS_CONSTANTS.PRIORITY.HIGH ? 'HIGH' : priority === PROJECTS_CONSTANTS.PRIORITY.LOW ? 'LOW' : 'MEDIUM',
-        assigneeId: assignee || undefined,
         dueDate: dueDate ? dueDate.toISOString() : undefined,
         // status is optional; backend defaults to TODO
       }
       await apiClient.post(API_ROUTES.PROJECTS.TASKS(projectId), payload)
-      const assigneeName = teamMembers.find((m) => m.id === assignee)?.name || 'Unassigned'
       toast({
         title: "Task created",
-        description: `“${title}” • Assignee: ${assigneeName}${dueDate ? ` • Due: ${format(dueDate, 'PPP')}` : ''}`,
+        description: `"${title}" created successfully${dueDate ? ` • Due: ${format(dueDate, 'PPP')}` : ''}. You can assign team members after creation.`,
         variant: "default",
       })
       onOpenChange(false)
       setTitle("")
       setDescription("")
       setPriority(PROJECTS_CONSTANTS.PRIORITY.MEDIUM)
-      setAssignee("")
       setDueDate(undefined)
       setAiSummary("")
       onCreated?.()
@@ -122,47 +118,18 @@ export function CreateTaskModal({ open, onOpenChange, projectId, members = [], o
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="priority">Priority</Label>
-                <Select value={priority} onValueChange={(value: typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]) => setPriority(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.LOW}>Low</SelectItem>
-                    <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.MEDIUM}>Medium</SelectItem>
-                    <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.HIGH}>High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="assignee">Assignee</Label>
-                <Select value={assignee} onValueChange={setAssignee}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select assignee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teamMembers.map((member) => (
-                      <SelectItem key={member.id} value={member.id}>
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src={member.avatar} alt={member.name} />
-                            <AvatarFallback className="text-xs">
-                              {member.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          {member.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label htmlFor="priority">Priority</Label>
+              <Select value={priority} onValueChange={(value: typeof PROJECTS_CONSTANTS.PRIORITY[keyof typeof PROJECTS_CONSTANTS.PRIORITY]) => setPriority(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.LOW}>Low</SelectItem>
+                  <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.MEDIUM}>Medium</SelectItem>
+                  <SelectItem value={PROJECTS_CONSTANTS.PRIORITY.HIGH}>High</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
@@ -235,4 +202,4 @@ export function CreateTaskModal({ open, onOpenChange, projectId, members = [], o
       </DialogContent>
     </Dialog>
   )
-} 
+}
