@@ -9,20 +9,26 @@ import {
     UseGuards,
     Query,
     ValidationPipe,
+    Put,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskFilterDto } from './dto/task-filter.dto';
+import { AddAssigneeDto, ReplaceAssigneesDto } from './dto/assignee.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ProjectMemberGuard } from '../common/guards/project-member.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
+import { AssigneesService } from './assignees/assignees.service';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class TasksController {
-    constructor(private readonly tasksService: TasksService) { }
+    constructor(
+        private readonly tasksService: TasksService,
+        private readonly assigneesService: AssigneesService
+    ) { }
 
     // Create task in project
     @Post('projects/:projectId/tasks')
@@ -94,5 +100,57 @@ export class TasksController {
     @Get('tasks')
     getAllTasks(@CurrentUser() user: User) {
         return this.tasksService.getUserTasks(user.id, {});
+    }
+
+    // ==========================================
+    // ASSIGNEES ENDPOINTS
+    // ==========================================
+
+    // Get task assignees
+    @Get('tasks/:taskId/assignees')
+    getTaskAssignees(
+        @Param('taskId') taskId: string,
+        @CurrentUser() user: User,
+    ) {
+        return this.assigneesService.getTaskAssignees(taskId, user.id);
+    }
+
+    // Replace all task assignees
+    @Put('tasks/:taskId/assignees')
+    replaceTaskAssignees(
+        @Param('taskId') taskId: string,
+        @Body(ValidationPipe) dto: ReplaceAssigneesDto,
+        @CurrentUser() user: User,
+    ) {
+        return this.assigneesService.replaceTaskAssignees(taskId, dto, user.id);
+    }
+
+    // Add single assignee
+    @Post('tasks/:taskId/assignees')
+    addTaskAssignee(
+        @Param('taskId') taskId: string,
+        @Body(ValidationPipe) dto: AddAssigneeDto,
+        @CurrentUser() user: User,
+    ) {
+        return this.assigneesService.addTaskAssignee(taskId, dto, user.id);
+    }
+
+    // Remove single assignee
+    @Delete('tasks/:taskId/assignees/:userId')
+    removeTaskAssignee(
+        @Param('taskId') taskId: string,
+        @Param('userId') userId: string,
+        @CurrentUser() user: User,
+    ) {
+        return this.assigneesService.removeTaskAssignee(taskId, userId, user.id);
+    }
+
+    // Get project members for assignee dropdown
+    @Get('tasks/:taskId/project-members')
+    getProjectMembers(
+        @Param('taskId') taskId: string,
+        @CurrentUser() user: User,
+    ) {
+        return this.assigneesService.getProjectMembers(taskId, user.id);
     }
 }

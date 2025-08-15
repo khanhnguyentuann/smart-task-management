@@ -63,6 +63,8 @@ model User {
   activities       Activity[]
   notifications    Notification[]
   refreshTokens    RefreshToken[]
+  taskAssignees    TaskAssignee[] @relation("TaskAssignees")
+  assignedByTasks  TaskAssignee[] @relation("TaskAssignedBy")
   
   @@index([email])
   @@index([isActive])
@@ -196,6 +198,7 @@ model Task {
   comments    Comment[]
   attachments Attachment[]
   activities  Activity[]
+  assignees   TaskAssignee[]
   
   @@index([projectId])
   @@index([assigneeId])
@@ -203,6 +206,24 @@ model Task {
   @@index([priority])
   @@index([dueDate])
   @@map("tasks")
+}
+
+model TaskAssignee {
+  id         String   @id @default(uuid())
+  taskId     String
+  userId     String
+  assignedAt DateTime @default(now())
+  assignedBy String
+  
+  // Relations
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user       User     @relation("TaskAssignees", fields: [userId], references: [id], onDelete: Cascade)
+  assignedByUser User @relation("TaskAssignedBy", fields: [assignedBy], references: [id], onDelete: Restrict)
+  
+  @@unique([taskId, userId])
+  @@index([taskId])
+  @@index([userId])
+  @@map("task_assignees")
 }
 
 // ==========================================

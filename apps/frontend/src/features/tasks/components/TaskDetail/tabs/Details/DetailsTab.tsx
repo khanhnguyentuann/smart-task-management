@@ -3,12 +3,14 @@
 import { DetailsForm } from "./DetailsForm"
 import { LabelsSection } from "./LabelsSection"
 import { SubtaskList } from "./SubtaskList"
+import { AssigneeManager } from "../../AssigneeManager"
 import { TaskDetail } from "../../../../types/task.types"
 
 interface DetailsTabProps {
     currentTask: TaskDetail | null
     isEditing: boolean
     editedTask: any
+    canEdit: boolean
     onFieldChange: (field: string, value: any) => void
     newLabel: string
     setNewLabel: (value: string) => void
@@ -23,6 +25,7 @@ export function DetailsTab({
     currentTask,
     isEditing,
     editedTask,
+    canEdit,
     onFieldChange,
     newLabel,
     setNewLabel,
@@ -58,6 +61,11 @@ export function DetailsTab({
                 setNewLabel={setNewLabel}
                 onAddLabel={onAddLabel}
                 onDeleteLabel={handleDeleteLabel}
+            />
+
+            <AssigneeManager
+                taskId={currentTask?.id || ""}
+                canEdit={canEdit}
             />
 
             <SubtaskList

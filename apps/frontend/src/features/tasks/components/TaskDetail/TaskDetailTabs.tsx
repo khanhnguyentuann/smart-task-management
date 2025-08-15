@@ -62,6 +62,7 @@ export function TaskDetailTabs({
                     currentTask={currentTask}
                     isEditing={isEditing}
                     editedTask={editedTask}
+                    canEdit={canEdit}
                     onFieldChange={onFieldChange}
                     newLabel={newLabel}
                     setNewLabel={setNewLabel}
