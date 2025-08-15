@@ -15,8 +15,13 @@ export function useTaskAssignees(taskId: string) {
         refetch: refetchAssignees
     } = useQuery({
         queryKey: ['task-assignees', taskId],
-        queryFn: () => assigneeApi.getTaskAssignees(taskId),
+        queryFn: async () => {
+            if (!taskId) return [];
+            return await assigneeApi.getTaskAssignees(taskId);
+        },
         enabled: !!taskId,
+        retry: 1,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
     // Get project members for dropdown
@@ -26,8 +31,13 @@ export function useTaskAssignees(taskId: string) {
         error: membersError
     } = useQuery({
         queryKey: ['project-members', taskId],
-        queryFn: () => assigneeApi.getProjectMembers(taskId),
+        queryFn: async () => {
+            if (!taskId) return [];
+            return await assigneeApi.getProjectMembers(taskId);
+        },
         enabled: !!taskId,
+        retry: 1,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
     // Replace all assignees mutation
@@ -104,7 +114,7 @@ export function useTaskAssignees(taskId: string) {
     const availableMembers = projectMembers.filter(member => 
         !assignees.some(assignee => assignee.userId === member.id)
     );
-
+    
     return {
         // Data
         assignees,

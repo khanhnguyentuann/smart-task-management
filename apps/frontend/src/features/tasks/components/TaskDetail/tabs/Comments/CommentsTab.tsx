@@ -24,17 +24,14 @@ export function CommentsTab({
     const { user } = useUser()
     const handleEditComment = (commentId: string) => {
         // TODO: Implement edit comment functionality
-        console.log('Edit comment:', commentId)
     }
 
     const handleDeleteComment = (commentId: string) => {
         // TODO: Implement delete comment functionality
-        console.log('Delete comment:', commentId)
     }
 
     const handleReplyToComment = (commentId: string) => {
         // TODO: Implement reply to comment functionality
-        console.log('Reply to comment:', commentId)
     }
 
     return (

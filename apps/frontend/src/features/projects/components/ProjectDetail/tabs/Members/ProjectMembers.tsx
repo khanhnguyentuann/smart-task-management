@@ -19,6 +19,21 @@ export function ProjectMembers({ project, onAddMember, onRemoveMember }: Project
     const { user } = useUser()
     const { canManageMembers } = getProjectPermissions(project, user)
 
+    // Combine owner and members for display
+    const allMembers = [
+        // Add owner as first member
+        {
+            user: project.owner,
+            joinedAt: project.createdAt, // Use project creation date for owner
+            isOwner: true
+        },
+        // Add existing members
+        ...(project.members || []).map((m: any) => ({
+            ...m,
+            isOwner: false
+        }))
+    ];
+
     return (
         <Card>
             <CardHeader>
@@ -34,12 +49,12 @@ export function ProjectMembers({ project, onAddMember, onRemoveMember }: Project
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    {project.members?.map((m: any, index: number) => (
+                    {allMembers.map((m: any, index: number) => (
                         <MemberRow
                             key={index}
                             member={m}
-                            isOwner={m.user?.id === project.ownerId}
-                            canRemove={canManageMembers && m.user?.id !== user?.id}
+                            isOwner={m.isOwner}
+                            canRemove={canManageMembers && m.user?.id !== user?.id && !m.isOwner}
                             onRemove={onRemoveMember}
                         />
                     ))}

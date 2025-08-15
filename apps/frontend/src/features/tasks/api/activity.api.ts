@@ -6,7 +6,8 @@ import type { Activity } from '../types'
 
 class ActivityApi {
     async getTaskActivities(taskId: string): Promise<Activity[]> {
-        return apiClient.get<Activity[]>(`/tasks/${taskId}/activities`)
+        const response = await apiClient.get<Activity[]>(`/tasks/${taskId}/activities`)
+        return response
     }
 
     async getUserActivities(userId?: string): Promise<Activity[]> {

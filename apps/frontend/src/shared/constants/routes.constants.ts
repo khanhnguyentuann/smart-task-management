@@ -33,10 +33,18 @@ export const API_ROUTES = {
     },
     TASKS: {
         LIST: "/users/me/tasks",
+        ALL: "/tasks",
         CREATE: "/tasks",
         DETAIL: (id: string) => `/tasks/${id}`,
         UPDATE: (id: string) => `/tasks/${id}`,
         DELETE: (id: string) => `/tasks/${id}`,
+        STATUS: (id: string) => `/tasks/${id}/status`,
+        ASSIGN: (id: string) => `/tasks/${id}/assign`,
+        ARCHIVE: (id: string) => `/tasks/${id}/archive`,
+        RESTORE: (id: string) => `/tasks/${id}/restore`,
+        LABELS: (taskId: string) => `/tasks/${taskId}/labels`,
+        SUBTASKS: (taskId: string) => `/tasks/${taskId}/subtasks`,
+        ASSIGNEES: (taskId: string) => `/tasks/${taskId}/assignees`,
     },
     USERS: {
         LIST: "/users",

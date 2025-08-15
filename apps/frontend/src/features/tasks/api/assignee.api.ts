@@ -39,8 +39,19 @@ export interface ReplaceAssigneesRequest {
 export const assigneeApi = {
     // Get task assignees
     getTaskAssignees: async (taskId: string): Promise<TaskAssignee[]> => {
-        const response = await apiClient.get(`/tasks/${taskId}/assignees`);
-        return response.data;
+        try {
+            const data = await apiClient.get<TaskAssignee[]>(`/tasks/${taskId}/assignees`);
+            
+            if (!data) {
+                return [];
+            }
+            
+            const result = Array.isArray(data) ? data : [];
+            return result;
+        } catch (error) {
+            console.error('❌ API: Error fetching task assignees:', error);
+            return [];
+        }
     },
 
     // Replace all assignees
@@ -63,7 +74,12 @@ export const assigneeApi = {
 
     // Get project members for dropdown
     getProjectMembers: async (taskId: string): Promise<ProjectMember[]> => {
-        const response = await apiClient.get(`/tasks/${taskId}/project-members`);
-        return response.data;
+        try {
+            const data = await apiClient.get<ProjectMember[]>(`/tasks/${taskId}/project-members`);
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('❌ Error fetching project members:', error);
+            return [];
+        }
     },
 };

@@ -6,7 +6,8 @@ import type { Comment, CreateCommentPayload, UpdateCommentPayload } from '../typ
 
 class CommentApi {
     async getTaskComments(taskId: string): Promise<Comment[]> {
-        return apiClient.get<Comment[]>(`/tasks/${taskId}/comments`)
+        const response = await apiClient.get<Comment[]>(`/tasks/${taskId}/comments`)
+        return response
     }
 
     async addComment(taskId: string, payload: CreateCommentPayload): Promise<Comment> {

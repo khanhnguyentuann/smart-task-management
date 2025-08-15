@@ -424,4 +424,35 @@ export class TasksService {
 
         return tasks;
     }
+
+    // ==========================================
+    // LABELS & SUBTASKS METHODS
+    // ==========================================
+
+    async getTaskLabels(taskId: string, userId: string) {
+        // Verify user has access to task
+        await this.findOne(taskId, userId);
+        
+        const labels = await this.prisma.taskLabel.findMany({
+            where: { taskId },
+            orderBy: { createdAt: 'asc' },
+        });
+
+        return labels;
+    }
+
+    async getTaskSubtasks(taskId: string, userId: string) {
+        // Verify user has access to task
+        await this.findOne(taskId, userId);
+        
+        const subtasks = await this.prisma.task.findMany({
+            where: { 
+                parentTaskId: taskId,
+                deletedAt: null 
+            },
+            orderBy: { createdAt: 'asc' },
+        });
+
+        return subtasks;
+    }
 }

@@ -7,6 +7,7 @@ export class AssigneesService {
     constructor(private prisma: PrismaService) {}
 
     async getTaskAssignees(taskId: string, userId: string) {
+        
         // Check if user has access to this task
         const task = await this.prisma.task.findFirst({
             where: {
@@ -259,7 +260,7 @@ export class AssigneesService {
         const members = [
             task.project.owner,
             ...task.project.members.map(m => m.user)
-        ];
+        ].filter(Boolean); // Remove null/undefined
 
         // Remove duplicates (in case owner is also a member)
         const uniqueMembers = members.filter((member, index, self) => 

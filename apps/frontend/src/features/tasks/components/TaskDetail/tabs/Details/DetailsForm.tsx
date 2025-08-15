@@ -5,14 +5,12 @@ import { Label } from "@/shared/components/ui/label"
 import { Input } from "@/shared/components/ui/input"
 import { Textarea } from "@/shared/components/ui/textarea"
 import { Badge } from "@/shared/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { Button } from "@/shared/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
 import { Calendar } from "@/shared/components/ui/calendar"
-import { Edit3, Users, CalendarIcon, FileText, Flag, Tag, CheckSquare } from 'lucide-react'
+import { Edit3, CalendarIcon, FileText, Flag } from 'lucide-react'
 import { format } from "date-fns"
-import { motion } from "framer-motion"
 import { TaskDetail } from "../../../../types/task.types"
 
 interface DetailsFormProps {
@@ -218,91 +216,6 @@ export function DetailsForm({
                     )}
                 </CardContent>
             </Card>
-
-            {/* Assignees (Read-only) */}
-            <Card>
-                <CardHeader>
-                    <Label className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        Assignees
-                    </Label>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {currentTask?.assignees?.map((assignee: any) => (
-                            <motion.div
-                                key={assignee.id}
-                                whileHover={{ scale: 1.05 }}
-                                className="flex items-center gap-2 bg-muted/50 rounded-full px-3 py-1"
-                            >
-                                <Avatar className="h-6 w-6">
-                                    <AvatarImage src={assignee.avatar ?? undefined} alt={assignee.name} />
-                                    <AvatarFallback className="text-xs">
-                                        {assignee.name.split(" ").map((n: string) => n[0]).join("")}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <span className="text-sm">{assignee.name}</span>
-                            </motion.div>
-                        ))}
-                        {(!currentTask?.assignees || currentTask.assignees.length === 0) && (
-                            <span className="text-sm text-muted-foreground">No assignees</span>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Labels (Read-only) */}
-            <Card>
-                <CardHeader>
-                    <Label className="flex items-center gap-2">
-                        <Tag className="h-4 w-4" />
-                        Labels
-                    </Label>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {currentTask?.labels?.map((label: any) => (
-                            <Badge
-                                key={label.id}
-                                className={`${label.color} text-white`}
-                            >
-                                {label.name}
-                            </Badge>
-                        ))}
-                        {(!currentTask?.labels || currentTask.labels.length === 0) && (
-                            <span className="text-sm text-muted-foreground">No labels</span>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Subtasks (Read-only) */}
-            <Card>
-                <CardHeader>
-                    <Label className="flex items-center gap-2">
-                        <CheckSquare className="h-4 w-4" />
-                        Subtasks
-                    </Label>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-2">
-                        {currentTask?.subtasks?.map((subtask: any) => (
-                            <div key={subtask.id} className="flex items-center gap-2">
-                                <CheckSquare 
-                                    className={`h-4 w-4 ${subtask.completed ? 'text-green-600' : 'text-gray-400'}`}
-                                />
-                                <span className={`text-sm ${subtask.completed ? 'line-through text-muted-foreground' : ''}`}>
-                                    {subtask.title}
-                                </span>
-                            </div>
-                        ))}
-                        {(!currentTask?.subtasks || currentTask.subtasks.length === 0) && (
-                            <span className="text-sm text-muted-foreground">No subtasks</span>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-
         </div>
     )
 }

@@ -153,4 +153,26 @@ export class TasksController {
     ) {
         return this.assigneesService.getProjectMembers(taskId, user.id);
     }
+
+    // ==========================================
+    // LABELS & SUBTASKS ENDPOINTS
+    // ==========================================
+
+    // Get task labels
+    @Get('tasks/:taskId/labels')
+    getTaskLabels(
+        @Param('taskId') taskId: string,
+        @CurrentUser() user: User,
+    ) {
+        return this.tasksService.getTaskLabels(taskId, user.id);
+    }
+
+    // Get task subtasks
+    @Get('tasks/:taskId/subtasks')
+    getTaskSubtasks(
+        @Param('taskId') taskId: string,
+        @CurrentUser() user: User,
+    ) {
+        return this.tasksService.getTaskSubtasks(taskId, user.id);
+    }
 }

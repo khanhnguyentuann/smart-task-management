@@ -1,4 +1,5 @@
 import { PROJECTS_CONSTANTS } from "@/features/projects"
+import { User } from "@/shared/lib"
 
 export interface Task {
   id: string
@@ -180,54 +181,8 @@ export interface TaskDetail {
   description: string
   status: "TODO" | "IN_PROGRESS" | "DONE"
   priority: "LOW" | "MEDIUM" | "HIGH"
-  assignees: Array<{
-    id: string
-    name: string
-    avatar: string
-    email: string
-  }>
+  assignees: User[]
   dueDate: Date | null
-  labels: Array<{
-    id: string
-    name: string
-    color: string
-  }>
-  subtasks: Array<{
-    id: string
-    title: string
-    completed: boolean
-  }>
-  attachments: Array<{
-    id: string
-    name: string
-    size: string
-    type: string
-    url: string
-    uploadedBy: string
-    uploadedAt: Date
-  }>
-  comments: Array<{
-    id: string
-    content: string
-    author: {
-      id: string
-      name: string
-      avatar: string
-    }
-    createdAt: Date
-    mentions: string[]
-  }>
-  activities: Array<{
-    id: string
-    type: string
-    description: string
-    user: {
-      id: string
-      name: string
-      avatar: string
-    }
-    timestamp: Date
-  }>
   createdAt: Date
   updatedAt: Date
 }

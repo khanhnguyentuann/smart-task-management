@@ -7,44 +7,72 @@ import { API_ROUTES } from '@/shared/constants'
 import type { Task, CreateTaskPayload, UpdateTaskPayload } from '../types'
 
 class TaskApi {
-    async getTasks(): Promise<Task[]> {
-        return apiClient.get<Task[]>('/tasks')
+    // ==========================================
+    // TASK CRUD OPERATIONS
+    // ==========================================
+    
+    async getAllTasks(): Promise<Task[]> {
+        return apiClient.get<Task[]>(API_ROUTES.TASKS.ALL)
     }
 
-    async getTask(id: string): Promise<Task> {
-        return apiClient.get<Task>(`/tasks/${id}`)
+    async getTaskById(id: string): Promise<Task> {
+        return apiClient.get<Task>(API_ROUTES.TASKS.DETAIL(id))
     }
 
-    async createTask(payload: CreateTaskPayload): Promise<Task> {
-        return apiClient.post<Task>('/tasks', payload)
+    async createNewTask(payload: CreateTaskPayload): Promise<Task> {
+        return apiClient.post<Task>(API_ROUTES.TASKS.CREATE, payload)
     }
 
-    async updateTask(id: string, payload: UpdateTaskPayload): Promise<Task> {
-        return apiClient.patch<Task>(`/tasks/${id}`, payload)
+    async updateTaskById(id: string, payload: UpdateTaskPayload): Promise<Task> {
+        return apiClient.patch<Task>(API_ROUTES.TASKS.UPDATE(id), payload)
     }
 
-    async deleteTask(id: string): Promise<void> {
-        await apiClient.delete(`/tasks/${id}`)
+    async deleteTaskById(id: string): Promise<void> {
+        await apiClient.delete(API_ROUTES.TASKS.DELETE(id))
     }
 
-    async getMyTasks(): Promise<Task[]> {
-        return apiClient.get<Task[]>('/users/me/tasks')
+    // ==========================================
+    // USER TASKS
+    // ==========================================
+    
+    async getMyAssignedTasks(): Promise<Task[]> {
+        return apiClient.get<Task[]>(API_ROUTES.TASKS.LIST)
     }
 
-    async updateTaskStatus(id: string, status: string): Promise<Task> {
-        return apiClient.patch<Task>(`/tasks/${id}/status`, { status })
+    // ==========================================
+    // TASK ACTIONS
+    // ==========================================
+    
+    async updateTaskStatusById(id: string, status: string): Promise<Task> {
+        return apiClient.patch<Task>(API_ROUTES.TASKS.STATUS(id), { status })
     }
 
-    async assignTask(id: string, userId: string): Promise<Task> {
-        return apiClient.patch<Task>(`/tasks/${id}/assign`, { userId })
+    async assignTaskToUser(id: string, userId: string): Promise<Task> {
+        return apiClient.patch<Task>(API_ROUTES.TASKS.ASSIGN(id), { userId })
     }
 
-    async archiveTask(id: string): Promise<{ message: string }> {
-        return apiClient.post<{ message: string }>(`/tasks/${id}/archive`)
+    async archiveTaskById(id: string): Promise<{ message: string }> {
+        return apiClient.post<{ message: string }>(API_ROUTES.TASKS.ARCHIVE(id))
     }
 
-    async restoreTask(id: string): Promise<{ message: string }> {
-        return apiClient.post<{ message: string }>(`/tasks/${id}/restore`)
+    async restoreTaskById(id: string): Promise<{ message: string }> {
+        return apiClient.post<{ message: string }>(API_ROUTES.TASKS.RESTORE(id))
+    }
+
+    // ==========================================
+    // TASK RELATIONS
+    // ==========================================
+    
+    async getTaskLabelsById(taskId: string): Promise<any[]> {
+        return apiClient.get<any[]>(API_ROUTES.TASKS.LABELS(taskId))
+    }
+
+    async getTaskSubtasksById(taskId: string): Promise<any[]> {
+        return apiClient.get<any[]>(API_ROUTES.TASKS.SUBTASKS(taskId))
+    }
+
+    async getTaskAssigneesById(taskId: string): Promise<any[]> {
+        return apiClient.get<any[]>(API_ROUTES.TASKS.ASSIGNEES(taskId))
     }
 }
 

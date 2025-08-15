@@ -21,7 +21,6 @@ export function FilesTab({ currentTask, fileInputRef }: FilesTabProps) {
         setIsUploading(true)
         try {
             // TODO: Implement file upload logic
-            console.log('Files selected for upload:', Array.from(files).map(f => f.name))
 
             // Simulate upload delay
             await new Promise(resolve => setTimeout(resolve, 2000))
@@ -36,22 +35,18 @@ export function FilesTab({ currentTask, fileInputRef }: FilesTabProps) {
 
     const handleViewFile = useCallback((attachmentId: string) => {
         // TODO: Implement file preview
-        console.log('View file:', attachmentId)
     }, [])
 
     const handleDownloadFile = useCallback((attachmentId: string) => {
         // TODO: Implement file download
-        console.log('Download file:', attachmentId)
     }, [])
 
     const handleDeleteFile = useCallback((attachmentId: string) => {
         // TODO: Implement file deletion
-        console.log('Delete file:', attachmentId)
     }, [])
 
     const handleShareFile = useCallback((attachmentId: string) => {
         // TODO: Implement file sharing
-        console.log('Share file:', attachmentId)
     }, [])
 
     return (

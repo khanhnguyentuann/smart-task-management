@@ -13,6 +13,7 @@ import { useToast, useErrorHandler } from "@/shared/hooks"
 // Feature Imports
 import { useUser } from "@/features/layout"
 import { getTaskPermissions } from "@/shared/lib/permissions"
+import { useTaskDetail } from "../../hooks/useTaskDetail"
 
 // Types
 import { TaskDetail as TaskDetailType } from "../../types/task.types"
@@ -31,6 +32,9 @@ interface TaskDetailProps {
 export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const { user } = useUser()
 
+    // Use task detail hook
+    const { task, labels, subtasks, assignees, loading, error, updateTask, deleteTask } = useTaskDetail(taskId)
+
     // State management
     const [isEditing, setIsEditing] = useState(false)
     const [editedTask, setEditedTask] = useState<any>(null)
@@ -38,9 +42,6 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const [newSubtask, setNewSubtask] = useState("")
     const [newLabel, setNewLabel] = useState("")
     const [activeTab, setActiveTab] = useState("details")
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-    const [task, setTask] = useState<any>(null)
     const fileInputRef = useRef<HTMLInputElement | null>(null)
 
     const { toast } = useToast()
@@ -59,103 +60,14 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             description: simpleTask.description || simpleTask.aiSummary || "",
             status: statusMap[simpleTask.status] as 'TODO' | 'IN_PROGRESS' | 'DONE' || 'TODO',
             priority: priorityMap[simpleTask.priority] as 'LOW' | 'MEDIUM' | 'HIGH' || 'MEDIUM',
-            assignees: simpleTask.assignee ? [{
-                id: simpleTask.assignee.id || "1",
-                name: simpleTask.assignee.name || simpleTask.assignee.email || "Unassigned",
-                avatar: simpleTask.assignee.avatar || "",
-                email: simpleTask.assignee.email || `${(simpleTask.assignee.name || "user").toLowerCase().replace(" ", ".")}@company.com`
-            }] : [],
+            assignees: simpleTask.assignee,
             dueDate: (simpleTask as any).dueDate ? new Date((simpleTask as any).dueDate) : (simpleTask.deadline ? new Date(simpleTask.deadline) : null),
-            labels: simpleTask.labels || [
-                { id: "1", name: "Frontend", color: "bg-blue-500" },
-                { id: "2", name: "High Priority", color: "bg-red-500" }
-            ],
-            subtasks: simpleTask.subtasks || [
-                { id: "1", title: "Research design patterns", completed: true },
-                { id: "2", title: "Create wireframes", completed: false },
-                { id: "3", title: "Implement responsive layout", completed: false }
-            ],
-            attachments: simpleTask.attachments || [
-                {
-                    id: "1",
-                    name: "design-mockup.figma",
-                    size: "2.4 MB",
-                    type: "application/figma",
-                    url: "#",
-                    uploadedBy: "Sarah Wilson",
-                    uploadedAt: new Date(Date.now() - 86400000)
-                }
-            ],
-            comments: simpleTask.comments || [
-                {
-                    id: "1",
-                    content: "Great progress on this task! The design looks amazing.",
-                    author: {
-                        id: "2",
-                        name: "Mike Johnson",
-                        avatar: "/default-avatar.svg"
-                    },
-                    createdAt: new Date(Date.now() - 3600000),
-                    mentions: []
-                }
-            ],
-            activities: simpleTask.activities || [
-                {
-                    id: "1",
-                    type: "status_change",
-                    description: "moved this task from To Do to In Progress",
-                    user: {
-                        id: "1",
-                        name: user?.firstName ? `${user.firstName} ${user.lastName}` : "User",
-                        avatar: user?.avatar || ""
-                    },
-                    timestamp: new Date(Date.now() - 7200000)
-                },
-                {
-                    id: "2",
-                    type: "comment",
-                    description: "added a comment",
-                    user: {
-                        id: "2",
-                        name: "Mike Johnson",
-                        avatar: "/default-avatar.svg"
-                    },
-                    timestamp: new Date(Date.now() - 3600000)
-                }
-            ],
             createdAt: simpleTask.createdAt ? new Date(simpleTask.createdAt) : new Date(Date.now() - 604800000),
             updatedAt: simpleTask.updatedAt ? new Date(simpleTask.updatedAt) : new Date(Date.now() - 3600000)
         }
-    }, [user])
+    }, [])
 
-    // Load task data
-    React.useEffect(() => {
-        let isMounted = true
-        const loadTask = async () => {
-            if (!taskId) return
-            try {
-                setLoading(true)
-                setError(null)
 
-                // Dynamic imports
-                const { apiClient } = await import("@/core/services/api-client")
-                const { API_ROUTES } = await import("@/shared/constants")
-                const resp = await apiClient.get(API_ROUTES.TASKS.DETAIL(taskId))
-                const taskData = (resp as any).data || resp
-
-                if (!isMounted) return
-                setTask(taskData)
-            } catch (e: any) {
-                if (!isMounted) return
-                setError(e.message || "Failed to load task")
-            } finally {
-                if (!isMounted) return
-                setLoading(false)
-            }
-        }
-        loadTask()
-        return () => { isMounted = false }
-    }, [taskId])
 
     const detailedTask = useMemo<TaskDetailType | null>(() => (task ? convertToDetailedTask(task) : null), [task, convertToDetailedTask])
     const currentTask = editedTask || detailedTask
@@ -175,8 +87,6 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         if (!editedTask) return
 
         try {
-            setLoading(true)
-
             // Validate form data
             const { updateTaskSchema } = await import('../../validation/task.schema')
 
@@ -191,12 +101,9 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             // Validate payload
             const validatedPayload = updateTaskSchema.parse(payload)
 
-            // Use task service
-            const { taskService } = await import('../../services')
-            const updatedTask = await taskService.updateTask(editedTask.id, validatedPayload)
+            // Use hook's updateTask method
+            await updateTask(validatedPayload)
 
-            // Update local state
-            setTask(updatedTask)
             setIsEditing(false)
             setEditedTask(null)
 
@@ -215,36 +122,28 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             } else {
                 handleError(error)
             }
-        } finally {
-            setLoading(false)
         }
-    }, [editedTask, toast, handleError])
+    }, [editedTask, updateTask, toast, handleError])
 
     const handleArchive = useCallback(async () => {
         if (!task) return
         try {
-            setLoading(true)
             const { taskService } = await import('../../services/task.service')
             await taskService.archiveTask(task.id)
             toast({ title: 'Task archived' })
         } catch (error: any) {
             handleError(error)
-        } finally {
-            setLoading(false)
         }
     }, [task, toast, handleError])
 
     const handleRestore = useCallback(async () => {
         if (!task) return
         try {
-            setLoading(true)
             const { taskService } = await import('../../services/task.service')
             await taskService.restoreTask(task.id)
             toast({ title: 'Task restored' })
         } catch (error: any) {
             handleError(error)
-        } finally {
-            setLoading(false)
         }
     }, [task, toast, handleError])
 
@@ -261,10 +160,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         if (!currentTask) return
 
         try {
-            // Dynamic imports
-            const { apiClient } = await import("@/core/services/api-client")
-            const { API_ROUTES } = await import("@/shared/constants")
-            await apiClient.delete(API_ROUTES.TASKS.DELETE(currentTask.id))
+            await deleteTask()
 
             toast({
                 title: "Task Deleted",
@@ -276,7 +172,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         } catch (error: any) {
             handleError(error)
         }
-    }, [currentTask, onBack, onDelete, toast, handleError])
+    }, [currentTask, deleteTask, onBack, onDelete, toast, handleError])
 
     // Comment handlers
     const handleAddComment = useCallback(() => {
@@ -460,6 +356,16 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         onAddSubtask={handleAddSubtask}
                         onToggleSubtask={handleToggleSubtask}
                         fileInputRef={fileInputRef}
+                        labels={labels}
+                        onDeleteLabel={(labelId) => {
+                            // TODO: Implement delete label functionality
+                            console.log('Delete label:', labelId)
+                        }}
+                        subtasks={subtasks}
+                        onDeleteSubtask={(subtaskId) => {
+                            // TODO: Implement delete subtask functionality
+                            console.log('Delete subtask:', subtaskId)
+                        }}
                     />
 
                     {/* Footer Actions */}

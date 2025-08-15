@@ -4,17 +4,27 @@ import type { Task, UpdateTaskPayload } from '../types'
 
 export function useTaskDetail(taskId: string) {
     const [task, setTask] = useState<Task | null>(null)
+    const [labels, setLabels] = useState<any[]>([])
+    const [subtasks, setSubtasks] = useState<any[]>([])
+    const [assignees, setAssignees] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     const fetchTask = useCallback(async () => {
         if (!taskId) return
-        
         setLoading(true)
         setError(null)
         try {
-            const data = await taskService.getTask(taskId)
-            setTask(data)
+            const [taskData, labelsData, subtasksData, assigneesData] = await Promise.all([
+                taskService.getTask(taskId),
+                taskService.getTaskLabels(taskId),
+                taskService.getTaskSubtasks(taskId),
+                taskService.getTaskAssignees(taskId)
+            ])
+            setTask(taskData)
+            setLabels(labelsData)
+            setSubtasks(subtasksData)
+            setAssignees(assigneesData)
         } catch (err: any) {
             setError(err.message || 'Failed to load task')
         } finally {
@@ -75,10 +85,13 @@ export function useTaskDetail(taskId: string) {
     // Auto-fetch on mount or taskId change
     useEffect(() => {
         fetchTask()
-    }, [fetchTask])
+    }, [taskId, fetchTask])
 
     return {
         task,
+        labels,
+        subtasks,
+        assignees,
         loading,
         error,
         fetchTask,

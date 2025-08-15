@@ -120,7 +120,7 @@ class ProjectService {
                 updatedAt: project.updatedAt,
                 // Frontend-specific fields
                 userRole: project.ownerId === project.currentUserId ? 'Owner' : 'Member',
-                memberCount: project.members?.length || 0,
+                memberCount: project.memberCount || project._count?.members || (project.members?.length || 0) + 1, // Use backend count or calculate including owner
                 taskStats: this.calculateTaskStats(project.tasks || [])
             }
         } catch (error) {

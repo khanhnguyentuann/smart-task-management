@@ -26,6 +26,10 @@ interface TaskDetailTabsProps {
     onAddSubtask: () => void
     onToggleSubtask: (subtaskId: string) => void
     fileInputRef: React.RefObject<HTMLInputElement | null>
+    labels: any[]
+    onDeleteLabel: (labelId: string) => void
+    subtasks: any[]
+    onDeleteSubtask: (subtaskId: string) => void
 }
 
 export function TaskDetailTabs({
@@ -46,7 +50,11 @@ export function TaskDetailTabs({
     setNewSubtask,
     onAddSubtask,
     onToggleSubtask,
-    fileInputRef
+    fileInputRef,
+    labels,
+    onDeleteLabel,
+    subtasks,
+    onDeleteSubtask
 }: TaskDetailTabsProps) {
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -71,6 +79,10 @@ export function TaskDetailTabs({
                     setNewSubtask={setNewSubtask}
                     onAddSubtask={onAddSubtask}
                     onToggleSubtask={onToggleSubtask}
+                    labels={labels}
+                    onDeleteLabel={onDeleteLabel}
+                    subtasks={subtasks}
+                    onDeleteSubtask={onDeleteSubtask}
                 />
             </TabsContent>
 

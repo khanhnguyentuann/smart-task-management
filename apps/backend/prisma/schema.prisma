@@ -199,6 +199,7 @@ model Task {
   attachments Attachment[]
   activities  Activity[]
   assignees   TaskAssignee[]
+  labels      TaskLabel[]
   
   @@index([projectId])
   @@index([assigneeId])
@@ -224,6 +225,20 @@ model TaskAssignee {
   @@index([taskId])
   @@index([userId])
   @@map("task_assignees")
+}
+
+model TaskLabel {
+  id        String   @id @default(uuid())
+  taskId    String
+  name      String
+  color     String   @default("#3B82F6")
+  createdAt DateTime @default(now())
+  
+  // Relations
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  @@index([taskId])
+  @@map("task_labels")
 }
 
 // ==========================================

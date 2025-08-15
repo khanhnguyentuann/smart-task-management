@@ -3,7 +3,7 @@
 import { DetailsForm } from "./DetailsForm"
 import { LabelsSection } from "./LabelsSection"
 import { SubtaskList } from "./SubtaskList"
-import { AssigneeManager } from "../../AssigneeManager"
+import { AssigneeManager } from "./AssigneeManager"
 import { TaskDetail } from "../../../../types/task.types"
 
 interface DetailsTabProps {
@@ -19,6 +19,10 @@ interface DetailsTabProps {
     setNewSubtask: (value: string) => void
     onAddSubtask: () => void
     onToggleSubtask: (subtaskId: string) => void
+    labels: any[]
+    onDeleteLabel: (labelId: string) => void
+    subtasks: any[]
+    onDeleteSubtask: (subtaskId: string) => void
 }
 
 export function DetailsTab({
@@ -33,16 +37,18 @@ export function DetailsTab({
     newSubtask,
     setNewSubtask,
     onAddSubtask,
-    onToggleSubtask
+    onToggleSubtask,
+    labels,
+    onDeleteLabel,
+    subtasks,
+    onDeleteSubtask
 }: DetailsTabProps) {
     const handleDeleteLabel = (labelId: string) => {
         // TODO: Implement delete label functionality
-        console.log('Delete label:', labelId)
     }
 
     const handleDeleteSubtask = (subtaskId: string) => {
         // TODO: Implement delete subtask functionality
-        console.log('Delete subtask:', subtaskId)
     }
 
     return (
@@ -54,28 +60,26 @@ export function DetailsTab({
                 onFieldChange={onFieldChange}
             />
 
-            <LabelsSection
-                labels={currentTask?.labels}
-                isEditing={isEditing}
-                newLabel={newLabel}
-                setNewLabel={setNewLabel}
-                onAddLabel={onAddLabel}
-                onDeleteLabel={handleDeleteLabel}
-            />
-
             <AssigneeManager
                 taskId={currentTask?.id || ""}
                 canEdit={canEdit}
             />
 
-            <SubtaskList
-                subtasks={currentTask?.subtasks}
+            <LabelsSection
+                labels={labels}
                 isEditing={isEditing}
-                newSubtask={newSubtask}
-                setNewSubtask={setNewSubtask}
+                canEdit={canEdit}
+                onAddLabel={onAddLabel}
+                onDeleteLabel={onDeleteLabel}
+            />
+
+            <SubtaskList
+                subtasks={subtasks}
+                isEditing={isEditing}
+                canEdit={canEdit}
                 onAddSubtask={onAddSubtask}
                 onToggleSubtask={onToggleSubtask}
-                onDeleteSubtask={handleDeleteSubtask}
+                onDeleteSubtask={onDeleteSubtask}
             />
         </div>
     )

@@ -6,51 +6,82 @@ import { taskApi } from '../api'
 import type { Task, CreateTaskPayload, UpdateTaskPayload } from '../types'
 
 class TaskService {
+    // ==========================================
+    // TASK CRUD OPERATIONS
+    // ==========================================
+    
     async getTasks(): Promise<Task[]> {
-        const tasks = await taskApi.getTasks()
+        const tasks = await taskApi.getAllTasks()
         return this.transformTasks(tasks)
     }
 
     async getTask(id: string): Promise<Task> {
-        const task = await taskApi.getTask(id)
+        const task = await taskApi.getTaskById(id)
         return this.transformTask(task)
     }
 
     async createTask(payload: CreateTaskPayload): Promise<Task> {
-        const task = await taskApi.createTask(payload)
+        const task = await taskApi.createNewTask(payload)
         return this.transformTask(task)
     }
 
     async updateTask(id: string, payload: UpdateTaskPayload): Promise<Task> {
-        const task = await taskApi.updateTask(id, payload)
+        const task = await taskApi.updateTaskById(id, payload)
         return this.transformTask(task)
     }
 
     async deleteTask(id: string): Promise<void> {
-        await taskApi.deleteTask(id)
+        await taskApi.deleteTaskById(id)
     }
 
+    // ==========================================
+    // USER TASKS
+    // ==========================================
+    
     async getMyTasks(): Promise<Task[]> {
-        const tasks = await taskApi.getMyTasks()
+        const tasks = await taskApi.getMyAssignedTasks()
         return this.transformTasks(tasks)
     }
 
+    // ==========================================
+    // TASK ACTIONS
+    // ==========================================
+    
     async updateTaskStatus(id: string, status: string): Promise<Task> {
-        const task = await taskApi.updateTaskStatus(id, status)
+        const task = await taskApi.updateTaskStatusById(id, status)
         return this.transformTask(task)
     }
 
     async assignTask(id: string, userId: string): Promise<Task> {
-        const task = await taskApi.assignTask(id, userId)
+        const task = await taskApi.assignTaskToUser(id, userId)
         return this.transformTask(task)
     }
 
     async archiveTask(id: string): Promise<void> {
-        await taskApi.archiveTask(id)
+        await taskApi.archiveTaskById(id)
     }
 
     async restoreTask(id: string): Promise<void> {
-        await taskApi.restoreTask(id)
+        await taskApi.restoreTaskById(id)
+    }
+
+    // ==========================================
+    // TASK RELATIONS
+    // ==========================================
+    
+    async getTaskLabels(taskId: string): Promise<any[]> {
+        const labels = await taskApi.getTaskLabelsById(taskId)
+        return labels
+    }
+
+    async getTaskSubtasks(taskId: string): Promise<any[]> {
+        const subtasks = await taskApi.getTaskSubtasksById(taskId)
+        return subtasks
+    }
+
+    async getTaskAssignees(taskId: string): Promise<any[]> {
+        const assignees = await taskApi.getTaskAssigneesById(taskId)
+        return assignees
     }
 
     // Transform backend data to frontend format

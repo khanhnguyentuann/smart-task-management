@@ -193,10 +193,20 @@ export class ProjectsService {
         });
 
         // Add currentUserId to each project for frontend processing
-        return projects.map(project => ({
-            ...project,
-            currentUserId: userId
-        }));
+        return projects.map(project => {
+            // Calculate total member count including owner
+            const totalMemberCount = project._count.members + 1; // +1 for owner
+            
+            return {
+                ...project,
+                currentUserId: userId,
+                memberCount: totalMemberCount, // Override the count to include owner
+                _count: {
+                    ...project._count,
+                    members: totalMemberCount // Update the count
+                }
+            };
+        });
     }
 
     async findOne(id: string, userId: string) {
@@ -252,8 +262,19 @@ export class ProjectsService {
             throw new NotFoundException('Project not found or access denied');
         }
 
+        // Calculate total member count including owner
+        const totalMemberCount = project._count.members + 1; // +1 for owner
+
         // Add currentUserId to response for frontend processing
-        return { ...project, currentUserId: userId };
+        return { 
+            ...project, 
+            currentUserId: userId,
+            memberCount: totalMemberCount, // Override the count to include owner
+            _count: {
+                ...project._count,
+                members: totalMemberCount // Update the count
+            }
+        };
     }
 
     async update(id: string, updateProjectDto: UpdateProjectDto, userId: string) {
