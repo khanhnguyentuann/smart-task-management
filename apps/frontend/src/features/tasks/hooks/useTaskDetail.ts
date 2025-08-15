@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect } from 'react'
 import { taskService } from '../services'
+import { assigneeApi } from '../api/assignee.api'
 import type { Task, UpdateTaskPayload } from '../types'
 
 export function useTaskDetail(taskId: string) {
@@ -19,8 +20,15 @@ export function useTaskDetail(taskId: string) {
                 taskService.getTask(taskId),
                 taskService.getTaskLabels(taskId),
                 taskService.getTaskSubtasks(taskId),
-                taskService.getTaskAssignees(taskId)
+                assigneeApi.getTaskAssignees(taskId)
             ])
+
+            console.log('🔍 Frontend: Data loaded successfully:', {
+                task: taskData?.id,
+                labelsCount: labelsData?.length || 0,
+                subtasksCount: subtasksData?.length || 0,
+                assigneesCount: assigneesData?.length || 0
+            })
             setTask(taskData)
             setLabels(labelsData)
             setSubtasks(subtasksData)

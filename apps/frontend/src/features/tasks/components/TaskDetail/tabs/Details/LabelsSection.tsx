@@ -1,14 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
-import { Label as UI_Label } from "@/shared/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Tag, Plus, X, Edit3 } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip"
+import { Tag, Plus, X, Edit3, Loader2 } from 'lucide-react'
 
 interface LabelsSectionProps {
     labels: any[]
@@ -37,8 +36,10 @@ export function LabelsSection({
     onDeleteLabel
 }: LabelsSectionProps) {
     const [editMode, setEditMode] = useState(false)
+    const [inlineAddLabel, setInlineAddLabel] = useState(false)
     const [newLabel, setNewLabel] = useState({ name: "", color: "bg-blue-500" })
     const [loading, setLoading] = useState(false)
+    const labelInputRef = useRef<HTMLInputElement>(null)
 
     const handleAddLabel = () => {
         if (!newLabel.name.trim() || !onAddLabel) return
@@ -51,6 +52,7 @@ export function LabelsSection({
             }
             onAddLabel(newLabelData)
             setNewLabel({ name: "", color: "bg-blue-500" })
+            setInlineAddLabel(false)
         } catch (error) {
             console.error("Failed to add label:", error)
         } finally {
@@ -67,85 +69,99 @@ export function LabelsSection({
         }
     }
 
+    const handleInlineLabelAdd = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && newLabel.name.trim()) {
+            handleAddLabel()
+        } else if (e.key === "Escape") {
+            setInlineAddLabel(false)
+            setNewLabel({ name: "", color: "bg-blue-500" })
+        }
+    }
+
+    const hasEditPermission = () => {
+        return canEdit
+    }
+
+    useEffect(() => {
+        if (inlineAddLabel) {
+            labelInputRef.current?.focus()
+        }
+    }, [inlineAddLabel])
+
     return (
-        <Card className="border-border hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
-                    <Tag className="h-5 w-5 text-green-500" />
-                    Labels
-                    <Badge variant="secondary" className="ml-auto text-xs px-2 py-1 bg-muted">
-                        {labels.length}
-                    </Badge>
-                    {/* Edit Button */}
-                    {canEdit && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditMode(!editMode)}
-                            className="h-6 w-6 p-0 ml-2"
-                        >
-                            <Edit3 className="h-3 w-3" />
-                        </Button>
-                    )}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {/* Existing Labels */}
-                <div className="flex flex-wrap gap-2">
-                    {labels.map((label) => (
-                        <div key={label.id} className="flex items-center gap-1">
-                            <Badge className={`${label.color} text-white hover:opacity-80`}>
-                                {label.name}
-                            </Badge>
-                            {/* Remove Button */}
-                            {editMode && canEdit && (
+        <TooltipProvider>
+            <Card className="border-border hover:shadow-md transition-shadow duration-200">
+                <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
+                        <Tag className="h-5 w-5 text-green-500" />
+                        {labels.length} labels
+                        {loading && <Loader2 className="h-4 w-4 animate-spin ml-auto" />}
+                        <Tooltip>
+                            <TooltipTrigger asChild>
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleDeleteLabel(label.id)}
-                                    className="h-5 w-5 p-0 hover:bg-destructive/10"
+                                    onClick={() => hasEditPermission() && setEditMode(!editMode)}
+                                    disabled={!hasEditPermission()}
+                                    className="h-8 w-8 p-0 ml-auto"
                                 >
-                                    <X className="h-3 w-3" />
+                                    <Edit3 className="h-4 w-4" />
                                 </Button>
+                            </TooltipTrigger>
+                            {!hasEditPermission() && (
+                                <TooltipContent>
+                                    <p>Bạn chỉ có thể chỉnh khi là Maintainer/Owner</p>
+                                </TooltipContent>
                             )}
+                        </Tooltip>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {labels.length === 0 && !inlineAddLabel ? (
+                        <div className="text-center py-6 text-muted-foreground">
+                            <Tag className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">Thêm label để dễ lọc và báo cáo.</p>
                         </div>
-                    ))}
-                </div>
+                    ) : (
+                        <div className="flex flex-wrap gap-2">
+                            {labels.map((label) => (
+                                <div key={label.id} className="flex items-center gap-1">
+                                    <Badge className={`${label.color} text-white hover:opacity-80`}>
+                                        {label.name}
+                                    </Badge>
+                                    {editMode && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleDeleteLabel(label.id)}
+                                            className="h-6 w-6 p-0 hover:bg-destructive/10"
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </Button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
-                {/* Add Button */}
-                {editMode && canEdit && (
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className="w-full justify-start gap-2 border-dashed hover:bg-accent hover:border-solid transition-all duration-200 bg-transparent"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Add label
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Add Label</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                                <div>
-                                    <UI_Label htmlFor="labelName">Label Name</UI_Label>
+                    {editMode && (
+                        <>
+                            {inlineAddLabel ? (
+                                <div className="flex gap-2">
                                     <Input
-                                        id="labelName"
+                                        ref={labelInputRef}
                                         value={newLabel.name}
                                         onChange={(e) => setNewLabel({ ...newLabel, name: e.target.value })}
-                                        placeholder="Enter label name"
+                                        onKeyDown={handleInlineLabelAdd}
+                                        placeholder="Nhập tên label..."
+                                        className="flex-1"
                                     />
-                                </div>
-                                <div>
-                                    <UI_Label htmlFor="labelColor">Color</UI_Label>
                                     <Select
                                         value={newLabel.color}
                                         onValueChange={(value) => setNewLabel({ ...newLabel, color: value })}
                                     >
-                                        <SelectTrigger>
-                                            <SelectValue />
+                                        <SelectTrigger className="w-24">
+                                            <div className={`w-4 h-4 rounded-full ${newLabel.color}`} />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {labelColors.map((color) => (
@@ -159,21 +175,20 @@ export function LabelsSection({
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <Button onClick={handleAddLabel} className="w-full" disabled={loading}>
-                                    Add Label
+                            ) : (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setInlineAddLabel(true)}
+                                    className="w-full justify-start gap-2 border-dashed hover:bg-accent hover:border-solid transition-all duration-200 bg-transparent"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add label
                                 </Button>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
-                )}
-
-                {/* Empty State */}
-                {labels.length === 0 && !editMode && (
-                    <div className="text-center py-4 text-sm text-muted-foreground">
-                        No labels assigned
-                    </div>
-                )}
-            </CardContent>
-        </Card>
+                            )}
+                        </>
+                    )}
+                </CardContent>
+            </Card>
+        </TooltipProvider>
     )
 }

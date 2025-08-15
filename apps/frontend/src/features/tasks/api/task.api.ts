@@ -71,9 +71,7 @@ class TaskApi {
         return apiClient.get<any[]>(API_ROUTES.TASKS.SUBTASKS(taskId))
     }
 
-    async getTaskAssigneesById(taskId: string): Promise<any[]> {
-        return apiClient.get<any[]>(API_ROUTES.TASKS.ASSIGNEES(taskId))
-    }
+
 }
 
 export const taskApi = new TaskApi()

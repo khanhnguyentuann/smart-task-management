@@ -23,6 +23,10 @@ interface DetailsTabProps {
     onDeleteLabel: (labelId: string) => void
     subtasks: any[]
     onDeleteSubtask: (subtaskId: string) => void
+    assignees: any[]
+    availableMembers: any[]
+    onAddAssignee: (userId: string) => void
+    onRemoveAssignee: (userId: string) => void
 }
 
 export function DetailsTab({
@@ -41,7 +45,11 @@ export function DetailsTab({
     labels,
     onDeleteLabel,
     subtasks,
-    onDeleteSubtask
+    onDeleteSubtask,
+    assignees,
+    availableMembers,
+    onAddAssignee,
+    onRemoveAssignee
 }: DetailsTabProps) {
     const handleDeleteLabel = (labelId: string) => {
         // TODO: Implement delete label functionality
@@ -61,8 +69,11 @@ export function DetailsTab({
             />
 
             <AssigneeManager
-                taskId={currentTask?.id || ""}
+                assignees={assignees}
+                availableMembers={availableMembers}
                 canEdit={canEdit}
+                onAddAssignee={onAddAssignee}
+                onRemoveAssignee={onRemoveAssignee}
             />
 
             <LabelsSection

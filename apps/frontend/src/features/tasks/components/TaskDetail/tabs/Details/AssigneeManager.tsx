@@ -1,199 +1,172 @@
 "use client"
 
 import React, { useState } from 'react';
-import { Plus, X, User, Edit3 } from 'lucide-react';
+import { Plus, X, User, Edit3, Loader2 } from 'lucide-react';
 import {
     Button,
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-    ScrollArea,
     Card,
     CardContent,
     CardHeader,
     CardTitle,
-    Badge
+    Badge,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/shared/components/ui';
-import { useTaskAssignees } from '../../../../hooks/useTaskAssignees';
-import { TaskAssignee, ProjectMember } from '../../../../api/assignee.api';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 
 interface AssigneeManagerProps {
-    taskId: string;
-    canEdit: boolean;
+    assignees: any[]
+    availableMembers: any[]
+    canEdit: boolean
+    isLoading?: boolean
+    isMutating?: boolean
+    onAddAssignee?: (userId: string) => void
+    onRemoveAssignee?: (userId: string) => void
 }
 
-export function AssigneeManager({ taskId, canEdit }: AssigneeManagerProps) {
-    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-
-    const {
-        assignees = [],
-        availableMembers = [],
-        projectMembers = [],
-        isLoading,
-        isMutating,
-        addAssignee,
-        removeAssignee,
-        error
-    } = useTaskAssignees(taskId);
+export function AssigneeManager({ 
+    assignees, 
+    availableMembers, 
+    canEdit, 
+    isLoading = false, 
+    isMutating = false,
+    onAddAssignee,
+    onRemoveAssignee
+}: AssigneeManagerProps) {
+    console.log('🔍 AssigneeManager: assignees data:', assignees);
+    console.log('🔍 AssigneeManager: availableMembers data:', availableMembers);
+    const [editMode, setEditMode] = useState(false);
+    const [selectedMemberId, setSelectedMemberId] = useState("");
 
     const handleAddAssignee = (userId: string) => {
-        addAssignee(userId);
-        setIsPopoverOpen(false);
+        if (onAddAssignee) {
+            onAddAssignee(userId);
+            setSelectedMemberId("");
+        }
     };
 
     const handleRemoveAssignee = (userId: string) => {
-        removeAssignee(userId);
+        if (onRemoveAssignee) {
+            onRemoveAssignee(userId);
+        }
     };
 
     const getUserDisplayName = (user: { firstName: string; lastName: string }) => {
         return `${user.firstName} ${user.lastName}`.trim();
     };
 
-    const getUserInitials = (user: { firstName: string; lastName: string }) => {
-        return `${user.firstName[0] || ''}${user.lastName[0] || ''}`.toUpperCase();
+    const hasEditPermission = () => {
+        return canEdit;
     };
 
-    // Show error state if there's an error
-    if (error) {
-        return (
-            <div className="space-y-3">
-                <h4 className="text-sm font-medium text-muted-foreground">Assignees</h4>
-                <div className="text-sm text-red-500">
-                    Failed to load assignees: {error.message}
-                </div>
-            </div>
-        );
-    }
-
-    // Always render the same UI, just conditionally show edit buttons
-
     return (
-        <Card className="border-border hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
-                    <User className="h-5 w-5 text-blue-500" />
-                    Assignees
-                    <Badge variant="secondary" className="ml-auto text-xs px-2 py-1 bg-muted">
-                        {assignees.length}
-                    </Badge>
-                    {/* Edit Button */}
-                    {canEdit && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-                            className="h-6 w-6 p-0 ml-2"
-                        >
-                            <Edit3 className="h-3 w-3" />
-                        </Button>
-                    )}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {/* Assignee List */}
-                <div className="space-y-2">
+        <TooltipProvider>
+            <Card className="border-border hover:shadow-md transition-shadow duration-200">
+                <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
+                        <User className="h-5 w-5 text-blue-500" />
+                        {assignees.length} assignees
+                        {isLoading && <Loader2 className="h-4 w-4 animate-spin ml-auto" />}
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => hasEditPermission() && setEditMode(!editMode)}
+                                    disabled={!hasEditPermission()}
+                                    className="h-8 w-8 p-0 ml-auto"
+                                >
+                                    <Edit3 className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            {!hasEditPermission() && (
+                                <TooltipContent>
+                                    <p>Bạn chỉ có thể chỉnh khi là Maintainer/Owner</p>
+                                </TooltipContent>
+                            )}
+                        </Tooltip>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                     {assignees.length === 0 ? (
-                        <div className="text-center py-4 text-sm text-muted-foreground">
-                            No assignees assigned
+                        <div className="text-center py-6 text-muted-foreground">
+                            <User className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">Chưa có ai được giao. Thêm người để bắt đầu.</p>
                         </div>
                     ) : (
-                        assignees.map((assignee) => (
-                            <div
-                                key={assignee.id}
-                                className="flex items-center gap-3 p-2 rounded-lg bg-muted/50"
-                            >
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src={assignee.user.avatar} />
-                                    <AvatarFallback className="text-xs">
-                                        {getUserInitials(assignee.user)}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-medium truncate">
-                                        {getUserDisplayName(assignee.user)}
+                        <div className="space-y-2">
+                            {assignees.map((assignee) => (
+                                <div key={assignee.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+                                    <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                                        <User className="h-4 w-4 text-white" />
                                     </div>
-                                    <div className="text-xs text-muted-foreground truncate">
-                                        {assignee.user.email}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">
+                                            {getUserDisplayName(assignee.user)}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                            {assignee.user.email}
+                                        </p>
                                     </div>
+                                    {editMode && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleRemoveAssignee(assignee.userId)}
+                                            className="h-8 w-8 p-0 hover:bg-destructive/10"
+                                            disabled={isMutating}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    )}
                                 </div>
-                                {/* Remove Button */}
-                                {canEdit && (
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleRemoveAssignee(assignee.userId)}
-                                        className="h-6 w-6 p-0 hover:bg-destructive/10"
-                                        disabled={isMutating}
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </Button>
-                                )}
-                            </div>
-                        ))
+                            ))}
+                        </div>
                     )}
-                </div>
 
-                {/* Add Assignee Button */}
-                {canEdit && (
-                    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className="w-full justify-start gap-2 border-dashed hover:bg-accent hover:border-solid transition-all duration-200 bg-transparent"
-                                disabled={isLoading || availableMembers.length === 0}
-                                title={availableMembers.length === 0 ? "All members are already assigned" : "Add assignee"}
-                            >
-                                <Plus className="h-4 w-4" />
-                                Add assignee
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-64 p-2" align="end">
-                            <div className="text-xs font-medium text-muted-foreground mb-2">
-                                Add member to task
-                            </div>
-                            {availableMembers.length === 0 ? (
-                                <div className="text-sm text-muted-foreground text-center py-4">
-                                    All project members are already assigned
+                    {editMode && availableMembers.length > 0 && (
+                        <Select
+                            value={selectedMemberId}
+                            onValueChange={(value) => {
+                                setSelectedMemberId(value);
+                                const selectedMember = availableMembers.find((m) => m.id === value);
+                                if (selectedMember && !assignees.find((a) => a.id === selectedMember.id)) {
+                                    handleAddAssignee(selectedMember.id);
+                                }
+                            }}
+                        >
+                            <SelectTrigger className="w-full border-dashed hover:bg-accent hover:border-solid transition-all duration-200 bg-transparent">
+                                <div className="flex items-center gap-2">
+                                    <Plus className="h-4 w-4" />
+                                    <SelectValue placeholder="Nhập tên hoặc email..." />
                                 </div>
-                            ) : (
-                                <ScrollArea className="max-h-48">
-                                    <div className="space-y-1">
-                                        {availableMembers.map((member) => (
-                                            <Button
-                                                key={member.id}
-                                                variant="ghost"
-                                                className="w-full justify-start h-auto p-2"
-                                                onClick={() => handleAddAssignee(member.id)}
-                                                disabled={isMutating}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="h-6 w-6">
-                                                        <AvatarImage src={member.avatar} />
-                                                        <AvatarFallback className="text-xs">
-                                                            {getUserInitials(member)}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="flex flex-col items-start">
-                                                        <div className="text-sm font-medium">
-                                                            {getUserDisplayName(member)}
-                                                        </div>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            {member.email}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </Button>
-                                        ))}
-                                    </div>
-                                </ScrollArea>
-                            )}
-                        </PopoverContent>
-                    </Popover>
-                )}
-            </CardContent>
-        </Card>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableMembers.map((member) => (
+                                    <SelectItem key={member.id} value={member.id}>
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-6 w-6 rounded-full bg-blue-500 flex items-center justify-center">
+                                                <User className="h-3 w-3 text-white" />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-sm">
+                                                    {getUserDisplayName(member)}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {member.email}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                </CardContent>
+            </Card>
+        </TooltipProvider>
     );
 }

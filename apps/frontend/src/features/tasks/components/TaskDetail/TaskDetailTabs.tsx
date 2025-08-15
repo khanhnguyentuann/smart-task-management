@@ -30,6 +30,10 @@ interface TaskDetailTabsProps {
     onDeleteLabel: (labelId: string) => void
     subtasks: any[]
     onDeleteSubtask: (subtaskId: string) => void
+    assignees: any[]
+    availableMembers: any[]
+    onAddAssignee: (userId: string) => void
+    onRemoveAssignee: (userId: string) => void
 }
 
 export function TaskDetailTabs({
@@ -54,7 +58,11 @@ export function TaskDetailTabs({
     labels,
     onDeleteLabel,
     subtasks,
-    onDeleteSubtask
+    onDeleteSubtask,
+    assignees,
+    availableMembers,
+    onAddAssignee,
+    onRemoveAssignee
 }: TaskDetailTabsProps) {
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -83,6 +91,10 @@ export function TaskDetailTabs({
                     onDeleteLabel={onDeleteLabel}
                     subtasks={subtasks}
                     onDeleteSubtask={onDeleteSubtask}
+                    assignees={assignees}
+                    availableMembers={availableMembers}
+                    onAddAssignee={onAddAssignee}
+                    onRemoveAssignee={onRemoveAssignee}
                 />
             </TabsContent>
 

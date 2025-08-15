@@ -14,6 +14,13 @@ export async function seedTasks(prisma: PrismaClient, project: Project, owner: U
       assignee: { connect: { id: owner.id } },      // Assigned to owner
       createdBy: { connect: { id: creator.id } },   // Created by creator
       dueDate: new Date('2025-01-15'),
+      // Also create TaskAssignee record
+      assignees: {
+        create: {
+          userId: owner.id,
+          assignedBy: creator.id,
+        }
+      }
     },
   });
 
@@ -30,6 +37,13 @@ export async function seedTasks(prisma: PrismaClient, project: Project, owner: U
       assignee: { connect: { id: creator.id } },    // Assigned to creator (self)
       createdBy: { connect: { id: creator.id } },   // Created by creator
       dueDate: new Date('2025-01-20'),
+      // Also create TaskAssignee record
+      assignees: {
+        create: {
+          userId: creator.id,
+          assignedBy: creator.id,
+        }
+      }
     },
   });
 
@@ -46,6 +60,13 @@ export async function seedTasks(prisma: PrismaClient, project: Project, owner: U
       assignee: { connect: { id: member.id } },     // Assigned to member
       createdBy: { connect: { id: creator.id } },   // Created by creator
       dueDate: new Date('2025-01-25'),
+      // Also create TaskAssignee record
+      assignees: {
+        create: {
+          userId: member.id,
+          assignedBy: creator.id,
+        }
+      }
     },
   });
 
@@ -62,6 +83,13 @@ export async function seedTasks(prisma: PrismaClient, project: Project, owner: U
       assignee: { connect: { id: owner.id } },      // Assigned to owner (self)
       createdBy: { connect: { id: owner.id } },     // Created by owner
       dueDate: new Date('2025-01-10'),
+      // Also create TaskAssignee record
+      assignees: {
+        create: {
+          userId: owner.id,
+          assignedBy: owner.id,
+        }
+      }
     },
   });
 

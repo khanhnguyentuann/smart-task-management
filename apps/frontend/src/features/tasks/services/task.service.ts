@@ -79,10 +79,7 @@ class TaskService {
         return subtasks
     }
 
-    async getTaskAssignees(taskId: string): Promise<any[]> {
-        const assignees = await taskApi.getTaskAssigneesById(taskId)
-        return assignees
-    }
+
 
     // Transform backend data to frontend format
     private transformTask(task: any): Task {

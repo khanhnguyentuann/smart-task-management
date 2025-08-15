@@ -14,6 +14,7 @@ import { useToast, useErrorHandler } from "@/shared/hooks"
 import { useUser } from "@/features/layout"
 import { getTaskPermissions } from "@/shared/lib/permissions"
 import { useTaskDetail } from "../../hooks/useTaskDetail"
+import { useTaskAssignees } from "../../hooks/useTaskAssignees"
 
 // Types
 import { TaskDetail as TaskDetailType } from "../../types/task.types"
@@ -34,6 +35,14 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
 
     // Use task detail hook
     const { task, labels, subtasks, assignees, loading, error, updateTask, deleteTask } = useTaskDetail(taskId)
+    
+    // Use task assignees hook for available members and assignee operations
+    const { 
+        availableMembers, 
+        addAssignee, 
+        removeAssignee, 
+        isLoading: isAssigneesLoading 
+    } = useTaskAssignees(taskId)
 
     // State management
     const [isEditing, setIsEditing] = useState(false)
@@ -366,6 +375,10 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                             // TODO: Implement delete subtask functionality
                             console.log('Delete subtask:', subtaskId)
                         }}
+                        assignees={assignees}
+                        availableMembers={availableMembers}
+                        onAddAssignee={addAssignee}
+                        onRemoveAssignee={removeAssignee}
                     />
 
                     {/* Footer Actions */}

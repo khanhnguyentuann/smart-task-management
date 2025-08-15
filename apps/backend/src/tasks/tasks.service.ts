@@ -47,6 +47,13 @@ export class TasksService {
                 projectId,
                 createdById: userId,
                 // AI summary will be added in M4
+                // Also create TaskAssignee record if assigneeId is provided
+                assignees: createTaskDto.assigneeId ? {
+                    create: {
+                        userId: createTaskDto.assigneeId,
+                        assignedBy: userId,
+                    }
+                } : undefined,
             },
             include: {
                 assignee: {
@@ -57,6 +64,27 @@ export class TasksService {
                         firstName: true,
                         lastName: true,
                     },
+                },
+                assignees: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                email: true,
+                                avatar: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                        assignedByUser: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                    orderBy: { assignedAt: 'asc' },
                 },
                 createdBy: {
                     select: {
@@ -192,6 +220,27 @@ export class TasksService {
                         lastName: true,
                     },
                 },
+                assignees: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                email: true,
+                                avatar: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                        assignedByUser: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                    orderBy: { assignedAt: 'asc' },
+                },
                 createdBy: {
                     select: {
                         id: true,
@@ -244,6 +293,22 @@ export class TasksService {
             updateData.dueDate = new Date(updateTaskDto.dueDate);
         }
 
+        // If assigneeId is being updated, also sync TaskAssignee table
+        if (updateTaskDto.assigneeId !== undefined) {
+            // Remove all existing assignees
+            updateData.assignees = {
+                deleteMany: {}, // Remove all existing assignees
+            };
+            
+            // Add new assignee if provided
+            if (updateTaskDto.assigneeId) {
+                updateData.assignees.create = {
+                    userId: updateTaskDto.assigneeId,
+                    assignedBy: userId,
+                };
+            }
+        }
+
         return this.prisma.task.update({
             where: { id },
             data: updateData,
@@ -256,6 +321,27 @@ export class TasksService {
                         firstName: true,
                         lastName: true,
                     },
+                },
+                assignees: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                email: true,
+                                avatar: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                        assignedByUser: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                    orderBy: { assignedAt: 'asc' },
                 },
                 createdBy: {
                     select: {
@@ -273,6 +359,115 @@ export class TasksService {
                 },
             },
         });
+    }
+
+    async assignTask(taskId: string, assigneeUserId: string, currentUserId: string) {
+        const task = await this.findOne(taskId, currentUserId);
+
+        // Check if assignee is project member
+        const assigneeInProject = await this.prisma.projectMember.findFirst({
+            where: {
+                projectId: task.projectId,
+                userId: assigneeUserId,
+            },
+        });
+
+        if (!assigneeInProject) {
+            throw new BadRequestException('Assignee must be a member of the project');
+        }
+
+        // Update both assigneeId and TaskAssignee table
+        return this.prisma.task.update({
+            where: { id: taskId },
+            data: {
+                assigneeId: assigneeUserId,
+                // Also update TaskAssignee table
+                assignees: {
+                    deleteMany: {}, // Remove all existing assignees
+                    create: {
+                        userId: assigneeUserId,
+                        assignedBy: currentUserId,
+                    }
+                }
+            },
+            include: {
+                assignee: {
+                    select: {
+                        id: true,
+                        email: true,
+                        avatar: true,
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+                assignees: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                email: true,
+                                avatar: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                        assignedByUser: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                    orderBy: { assignedAt: 'asc' },
+                },
+                createdBy: {
+                    select: {
+                        id: true,
+                        email: true,
+                    },
+                },
+                project: {
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        ownerId: true,
+                    },
+                },
+            },
+        });
+    }
+
+    // Migration method to sync existing assigneeId to TaskAssignee table
+    async syncExistingAssignees() {
+        const tasksWithAssignee = await this.prisma.task.findMany({
+            where: {
+                assigneeId: { not: null },
+                assignees: { none: {} } // No records in TaskAssignee table
+            },
+            select: {
+                id: true,
+                assigneeId: true,
+                createdById: true,
+            }
+        });
+
+        for (const task of tasksWithAssignee) {
+            try {
+                await this.prisma.taskAssignee.create({
+                    data: {
+                        taskId: task.id,
+                        userId: task.assigneeId!,
+                        assignedBy: task.createdById,
+                    }
+                });
+            } catch (error) {
+                console.error(`Failed to sync task ${task.id}:`, error);
+            }
+        }
+
+        return { syncedCount: tasksWithAssignee.length };
     }
 
     async archive(id: string, userId: string) {
@@ -432,27 +627,29 @@ export class TasksService {
     async getTaskLabels(taskId: string, userId: string) {
         // Verify user has access to task
         await this.findOne(taskId, userId);
-        
+
         const labels = await this.prisma.taskLabel.findMany({
             where: { taskId },
             orderBy: { createdAt: 'asc' },
         });
 
+        console.log('🔍 Backend: Task labels for taskId:', taskId, 'Labels:', labels);
         return labels;
     }
 
     async getTaskSubtasks(taskId: string, userId: string) {
         // Verify user has access to task
         await this.findOne(taskId, userId);
-        
+
         const subtasks = await this.prisma.task.findMany({
-            where: { 
+            where: {
                 parentTaskId: taskId,
-                deletedAt: null 
+                deletedAt: null
             },
             orderBy: { createdAt: 'asc' },
         });
 
+        console.log('🔍 Backend: Task subtasks for taskId:', taskId, 'Subtasks:', subtasks);
         return subtasks;
     }
 }

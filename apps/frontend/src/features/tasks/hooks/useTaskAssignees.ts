@@ -17,7 +17,10 @@ export function useTaskAssignees(taskId: string) {
         queryKey: ['task-assignees', taskId],
         queryFn: async () => {
             if (!taskId) return [];
-            return await assigneeApi.getTaskAssignees(taskId);
+            console.log('🔍 useTaskAssignees: Fetching assignees for taskId:', taskId);
+            const result = await assigneeApi.getTaskAssignees(taskId);
+            console.log('🔍 useTaskAssignees: Assignees result:', result);
+            return result;
         },
         enabled: !!taskId,
         retry: 1,
