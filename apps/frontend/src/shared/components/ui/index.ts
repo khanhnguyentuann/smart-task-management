@@ -64,7 +64,6 @@ export * from './animated-background'
 export * from './animated-task-card'
 export * from './enhanced-theme-toggle'
 export * from './theme-toggle'
-export * from './task-bot'
 
 // Form Components (from form directory)
 export * from './form'

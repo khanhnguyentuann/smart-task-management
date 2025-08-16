@@ -52,9 +52,7 @@ const nextConfig = {
   // Compression
   compress: true,
   // Disable Next.js development overlay
-  devIndicators: {
-    position: 'bottom-right',
-  },
+  devIndicators: false
 }
 
 export default nextConfig

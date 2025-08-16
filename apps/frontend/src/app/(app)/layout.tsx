@@ -1,6 +1,7 @@
 "use client"
 
-import { SidebarProvider, SidebarInset, TaskBot, AnimatedBackground } from "@/shared/components/ui"
+import { SidebarProvider, SidebarInset, AnimatedBackground } from "@/shared/components/ui"
+import { TaskBot } from "@/features/taskbot"
 import { AppSidebar, UserProvider, useUser } from "@/features/layout"
 import { useLogout } from "@/features/auth"
 import { useToast } from "@/shared/hooks/useToast"
@@ -60,7 +61,10 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
         </SidebarInset>
       </SidebarProvider>
       <TaskBot
-        mood={pathname === "/dashboard" ? "happy" : "working"}
+        mood={{
+          type: pathname === "/dashboard" ? "happy" : "working",
+          message: pathname === "/dashboard" ? "Welcome back!" : "Working on tasks..."
+        }}
         currentPage={pathname}
         user={user}
         onCreateTask={() => {

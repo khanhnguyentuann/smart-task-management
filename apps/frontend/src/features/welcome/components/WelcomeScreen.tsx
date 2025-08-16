@@ -28,16 +28,19 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
   ]
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="max-w-4xl mx-auto px-6 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] to-[#0b1220] relative pb-20 sm:pr-16">
+      {/* Overlay for better contrast */}
+      <div className="absolute inset-0 bg-black/20 backdrop-contrast-125"></div>
+
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-14 sm:py-20 relative z-10 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="space-y-8"
+          className="space-y-4 sm:space-y-6"
         >
           {/* Logo and Title */}
-          <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-6">
             <motion.div
               animate={{
                 rotate: [0, 10, -10, 0],
@@ -49,10 +52,13 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
                 repeatType: "reverse",
               }}
               className="inline-block"
+              style={{
+                animationPlayState: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'paused' : 'running'
+              }}
             >
-              <div className="flex items-center justify-center gap-3 text-6xl font-bold text-blue-600">
-                <Sparkles className="h-16 w-16" />
-                <span>Smart Task</span>
+              <div className="flex items-center justify-center gap-2 sm:gap-3 text-[clamp(28px,6vw,56px)] font-bold text-white leading-tight tracking-tight">
+                <Sparkles className="h-8 w-8 sm:h-12 sm:w-12" />
+                <span className="text-balance">Smart Task</span>
               </div>
             </motion.div>
 
@@ -60,7 +66,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-xl text-muted-foreground max-w-2xl mx-auto"
+              className="max-w-2xl mx-auto text-base sm:text-lg text-white/70 text-balance"
             >
               Transform your productivity with AI-powered task management. Organize, collaborate, and achieve more with
               your team.
@@ -72,7 +78,7 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="grid md:grid-cols-3 gap-8 my-12"
+            className="grid gap-y-10 sm:grid-cols-3 sm:gap-x-8 my-12"
           >
             {features.map((feature, index) => (
               <motion.div
@@ -84,28 +90,33 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
               >
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="inline-block p-4 bg-blue-100 dark:bg-blue-900/20 rounded-full"
+                  className="inline-block p-3 sm:p-4 bg-white/5 rounded-full"
                 >
-                  <feature.icon className="h-8 w-8 text-blue-600" />
+                  <feature.icon className="size-10 sm:size-12 text-blue-400" />
                 </motion.div>
-                <h3 className="text-lg font-semibold">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
+                <h3 className="text-lg font-semibold text-white">{feature.title}</h3>
+                <p className="text-sm text-white/70">{feature.description}</p>
               </motion.div>
             ))}
           </motion.div>
 
-          {/* CTA Button */}
+          {/* CTA Button - Second one at the bottom */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.2, type: "spring" }}
+            className="flex justify-center mb-[env(safe-area-inset-bottom)]"
           >
-            <EnhancedButton onClick={onGetStarted} size="lg" className="text-lg px-8 py-6">
-              <Sparkles className="h-5 w-5 mr-2" />
+            <EnhancedButton
+              onClick={onGetStarted}
+              size="lg"
+              className="h-12 px-6 text-base rounded-full"
+              aria-label="Get started"
+            >
+              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Get Started
             </EnhancedButton>
           </motion.div>
-
 
         </motion.div>
       </div>
