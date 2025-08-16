@@ -590,9 +590,182 @@ export class TasksService {
                 parentTaskId: taskId,
                 deletedAt: null
             },
+            include: {
+                assignees: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                email: true,
+                                avatar: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                    orderBy: { assignedAt: 'asc' },
+                },
+                createdBy: {
+                    select: {
+                        id: true,
+                        email: true,
+                    },
+                },
+            },
             orderBy: { createdAt: 'asc' },
         });
 
         return subtasks;
+    }
+
+    async createSubtask(taskId: string, createSubtaskDto: any, userId: string) {
+        // Verify user has access to parent task
+        const parentTask = await this.findOne(taskId, userId);
+
+        // Check if user has permission to create subtasks
+        const isProjectOwner = parentTask.project.ownerId === userId;
+        const isTaskCreator = parentTask.createdBy.id === userId;
+        const isAssignee = parentTask.assignees.some(assignee => assignee.userId === userId);
+
+        if (!isProjectOwner && !isTaskCreator && !isAssignee) {
+            throw new ForbiddenException('You do not have permission to create subtasks for this task');
+        }
+
+        const subtask = await this.prisma.task.create({
+            data: {
+                ...createSubtaskDto,
+                projectId: parentTask.projectId,
+                parentTaskId: taskId,
+                createdById: userId,
+                status: createSubtaskDto.status || 'TODO',
+                priority: createSubtaskDto.priority || 'MEDIUM',
+                dueDate: createSubtaskDto.dueDate ? new Date(createSubtaskDto.dueDate) : null,
+            },
+            include: {
+                assignees: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                email: true,
+                                avatar: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                    orderBy: { assignedAt: 'asc' },
+                },
+                createdBy: {
+                    select: {
+                        id: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+
+        return subtask;
+    }
+
+    async updateSubtask(taskId: string, subtaskId: string, updateSubtaskDto: any, userId: string) {
+        // Verify user has access to parent task
+        const parentTask = await this.findOne(taskId, userId);
+
+        // Check if user has permission to modify subtasks
+        const isProjectOwner = parentTask.project.ownerId === userId;
+        const isTaskCreator = parentTask.createdBy.id === userId;
+        const isAssignee = parentTask.assignees.some(assignee => assignee.userId === userId);
+
+        if (!isProjectOwner && !isTaskCreator && !isAssignee) {
+            throw new ForbiddenException('You do not have permission to update subtasks for this task');
+        }
+
+        // Check if subtask exists and belongs to this task
+        const existingSubtask = await this.prisma.task.findFirst({
+            where: {
+                id: subtaskId,
+                parentTaskId: taskId,
+                deletedAt: null,
+            },
+        });
+
+        if (!existingSubtask) {
+            throw new NotFoundException('Subtask not found');
+        }
+
+        // Prepare update data
+        const updateData: any = { ...updateSubtaskDto };
+
+        // Handle null dueDate to clear it
+        if (updateSubtaskDto.dueDate === null) {
+            updateData.dueDate = null;
+        } else if (updateSubtaskDto.dueDate) {
+            updateData.dueDate = new Date(updateSubtaskDto.dueDate);
+        }
+
+        const updatedSubtask = await this.prisma.task.update({
+            where: { id: subtaskId },
+            data: updateData,
+            include: {
+                assignees: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                email: true,
+                                avatar: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                    orderBy: { assignedAt: 'asc' },
+                },
+                createdBy: {
+                    select: {
+                        id: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+
+        return updatedSubtask;
+    }
+
+    async deleteSubtask(taskId: string, subtaskId: string, userId: string) {
+        // Verify user has access to parent task
+        const parentTask = await this.findOne(taskId, userId);
+
+        // Check if user has permission to delete subtasks
+        const isProjectOwner = parentTask.project.ownerId === userId;
+        const isTaskCreator = parentTask.createdBy.id === userId;
+        const isAssignee = parentTask.assignees.some(assignee => assignee.userId === userId);
+
+        if (!isProjectOwner && !isTaskCreator && !isAssignee) {
+            throw new ForbiddenException('You do not have permission to delete subtasks for this task');
+        }
+
+        // Check if subtask exists and belongs to this task
+        const existingSubtask = await this.prisma.task.findFirst({
+            where: {
+                id: subtaskId,
+                parentTaskId: taskId,
+                deletedAt: null,
+            },
+        });
+
+        if (!existingSubtask) {
+            throw new NotFoundException('Subtask not found');
+        }
+
+        // Soft delete the subtask
+        await this.prisma.task.update({
+            where: { id: subtaskId },
+            data: { deletedAt: new Date() },
+        });
+
+        return { message: 'Subtask deleted successfully' };
     }
 }

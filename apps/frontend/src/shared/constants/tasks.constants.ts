@@ -54,6 +54,12 @@ export const TASKS_CONSTANTS = {
         LABEL_UPDATE_FAILED: 'Failed to update label',
         LABEL_DELETE_SUCCESS: 'Label deleted successfully!',
         LABEL_DELETE_FAILED: 'Failed to delete label',
+        SUBTASK_CREATE_SUCCESS: 'Subtask created successfully!',
+        SUBTASK_CREATE_FAILED: 'Failed to create subtask',
+        SUBTASK_UPDATE_SUCCESS: 'Subtask updated successfully!',
+        SUBTASK_UPDATE_FAILED: 'Failed to update subtask',
+        SUBTASK_DELETE_SUCCESS: 'Subtask deleted successfully!',
+        SUBTASK_DELETE_FAILED: 'Failed to delete subtask',
     },
 
     // Query keys for React Query
@@ -61,6 +67,7 @@ export const TASKS_CONSTANTS = {
         TASK_ASSIGNEES: (taskId: string) => ['task-assignees', taskId],
         PROJECT_MEMBERS: (taskId: string) => ['project-members', taskId],
         TASK_LABELS: (taskId: string) => ['task-labels', taskId],
+        TASK_SUBTASKS: (taskId: string) => ['task-subtasks', taskId],
         TASKS: ['tasks'],
         PROJECTS: ['projects'],
     },

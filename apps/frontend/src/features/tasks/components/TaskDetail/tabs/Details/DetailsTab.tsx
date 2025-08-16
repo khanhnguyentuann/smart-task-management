@@ -51,13 +51,7 @@ export function DetailsTab({
     onAddAssignee,
     onRemoveAssignee
 }: DetailsTabProps) {
-    const handleDeleteLabel = (labelId: string) => {
-        // TODO: Implement delete label functionality
-    }
 
-    const handleDeleteSubtask = (subtaskId: string) => {
-        // TODO: Implement delete subtask functionality
-    }
 
     return (
         <div className="space-y-6 mt-6">
@@ -93,6 +87,8 @@ export function DetailsTab({
                 onAddSubtask={onAddSubtask}
                 onToggleSubtask={onToggleSubtask}
                 onDeleteSubtask={onDeleteSubtask}
+                newSubtask={newSubtask}
+                setNewSubtask={setNewSubtask}
             />
         </div>
     )

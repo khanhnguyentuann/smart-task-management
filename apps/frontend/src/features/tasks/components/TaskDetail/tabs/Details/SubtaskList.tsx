@@ -13,9 +13,11 @@ interface SubtaskListProps {
     subtasks: any[]
     isEditing?: boolean
     canEdit?: boolean
-    onAddSubtask?: (subtask: any) => void
-    onToggleSubtask?: (subtaskId: string) => void
-    onDeleteSubtask?: (subtaskId: string) => void
+    onAddSubtask: () => void
+    onToggleSubtask: (subtaskId: string) => void
+    onDeleteSubtask: (subtaskId: string) => void
+    newSubtask: string
+    setNewSubtask: (value: string) => void
 }
 
 export function SubtaskList({
@@ -24,28 +26,23 @@ export function SubtaskList({
     canEdit,
     onAddSubtask,
     onToggleSubtask,
-    onDeleteSubtask
+    onDeleteSubtask,
+    newSubtask,
+    setNewSubtask
 }: SubtaskListProps) {
     const [editMode, setEditMode] = useState(false)
     const [inlineAddSubtask, setInlineAddSubtask] = useState(false)
     const [editingSubtask, setEditingSubtask] = useState<string | null>(null)
     const [editingSubtaskValue, setEditingSubtaskValue] = useState("")
-    const [newSubtask, setNewSubtask] = useState("")
     const [loading, setLoading] = useState(false)
     const subtaskInputRef = useRef<HTMLInputElement>(null)
     const editSubtaskRef = useRef<HTMLInputElement>(null)
 
     const handleAddSubtask = () => {
-        if (!newSubtask.trim() || !onAddSubtask) return
+        if (!newSubtask.trim()) return
         setLoading(true)
         try {
-            const newSubtaskData = {
-                id: Date.now().toString(),
-                title: newSubtask.trim(),
-                completed: false
-            }
-            onAddSubtask(newSubtaskData)
-            setNewSubtask("")
+            onAddSubtask()
             setInlineAddSubtask(false)
         } catch (error) {
             console.error("Failed to add subtask:", error)
@@ -55,7 +52,6 @@ export function SubtaskList({
     }
 
     const handleToggleSubtask = (subtaskId: string) => {
-        if (!onToggleSubtask) return
         try {
             onToggleSubtask(subtaskId)
         } catch (error) {
@@ -64,7 +60,6 @@ export function SubtaskList({
     }
 
     const handleDeleteSubtask = (subtaskId: string) => {
-        if (!onDeleteSubtask) return
         try {
             onDeleteSubtask(subtaskId)
         } catch (error) {
@@ -113,7 +108,7 @@ export function SubtaskList({
         return canEdit
     }
 
-    const completedSubtasks = subtasks.filter(st => st.completed).length
+    const completedSubtasks = subtasks.filter(st => st.status === 'DONE').length
     const totalSubtasks = subtasks.length
 
     useEffect(() => {
@@ -169,7 +164,7 @@ export function SubtaskList({
                                         </div>
                                     )}
                                     <Checkbox
-                                        checked={subtask.completed}
+                                        checked={subtask.status === 'DONE'}
                                         onCheckedChange={() => handleToggleSubtask(subtask.id)}
                                         disabled={!hasEditPermission()}
                                     />
@@ -184,7 +179,7 @@ export function SubtaskList({
                                         />
                                     ) : (
                                         <span
-                                            className={`flex-1 text-sm cursor-pointer ${subtask.completed ? "line-through text-muted-foreground" : ""
+                                            className={`flex-1 text-sm cursor-pointer ${subtask.status === 'DONE' ? "line-through text-muted-foreground" : ""
                                                 }`}
                                             onDoubleClick={() => handleSubtaskDoubleClick(subtask)}
                                             onKeyDown={(e) => handleSubtaskKeyDown(e, subtask.id)}

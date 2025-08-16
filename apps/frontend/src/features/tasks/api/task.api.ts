@@ -56,17 +56,6 @@ class TaskApi {
     async restoreTaskById(id: string): Promise<{ message: string }> {
         return apiClient.post<{ message: string }>(API_ROUTES.TASKS.RESTORE(id))
     }
-
-    // ==========================================
-    // TASK RELATIONS
-    // ==========================================
-    
-
-    async getTaskSubtasksById(taskId: string): Promise<any[]> {
-        return apiClient.get<any[]>(API_ROUTES.TASKS.SUBTASKS(taskId))
-    }
-
-
 }
 
 export const taskApi = new TaskApi()

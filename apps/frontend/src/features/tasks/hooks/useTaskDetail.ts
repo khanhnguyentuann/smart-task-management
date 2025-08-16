@@ -4,7 +4,6 @@ import type { Task, UpdateTaskPayload } from '../types'
 
 export function useTaskDetail(taskId: string) {
     const [task, setTask] = useState<Task | null>(null)
-    const [subtasks, setSubtasks] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -13,14 +12,8 @@ export function useTaskDetail(taskId: string) {
         setLoading(true)
         setError(null)
         try {
-            const [taskData, subtasksData] = await Promise.all([
-                taskService.getTask(taskId),
-                taskService.getTaskSubtasks(taskId)
-            ])
-
-
+            const taskData = await taskService.getTask(taskId)
             setTask(taskData)
-            setSubtasks(subtasksData)
         } catch (err: any) {
             setError(err.message || 'Failed to load task')
         } finally {
@@ -74,7 +67,6 @@ export function useTaskDetail(taskId: string) {
 
     return {
         task,
-        subtasks,
         loading,
         error,
         fetchTask,

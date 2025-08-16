@@ -65,13 +65,6 @@ class TaskService {
     // ==========================================
     // TASK RELATIONS
     // ==========================================
-    
-
-
-    async getTaskSubtasks(taskId: string): Promise<any[]> {
-        const subtasks = await taskApi.getTaskSubtasksById(taskId)
-        return subtasks
-    }
 
 
 

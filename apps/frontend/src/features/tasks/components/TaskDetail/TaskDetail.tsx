@@ -16,6 +16,7 @@ import { getTaskPermissions } from "@/shared/lib/permissions"
 import { useTaskDetail } from "../../hooks/useTaskDetail"
 import { useTaskAssignees } from "../../hooks/useTaskAssignees"
 import { useTaskLabels } from "../../hooks/useTaskLabels"
+import { useTaskSubtasks } from "../../hooks/useTaskSubtasks"
 
 // Types
 import { TaskDetail as TaskDetailType } from "../../types/task.types"
@@ -35,7 +36,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const { user } = useUser()
 
     // Use task detail hook
-    const { task, subtasks, loading, error, updateTask, deleteTask, refresh } = useTaskDetail(taskId)
+    const { task, loading, error, updateTask, deleteTask, refresh } = useTaskDetail(taskId)
 
     // Use task assignees hook for assignee data and operations
     const {
@@ -59,6 +60,20 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         isLoading: isLabelsLoading
     } = useTaskLabels(taskId, () => {
         // Refresh task detail when labels change
+        refresh()
+    })
+
+    // Use task subtasks hook for subtask data and operations
+    const {
+        subtasks,
+        progress,
+        createSubtask,
+        updateSubtask,
+        deleteSubtask,
+        toggleSubtaskStatus,
+        isLoading: isSubtasksLoading
+    } = useTaskSubtasks(taskId, () => {
+        // Refresh task detail when subtasks change
         refresh()
     })
 
@@ -224,38 +239,25 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
 
     // Subtask handlers
     const handleAddSubtask = useCallback(() => {
-        if (!newSubtask.trim() || !editedTask) return
-
-        const subtask = {
-            id: Date.now().toString(),
-            title: newSubtask,
-            completed: false,
-        }
-
-        setEditedTask({
-            ...editedTask,
-            subtasks: [...editedTask.subtasks, subtask],
-        })
+        if (!newSubtask.trim()) return
+        createSubtask(newSubtask)
         setNewSubtask("")
-    }, [newSubtask, editedTask])
+    }, [newSubtask, createSubtask])
 
     const handleToggleSubtask = useCallback((subtaskId: string) => {
-        if (!editedTask) return
-
-        setEditedTask({
-            ...editedTask,
-            subtasks: editedTask.subtasks.map((st: any) =>
-                st.id === subtaskId ? { ...st, completed: !st.completed } : st
-            ),
-        })
-    }, [editedTask])
+        // Find the subtask to get its current status
+        const subtask = subtasks.find(st => st.id === subtaskId)
+        if (subtask) {
+            toggleSubtaskStatus(subtaskId, subtask.status)
+        }
+    }, [subtasks, toggleSubtaskStatus])
 
 
 
-    // Progress calculation
-    const completedSubtasks = currentTask?.subtasks?.filter((st: any) => st.completed).length || 0
-    const totalSubtasks = currentTask?.subtasks?.length || 0
-    const progressPercentage = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0
+    // Progress calculation from subtasks hook
+    const completedSubtasks = progress.completed
+    const totalSubtasks = progress.total
+    const progressPercentage = progress.percentage
 
     // Loading state
     if (loading) {
@@ -370,10 +372,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         onUpdateLabel={updateLabel}
                         onDeleteLabel={deleteLabel}
                         subtasks={subtasks}
-                        onDeleteSubtask={(subtaskId) => {
-                            // TODO: Implement delete subtask functionality
-                            console.log('Delete subtask:', subtaskId)
-                        }}
+                        onDeleteSubtask={deleteSubtask}
                         assignees={assignees}
                         availableMembers={availableMembers}
                         onAddAssignee={addAssignee}

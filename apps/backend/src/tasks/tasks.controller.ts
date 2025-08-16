@@ -17,6 +17,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskFilterDto } from './dto/task-filter.dto';
 import { AddAssigneeDto, ReplaceAssigneesDto } from './dto/assignee.dto';
 import { CreateLabelDto, UpdateLabelDto } from './dto/label.dto';
+import { CreateSubtaskDto, UpdateSubtaskDto } from './dto/subtask.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ProjectMemberGuard } from '../common/guards/project-member.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -207,5 +208,36 @@ export class TasksController {
         @CurrentUser() user: User,
     ) {
         return this.tasksService.getTaskSubtasks(taskId, user.id);
+    }
+
+    // Create subtask
+    @Post('tasks/:taskId/subtasks')
+    createSubtask(
+        @Param('taskId') taskId: string,
+        @Body(ValidationPipe) createSubtaskDto: CreateSubtaskDto,
+        @CurrentUser() user: User,
+    ) {
+        return this.tasksService.createSubtask(taskId, createSubtaskDto, user.id);
+    }
+
+    // Update subtask
+    @Patch('tasks/:taskId/subtasks/:subtaskId')
+    updateSubtask(
+        @Param('taskId') taskId: string,
+        @Param('subtaskId') subtaskId: string,
+        @Body(ValidationPipe) updateSubtaskDto: UpdateSubtaskDto,
+        @CurrentUser() user: User,
+    ) {
+        return this.tasksService.updateSubtask(taskId, subtaskId, updateSubtaskDto, user.id);
+    }
+
+    // Delete subtask
+    @Delete('tasks/:taskId/subtasks/:subtaskId')
+    deleteSubtask(
+        @Param('taskId') taskId: string,
+        @Param('subtaskId') subtaskId: string,
+        @CurrentUser() user: User,
+    ) {
+        return this.tasksService.deleteSubtask(taskId, subtaskId, user.id);
     }
 }
