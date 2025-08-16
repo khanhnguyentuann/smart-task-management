@@ -12,9 +12,9 @@ interface DetailsTabProps {
     editedTask: any
     canEdit: boolean
     onFieldChange: (field: string, value: any) => void
-    newLabel: string
-    setNewLabel: (value: string) => void
-    onAddLabel: () => void
+    availableColors?: string[]
+    onCreateLabel: (name: string, color?: string) => void
+    onUpdateLabel: (labelId: string, data: any) => void
     newSubtask: string
     setNewSubtask: (value: string) => void
     onAddSubtask: () => void
@@ -35,14 +35,14 @@ export function DetailsTab({
     editedTask,
     canEdit,
     onFieldChange,
-    newLabel,
-    setNewLabel,
-    onAddLabel,
     newSubtask,
     setNewSubtask,
     onAddSubtask,
     onToggleSubtask,
     labels,
+    availableColors,
+    onCreateLabel,
+    onUpdateLabel,
     onDeleteLabel,
     subtasks,
     onDeleteSubtask,
@@ -78,9 +78,11 @@ export function DetailsTab({
 
             <LabelsSection
                 labels={labels}
+                availableColors={availableColors}
                 isEditing={isEditing}
                 canEdit={canEdit}
-                onAddLabel={onAddLabel}
+                onCreateLabel={onCreateLabel}
+                onUpdateLabel={onUpdateLabel}
                 onDeleteLabel={onDeleteLabel}
             />
 

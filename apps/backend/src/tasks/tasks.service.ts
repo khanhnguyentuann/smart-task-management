@@ -489,6 +489,98 @@ export class TasksService {
         return labels;
     }
 
+    async createTaskLabel(taskId: string, createLabelDto: any, userId: string) {
+        // Verify user has access to task
+        const task = await this.findOne(taskId, userId);
+
+        // Check if user has permission to modify task
+        const isProjectOwner = task.project.ownerId === userId;
+        const isTaskCreator = task.createdBy.id === userId;
+        const isAssignee = task.assignees.some(assignee => assignee.userId === userId);
+
+        if (!isProjectOwner && !isTaskCreator && !isAssignee) {
+            throw new ForbiddenException('You do not have permission to add labels to this task');
+        }
+
+        const label = await this.prisma.taskLabel.create({
+            data: {
+                name: createLabelDto.name,
+                color: createLabelDto.color,
+                taskId: taskId,
+            },
+        });
+
+        return label;
+    }
+
+    async updateTaskLabel(taskId: string, labelId: string, updateLabelDto: any, userId: string) {
+        // Verify user has access to task
+        const task = await this.findOne(taskId, userId);
+
+        // Check if user has permission to modify task
+        const isProjectOwner = task.project.ownerId === userId;
+        const isTaskCreator = task.createdBy.id === userId;
+        const isAssignee = task.assignees.some(assignee => assignee.userId === userId);
+
+        if (!isProjectOwner && !isTaskCreator && !isAssignee) {
+            throw new ForbiddenException('You do not have permission to update labels for this task');
+        }
+
+        // Check if label exists and belongs to this task
+        const existingLabel = await this.prisma.taskLabel.findFirst({
+            where: {
+                id: labelId,
+                taskId: taskId,
+            },
+        });
+
+        if (!existingLabel) {
+            throw new NotFoundException('Label not found');
+        }
+
+        const updatedLabel = await this.prisma.taskLabel.update({
+            where: { id: labelId },
+            data: {
+                ...(updateLabelDto.name && { name: updateLabelDto.name }),
+                ...(updateLabelDto.color && { color: updateLabelDto.color }),
+            },
+        });
+
+        return updatedLabel;
+    }
+
+    async deleteTaskLabel(taskId: string, labelId: string, userId: string) {
+        // Verify user has access to task
+        const task = await this.findOne(taskId, userId);
+
+        // Check if user has permission to modify task
+        const isProjectOwner = task.project.ownerId === userId;
+        const isTaskCreator = task.createdBy.id === userId;
+        const isAssignee = task.assignees.some(assignee => assignee.userId === userId);
+
+        if (!isProjectOwner && !isTaskCreator && !isAssignee) {
+            throw new ForbiddenException('You do not have permission to delete labels for this task');
+        }
+
+        // Check if label exists and belongs to this task
+        const existingLabel = await this.prisma.taskLabel.findFirst({
+            where: {
+                id: labelId,
+                taskId: taskId,
+            },
+        });
+
+        if (!existingLabel) {
+            throw new NotFoundException('Label not found');
+        }
+
+        await this.prisma.taskLabel.delete({
+            where: { id: labelId },
+        });
+
+        return { message: 'Label deleted successfully' };
+    }
+
     async getTaskSubtasks(taskId: string, userId: string) {
         // Verify user has access to task
         await this.findOne(taskId, userId);

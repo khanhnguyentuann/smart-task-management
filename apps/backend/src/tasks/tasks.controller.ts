@@ -16,6 +16,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskFilterDto } from './dto/task-filter.dto';
 import { AddAssigneeDto, ReplaceAssigneesDto } from './dto/assignee.dto';
+import { CreateLabelDto, UpdateLabelDto } from './dto/label.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ProjectMemberGuard } from '../common/guards/project-member.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -166,6 +167,37 @@ export class TasksController {
         @CurrentUser() user: User,
     ) {
         return this.tasksService.getTaskLabels(taskId, user.id);
+    }
+
+    // Create task label
+    @Post('tasks/:taskId/labels')
+    createTaskLabel(
+        @Param('taskId') taskId: string,
+        @Body(ValidationPipe) createLabelDto: CreateLabelDto,
+        @CurrentUser() user: User,
+    ) {
+        return this.tasksService.createTaskLabel(taskId, createLabelDto, user.id);
+    }
+
+    // Update task label
+    @Patch('tasks/:taskId/labels/:labelId')
+    updateTaskLabel(
+        @Param('taskId') taskId: string,
+        @Param('labelId') labelId: string,
+        @Body(ValidationPipe) updateLabelDto: UpdateLabelDto,
+        @CurrentUser() user: User,
+    ) {
+        return this.tasksService.updateTaskLabel(taskId, labelId, updateLabelDto, user.id);
+    }
+
+    // Delete task label
+    @Delete('tasks/:taskId/labels/:labelId')
+    deleteTaskLabel(
+        @Param('taskId') taskId: string,
+        @Param('labelId') labelId: string,
+        @CurrentUser() user: User,
+    ) {
+        return this.tasksService.deleteTaskLabel(taskId, labelId, user.id);
     }
 
     // Get task subtasks

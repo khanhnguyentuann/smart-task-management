@@ -61,9 +61,6 @@ class TaskApi {
     // TASK RELATIONS
     // ==========================================
     
-    async getTaskLabelsById(taskId: string): Promise<any[]> {
-        return apiClient.get<any[]>(API_ROUTES.TASKS.LABELS(taskId))
-    }
 
     async getTaskSubtasksById(taskId: string): Promise<any[]> {
         return apiClient.get<any[]>(API_ROUTES.TASKS.SUBTASKS(taskId))

@@ -1,33 +1,51 @@
 /*
-    API layer: Labels for tasks
+    API layer: Only talk to HTTP Client (ApiClient)
+    No business logic, just transform response if needed.
 */
 import { apiClient } from '@/core/services/api-client'
-import type { Label, CreateLabelPayload, UpdateLabelPayload } from '../types'
+import { API_ROUTES } from '@/shared/constants'
 
-class LabelApi {
-    async getTaskLabels(taskId: string): Promise<Label[]> {
-        return apiClient.get<Label[]>(`/tasks/${taskId}/labels`)
-    }
-
-    async addLabel(taskId: string, payload: CreateLabelPayload): Promise<Label> {
-        return apiClient.post<Label>(`/tasks/${taskId}/labels`, payload)
-    }
-
-    async removeLabel(taskId: string, labelId: string): Promise<void> {
-        await apiClient.delete(`/tasks/${taskId}/labels/${labelId}`)
-    }
-
-    async updateLabel(labelId: string, payload: UpdateLabelPayload): Promise<Label> {
-        return apiClient.put<Label>(`/labels/${labelId}`, payload)
-    }
-
-    async getProjectLabels(projectId: string): Promise<Label[]> {
-        return apiClient.get<Label[]>(`/projects/${projectId}/labels`)
-    }
-
-    async createProjectLabel(projectId: string, payload: CreateLabelPayload): Promise<Label> {
-        return apiClient.post<Label>(`/projects/${projectId}/labels`, payload)
-    }
+export interface TaskLabel {
+    id: string;
+    name: string;
+    color: string;
+    taskId: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
-export const labelApi = new LabelApi()
+export interface CreateLabelRequest {
+    name: string;
+    color: string;
+}
+
+export interface UpdateLabelRequest {
+    name?: string;
+    color?: string;
+}
+
+export const labelApi = {
+    // Get task labels
+    getTaskLabels: async (taskId: string): Promise<TaskLabel[]> => {
+        const data = await apiClient.get<TaskLabel[]>(API_ROUTES.TASKS.LABELS(taskId));
+        return data;
+    },
+
+    // Create new label
+    createTaskLabel: async (taskId: string, data: CreateLabelRequest): Promise<TaskLabel> => {
+        const response = await apiClient.post<TaskLabel>(API_ROUTES.TASKS.LABELS(taskId), data);
+        return response;
+    },
+
+    // Update label
+    updateTaskLabel: async (taskId: string, labelId: string, data: UpdateLabelRequest): Promise<TaskLabel> => {
+        const response = await apiClient.patch<TaskLabel>(`${API_ROUTES.TASKS.LABELS(taskId)}/${labelId}`, data);
+        return response;
+    },
+
+    // Delete label
+    deleteTaskLabel: async (taskId: string, labelId: string): Promise<{ message: string }> => {
+        const response = await apiClient.delete<{ message: string }>(`${API_ROUTES.TASKS.LABELS(taskId)}/${labelId}`);
+        return response;
+    },
+}

@@ -15,6 +15,7 @@ import { useUser } from "@/features/layout"
 import { getTaskPermissions } from "@/shared/lib/permissions"
 import { useTaskDetail } from "../../hooks/useTaskDetail"
 import { useTaskAssignees } from "../../hooks/useTaskAssignees"
+import { useTaskLabels } from "../../hooks/useTaskLabels"
 
 // Types
 import { TaskDetail as TaskDetailType } from "../../types/task.types"
@@ -34,17 +35,30 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const { user } = useUser()
 
     // Use task detail hook
-    const { task, labels, subtasks, loading, error, updateTask, deleteTask, refresh } = useTaskDetail(taskId)
-    
+    const { task, subtasks, loading, error, updateTask, deleteTask, refresh } = useTaskDetail(taskId)
+
     // Use task assignees hook for assignee data and operations
-    const { 
+    const {
         assignees,
-        availableMembers, 
-        addAssignee, 
-        removeAssignee, 
-        isLoading: isAssigneesLoading 
+        availableMembers,
+        addAssignee,
+        removeAssignee,
+        isLoading: isAssigneesLoading
     } = useTaskAssignees(taskId, () => {
         // Refresh task detail when assignees change
+        refresh()
+    })
+
+    // Use task labels hook for label data and operations
+    const {
+        labels,
+        availableColors,
+        createLabel,
+        updateLabel,
+        deleteLabel,
+        isLoading: isLabelsLoading
+    } = useTaskLabels(taskId, () => {
+        // Refresh task detail when labels change
         refresh()
     })
 
@@ -53,7 +67,6 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const [editedTask, setEditedTask] = useState<any>(null)
     const [newComment, setNewComment] = useState("")
     const [newSubtask, setNewSubtask] = useState("")
-    const [newLabel, setNewLabel] = useState("")
     const [activeTab, setActiveTab] = useState("details")
     const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -237,23 +250,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         })
     }, [editedTask])
 
-    // Label handlers
-    const handleAddLabel = useCallback(() => {
-        if (!newLabel.trim() || !editedTask) return
 
-        const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-red-500", "bg-yellow-500", "bg-pink-500"]
-        const label = {
-            id: Date.now().toString(),
-            name: newLabel,
-            color: colors[Math.floor(Math.random() * colors.length)],
-        }
-
-        setEditedTask({
-            ...editedTask,
-            labels: [...editedTask.labels, label],
-        })
-        setNewLabel("")
-    }, [newLabel, editedTask])
 
     // Progress calculation
     const completedSubtasks = currentTask?.subtasks?.filter((st: any) => st.completed).length || 0
@@ -361,19 +358,17 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         newComment={newComment}
                         setNewComment={setNewComment}
                         onAddComment={handleAddComment}
-                        newLabel={newLabel}
-                        setNewLabel={setNewLabel}
-                        onAddLabel={handleAddLabel}
+
                         newSubtask={newSubtask}
                         setNewSubtask={setNewSubtask}
                         onAddSubtask={handleAddSubtask}
                         onToggleSubtask={handleToggleSubtask}
                         fileInputRef={fileInputRef}
                         labels={labels}
-                        onDeleteLabel={(labelId) => {
-                            // TODO: Implement delete label functionality
-                            console.log('Delete label:', labelId)
-                        }}
+                        availableColors={availableColors}
+                        onCreateLabel={createLabel}
+                        onUpdateLabel={updateLabel}
+                        onDeleteLabel={deleteLabel}
                         subtasks={subtasks}
                         onDeleteSubtask={(subtaskId) => {
                             // TODO: Implement delete subtask functionality

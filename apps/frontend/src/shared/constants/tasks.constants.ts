@@ -48,14 +48,27 @@ export const TASKS_CONSTANTS = {
         ASSIGNEE_REMOVE_FAILED: 'Failed to remove assignee',
         ASSIGNEE_UPDATE_SUCCESS: 'Assignees updated successfully!',
         ASSIGNEE_UPDATE_FAILED: 'Failed to update assignees',
+        LABEL_CREATE_SUCCESS: 'Label created successfully!',
+        LABEL_CREATE_FAILED: 'Failed to create label',
+        LABEL_UPDATE_SUCCESS: 'Label updated successfully!',
+        LABEL_UPDATE_FAILED: 'Failed to update label',
+        LABEL_DELETE_SUCCESS: 'Label deleted successfully!',
+        LABEL_DELETE_FAILED: 'Failed to delete label',
     },
 
     // Query keys for React Query
     QUERY_KEYS: {
         TASK_ASSIGNEES: (taskId: string) => ['task-assignees', taskId],
         PROJECT_MEMBERS: (taskId: string) => ['project-members', taskId],
+        TASK_LABELS: (taskId: string) => ['task-labels', taskId],
         TASKS: ['tasks'],
         PROJECTS: ['projects'],
+    },
+
+    // Cache times for React Query
+    CACHE_TIMES: {
+        STALE_TIME: 1000 * 60 * 5, // 5 minutes
+        RETRY_COUNT: 1,
     },
 } as const
 

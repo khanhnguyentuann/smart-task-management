@@ -11,9 +11,11 @@ import { Tag, Plus, X, Edit3, Loader2 } from 'lucide-react'
 
 interface LabelsSectionProps {
     labels: any[]
+    availableColors?: string[]
     isEditing?: boolean
     canEdit?: boolean
-    onAddLabel?: (label: any) => void
+    onCreateLabel?: (name: string, color?: string) => void
+    onUpdateLabel?: (labelId: string, data: any) => void
     onDeleteLabel?: (labelId: string) => void
 }
 
@@ -30,9 +32,11 @@ const labelColors = [
 
 export function LabelsSection({
     labels,
+    availableColors,
     isEditing,
     canEdit,
-    onAddLabel,
+    onCreateLabel,
+    onUpdateLabel,
     onDeleteLabel
 }: LabelsSectionProps) {
     const [editMode, setEditMode] = useState(false)
@@ -42,15 +46,10 @@ export function LabelsSection({
     const labelInputRef = useRef<HTMLInputElement>(null)
 
     const handleAddLabel = () => {
-        if (!newLabel.name.trim() || !onAddLabel) return
+        if (!newLabel.name.trim() || !onCreateLabel) return
         setLoading(true)
         try {
-            const newLabelData = {
-                id: Date.now().toString(),
-                name: newLabel.name.trim(),
-                color: newLabel.color
-            }
-            onAddLabel(newLabelData)
+            onCreateLabel(newLabel.name.trim(), newLabel.color)
             setNewLabel({ name: "", color: "bg-blue-500" })
             setInlineAddLabel(false)
         } catch (error) {

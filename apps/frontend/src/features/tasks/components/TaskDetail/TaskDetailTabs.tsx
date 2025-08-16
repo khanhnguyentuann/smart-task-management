@@ -18,16 +18,16 @@ interface TaskDetailTabsProps {
     newComment: string
     setNewComment: (value: string) => void
     onAddComment: () => void
-    newLabel: string
-    setNewLabel: (value: string) => void
-    onAddLabel: () => void
+    labels: any[]
+    availableColors?: string[]
+    onCreateLabel: (name: string, color?: string) => void
+    onUpdateLabel: (labelId: string, data: any) => void
+    onDeleteLabel: (labelId: string) => void
     newSubtask: string
     setNewSubtask: (value: string) => void
     onAddSubtask: () => void
     onToggleSubtask: (subtaskId: string) => void
     fileInputRef: React.RefObject<HTMLInputElement | null>
-    labels: any[]
-    onDeleteLabel: (labelId: string) => void
     subtasks: any[]
     onDeleteSubtask: (subtaskId: string) => void
     assignees: any[]
@@ -47,15 +47,15 @@ export function TaskDetailTabs({
     newComment,
     setNewComment,
     onAddComment,
-    newLabel,
-    setNewLabel,
-    onAddLabel,
     newSubtask,
     setNewSubtask,
     onAddSubtask,
     onToggleSubtask,
     fileInputRef,
     labels,
+    availableColors,
+    onCreateLabel,
+    onUpdateLabel,
     onDeleteLabel,
     subtasks,
     onDeleteSubtask,
@@ -80,15 +80,15 @@ export function TaskDetailTabs({
                     editedTask={editedTask}
                     canEdit={canEdit}
                     onFieldChange={onFieldChange}
-                    newLabel={newLabel}
-                    setNewLabel={setNewLabel}
-                    onAddLabel={onAddLabel}
+                    labels={labels}
+                    availableColors={availableColors}
+                    onCreateLabel={onCreateLabel}
+                    onUpdateLabel={onUpdateLabel}
+                    onDeleteLabel={onDeleteLabel}
                     newSubtask={newSubtask}
                     setNewSubtask={setNewSubtask}
                     onAddSubtask={onAddSubtask}
                     onToggleSubtask={onToggleSubtask}
-                    labels={labels}
-                    onDeleteLabel={onDeleteLabel}
                     subtasks={subtasks}
                     onDeleteSubtask={onDeleteSubtask}
                     assignees={assignees}
