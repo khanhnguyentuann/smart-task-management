@@ -1,6 +1,6 @@
 "use client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui"
+import { Tabs, TabsContent, TabsList, TabsTrigger, Badge } from "@/shared/components/ui"
 import { DetailsTab } from "./tabs/Details/DetailsTab"
 import { CommentsTab } from "./tabs/Comments/CommentsTab"
 import { FilesTab } from "./tabs/Files/FilesTab"
@@ -34,6 +34,12 @@ interface TaskDetailTabsProps {
     availableMembers: any[]
     onAddAssignee: (userId: string) => void
     onRemoveAssignee: (userId: string) => void
+    onReorderAssignees?: (assignees: any[]) => void
+    // Mock data for counts - in real app, these would come from props
+    commentsCount?: number
+    filesCount?: number
+    activityCount?: number
+    commentError?: string
 }
 
 export function TaskDetailTabs({
@@ -62,15 +68,64 @@ export function TaskDetailTabs({
     assignees,
     availableMembers,
     onAddAssignee,
-    onRemoveAssignee
+    onRemoveAssignee,
+    onReorderAssignees,
+    commentsCount = 0,
+    filesCount = 0,
+    activityCount = 0,
+    commentError
 }: TaskDetailTabsProps) {
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="comments">Comments</TabsTrigger>
-                <TabsTrigger value="attachments">Files</TabsTrigger>
-                <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4 bg-muted/50 border border-border shadow-sm rounded-lg p-1">
+                <TabsTrigger 
+                    value="details" 
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80"
+                >
+                    Details
+                </TabsTrigger>
+                <TabsTrigger 
+                    value="comments" 
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative"
+                >
+                    Comments
+                    {commentsCount > 0 && (
+                        <Badge 
+                            variant="secondary" 
+                            className="ml-2 h-5 w-5 rounded-full p-0 text-xs font-medium bg-red-500 text-white data-[state=active]:bg-red-400 data-[state=active]:text-white flex items-center justify-center"
+                        >
+                            {commentsCount}
+                        </Badge>
+                    )}
+                </TabsTrigger>
+                <TabsTrigger 
+                    value="attachments" 
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative"
+                >
+                    Files
+                    {filesCount > 0 && (
+                        <Badge 
+                            variant="secondary" 
+                            className="ml-2 h-5 w-5 rounded-full p-0 text-xs font-medium bg-red-500 text-white data-[state=active]:bg-red-400 data-[state=active]:text-white flex items-center justify-center"
+                        >
+                            {filesCount}
+                        </Badge>
+                    )}
+                </TabsTrigger>
+                <TabsTrigger 
+                    value="activity" 
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative"
+                >
+                    Activity
+                    {activityCount > 0 && (
+                        <Badge 
+                            variant="secondary" 
+                            className="ml-2 h-5 w-5 rounded-full p-0 text-xs font-medium bg-red-500 text-white data-[state=active]:bg-red-400 data-[state=active]:text-white flex items-center justify-center"
+                        >
+                            {activityCount}
+                        </Badge>
+                    )}
+                </TabsTrigger>
             </TabsList>
 
             <TabsContent value="details">
@@ -95,6 +150,7 @@ export function TaskDetailTabs({
                     availableMembers={availableMembers}
                     onAddAssignee={onAddAssignee}
                     onRemoveAssignee={onRemoveAssignee}
+                    onReorderAssignees={onReorderAssignees}
                 />
             </TabsContent>
 
@@ -104,6 +160,7 @@ export function TaskDetailTabs({
                     newComment={newComment}
                     setNewComment={setNewComment}
                     onAddComment={onAddComment}
+                    commentError={commentError}
                 />
             </TabsContent>
 

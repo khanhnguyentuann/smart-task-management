@@ -58,162 +58,177 @@ export function DetailsForm({
 
     return (
         <div className="space-y-6">
-            {/* Title */}
+            {/* Main Task Info Card */}
             <Card>
                 <CardHeader>
                     <Label className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
-                        Title
+                        Task Information
                     </Label>
                 </CardHeader>
-                <CardContent>
-                    {isEditing ? (
-                        <Input
-                            value={editedTask?.title ?? ""}
-                            onChange={(e) => onFieldChange('title', e.target.value)}
-                            placeholder="Enter task title..."
-                            className="font-medium"
-                        />
-                    ) : (
-                        <div className="p-3 bg-muted/30 rounded-lg">
-                            <h3 className="font-medium text-lg">{currentTask?.title || "Untitled Task"}</h3>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Status & Priority */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Status */}
-                <Card>
-                    <CardHeader>
-                        <Label className="flex items-center gap-2">
-                            <Flag className="h-4 w-4" />
-                            Status
-                        </Label>
-                    </CardHeader>
-                    <CardContent>
+                <CardContent className="space-y-6">
+                    {/* Title - Full Width */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium">Title</Label>
                         {isEditing ? (
-                            <Select
-                                value={editedTask?.status ?? "TODO"}
-                                onValueChange={(value) => onFieldChange('status', value)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="TODO">To Do</SelectItem>
-                                    <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                                    <SelectItem value="DONE">Done</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <Input
+                                value={editedTask?.title ?? ""}
+                                onChange={(e) => onFieldChange('title', e.target.value)}
+                                placeholder="Enter task title..."
+                                className="font-medium"
+                            />
                         ) : (
-                            <Badge className={getStatusColor(currentTask?.status || "TODO")}>
-                                {currentTask?.status?.replace('_', ' ') || "TODO"}
-                            </Badge>
+                            <div className="p-3 bg-muted/30 rounded-lg">
+                                <h3 className="font-medium text-lg">{currentTask?.title || "Untitled Task"}</h3>
+                            </div>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
 
-                {/* Priority */}
-                <Card>
-                    <CardHeader>
-                        <Label className="flex items-center gap-2">
-                            <Flag className="h-4 w-4" />
-                            Priority
-                        </Label>
-                    </CardHeader>
-                    <CardContent>
-                        {isEditing ? (
-                            <Select
-                                value={editedTask?.priority ?? "MEDIUM"}
-                                onValueChange={(value) => onFieldChange('priority', value)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select priority" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="HIGH">High</SelectItem>
-                                    <SelectItem value="MEDIUM">Medium</SelectItem>
-                                    <SelectItem value="LOW">Low</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        ) : (
-                            <Badge className={getPriorityColor(currentTask?.priority || "MEDIUM")}>
-                                {currentTask?.priority || "MEDIUM"}
-                            </Badge>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Description */}
-            <Card>
-                <CardHeader>
-                    <Label className="flex items-center gap-2">
-                        <Edit3 className="h-4 w-4" />
-                        Description
-                    </Label>
-                </CardHeader>
-                <CardContent>
-                    {isEditing ? (
-                        <Textarea
-                            value={editedTask?.description ?? ""}
-                            onChange={(e) => onFieldChange('description', e.target.value)}
-                            placeholder="Add a description..."
-                            rows={4}
-                            className="resize-none"
-                        />
-                    ) : (
-                        <div className="p-3 bg-muted/30 rounded-lg min-h-[100px]">
-                            {currentTask?.description ? (
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{currentTask.description}</p>
+                    {/* Status & Priority - 2 Columns */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                                <Flag className="h-4 w-4" />
+                                Status
+                            </Label>
+                            {isEditing ? (
+                                <Select
+                                    value={editedTask?.status ?? "TODO"}
+                                    onValueChange={(value) => onFieldChange('status', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="TODO">To Do</SelectItem>
+                                        <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                                        <SelectItem value="DONE">Done</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             ) : (
-                                <p className="text-sm text-muted-foreground italic">No description provided</p>
-                            )}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Due Date */}
-            <Card>
-                <CardHeader>
-                    <Label className="flex items-center gap-2">
-                        <CalendarIcon className="h-4 w-4" />
-                        Due Date
-                    </Label>
-                </CardHeader>
-                <CardContent>
-                    {isEditing ? (
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="justify-start">
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {editedTask?.dueDate ? format(editedTask.dueDate, "PPP") : "Pick a date"}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                    mode="single"
-                                    selected={editedTask?.dueDate || undefined}
-                                    onSelect={(date) => onFieldChange('dueDate', date || null)}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            {currentTask?.dueDate ? (
-                                <Badge variant="outline" className="flex items-center gap-1">
-                                    <CalendarIcon className="h-3 w-3" />
-                                    {format(currentTask.dueDate, "PPP")}
+                                <Badge className={getStatusColor(currentTask?.status || "TODO")}>
+                                    {currentTask?.status?.replace('_', ' ') || "TODO"}
                                 </Badge>
-                            ) : (
-                                <span className="text-sm text-muted-foreground">No due date set</span>
                             )}
                         </div>
-                    )}
+
+                        <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                                <Flag className="h-4 w-4" />
+                                Priority
+                            </Label>
+                            {isEditing ? (
+                                <Select
+                                    value={editedTask?.priority ?? "MEDIUM"}
+                                    onValueChange={(value) => onFieldChange('priority', value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select priority" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="HIGH">High</SelectItem>
+                                        <SelectItem value="MEDIUM">Medium</SelectItem>
+                                        <SelectItem value="LOW">Low</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <Badge className={getPriorityColor(currentTask?.priority || "MEDIUM")}>
+                                    {currentTask?.priority || "MEDIUM"}
+                                </Badge>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Description - Full Width */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium flex items-center gap-2">
+                            <Edit3 className="h-4 w-4" />
+                            Description
+                        </Label>
+                        {isEditing ? (
+                            <Textarea
+                                value={editedTask?.description ?? ""}
+                                onChange={(e) => onFieldChange('description', e.target.value)}
+                                placeholder="Add a description..."
+                                rows={4}
+                                className="resize-none"
+                            />
+                        ) : (
+                            <div className="p-3 bg-muted/30 rounded-lg min-h-[100px]">
+                                {currentTask?.description ? (
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{currentTask.description}</p>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground italic">No description provided</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Due Date & Start Date - 2 Columns */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                                <CalendarIcon className="h-4 w-4" />
+                                Due Date
+                            </Label>
+                            {isEditing ? (
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="outline" className="justify-start w-full">
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {editedTask?.dueDate ? format(editedTask.dueDate, "PPP") : "Pick a date"}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={editedTask?.dueDate || undefined}
+                                            onSelect={(date) => onFieldChange('dueDate', date || null)}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    {currentTask?.dueDate ? (
+                                        <Badge variant="outline" className="flex items-center gap-1">
+                                            <CalendarIcon className="h-3 w-3" />
+                                            {format(currentTask.dueDate, "PPP")}
+                                        </Badge>
+                                    ) : (
+                                        <span className="text-sm text-muted-foreground">No due date set</span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                                <CalendarIcon className="h-4 w-4" />
+                                Start Date
+                            </Label>
+                            <div className="flex items-center gap-2">
+                                {currentTask?.startDate ? (
+                                    <Badge variant="outline" className="flex items-center gap-1">
+                                        <CalendarIcon className="h-3 w-3" />
+                                        {format(new Date(currentTask.startDate), "PPP")}
+                                    </Badge>
+                                ) : currentTask?.createdAt ? (
+                                    <Badge variant="outline" className="flex items-center gap-1">
+                                        <CalendarIcon className="h-3 w-3" />
+                                        {format(new Date(currentTask.createdAt), "PPP")}
+                                    </Badge>
+                                ) : (
+                                    <span className="text-sm text-muted-foreground">No start date set</span>
+                                )}
+                                {isEditing && (
+                                    <span className="text-xs text-muted-foreground italic">
+                                        (Created date - cannot be changed)
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         </div>

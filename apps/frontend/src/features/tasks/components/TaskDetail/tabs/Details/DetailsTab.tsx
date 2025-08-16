@@ -27,6 +27,7 @@ interface DetailsTabProps {
     availableMembers: any[]
     onAddAssignee: (userId: string) => void
     onRemoveAssignee: (userId: string) => void
+    onReorderAssignees?: (assignees: any[]) => void
 }
 
 export function DetailsTab({
@@ -49,7 +50,8 @@ export function DetailsTab({
     assignees,
     availableMembers,
     onAddAssignee,
-    onRemoveAssignee
+    onRemoveAssignee,
+    onReorderAssignees
 }: DetailsTabProps) {
 
 
@@ -68,6 +70,7 @@ export function DetailsTab({
                 canEdit={canEdit}
                 onAddAssignee={onAddAssignee}
                 onRemoveAssignee={onRemoveAssignee}
+                onReorderAssignees={onReorderAssignees}
             />
 
             <LabelsSection

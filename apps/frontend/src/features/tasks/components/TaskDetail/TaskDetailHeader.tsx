@@ -2,7 +2,7 @@
 
 import { Card, CardHeader, CardTitle, Input, Badge, Progress, EnhancedButton } from "@/shared/components/ui"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Edit3, Save, Flag, Square, Clock, CheckSquare, Share2 } from 'lucide-react'
+import { Edit3, Save, Flag, Square, Clock, CheckSquare, Share2, ChevronRight, User, Calendar, AlertTriangle } from 'lucide-react'
 import { TaskDetail } from "../../types/task.types"
 import { ShareTaskModal } from "../Modals/ShareTaskModal"
 
@@ -19,6 +19,7 @@ interface TaskDetailHeaderProps {
     completedSubtasks: number
     totalSubtasks: number
     progressPercentage: number
+    task?: any // Raw task data from backend
 }
 
 export function TaskDetailHeader({
@@ -33,7 +34,8 @@ export function TaskDetailHeader({
     onFieldChange,
     completedSubtasks,
     totalSubtasks,
-    progressPercentage
+    progressPercentage,
+    task
 }: TaskDetailHeaderProps) {
     const getPriorityColor = (priority: string) => {
         switch (priority) {
@@ -61,15 +63,112 @@ export function TaskDetailHeader({
         }
     }
 
+    // Helper functions for task information
+    const formatTimeAgo = (date: Date) => {
+        const now = new Date()
+        const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+        
+        if (diffInHours < 1) return 'Just now'
+        if (diffInHours < 24) return `${diffInHours}h ago`
+        
+        const diffInDays = Math.floor(diffInHours / 24)
+        if (diffInDays < 7) return `${diffInDays}d ago`
+        
+        const diffInWeeks = Math.floor(diffInDays / 7)
+        if (diffInWeeks < 4) return `${diffInWeeks}w ago`
+        
+        const diffInMonths = Math.floor(diffInDays / 30)
+        return `${diffInMonths}m ago`
+    }
+
+    const isOverdue = (dueDate: Date) => {
+        return dueDate < new Date() && currentTask?.status !== 'DONE'
+    }
+
+    const getTaskId = () => {
+        if (!task?.id) return 'TASK-000'
+        
+        // Check if project is an object (from backend) or string (from frontend type)
+        const projectName = typeof task.project === 'object' ? task.project?.name : task.project
+        if (!projectName) return `TASK-${task.id.substring(0, 8)}`
+        
+        const projectPrefix = projectName.substring(0, 4).toUpperCase()
+        return `${projectPrefix}-${task.id.substring(0, 8)}`
+    }
+
+    const getMainAssignee = () => {
+        if (!task?.assignees || task.assignees.length === 0) return null
+        return task.assignees[0] // First assignee is considered main
+    }
+
     return (
         <Card>
             <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div className="flex-1 space-y-2">
-                        <CardTitle className="text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            {currentTask?.title}
-                        </CardTitle>
+                {/* Breadcrumb */}
+                {task?.project && (
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                        <span className="hover:text-foreground cursor-pointer">
+                            {typeof task.project === 'object' ? task.project.name : task.project}
+                        </span>
+                        <ChevronRight className="h-3 w-3" />
+                        <span>Tasks</span>
+                        <ChevronRight className="h-3 w-3" />
+                        <span className="text-foreground font-medium">{getTaskId()}</span>
+                    </div>
+                )}
 
+                <div className="flex items-start justify-between">
+                    <div className="flex-1 space-y-3">
+                        {/* Task ID and Title */}
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs font-mono">
+                                    {getTaskId()}
+                                </Badge>
+                                {currentTask?.dueDate && isOverdue(currentTask.dueDate) && (
+                                    <Badge variant="destructive" className="text-xs">
+                                        <AlertTriangle className="h-3 w-3 mr-1" />
+                                        Overdue
+                                    </Badge>
+                                )}
+                            </div>
+                            <CardTitle className="text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                {currentTask?.title}
+                            </CardTitle>
+                        </div>
+
+                        {/* Task Meta Information */}
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            {/* Main Assignee */}
+                            {getMainAssignee() && (
+                                <div className="flex items-center gap-1">
+                                    <User className="h-3 w-3" />
+                                    <span>
+                                        {getMainAssignee()?.user?.firstName} {getMainAssignee()?.user?.lastName}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Due Date */}
+                            {currentTask?.dueDate && (
+                                <div className="flex items-center gap-1">
+                                    <Calendar className="h-3 w-3" />
+                                    <span>
+                                        Due {new Date(currentTask.dueDate).toLocaleDateString()}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Completion Time */}
+                            {currentTask?.status === 'DONE' && currentTask?.updatedAt && (
+                                <div className="flex items-center gap-1">
+                                    <CheckSquare className="h-3 w-3" />
+                                    <span>Completed {formatTimeAgo(new Date(currentTask.updatedAt))}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Priority and Status Badges */}
                         <div className="flex items-center gap-2 flex-wrap">
                             <Badge className={getPriorityColor(currentTask?.priority || "MEDIUM")}>
                                 <Flag className="h-3 w-3 mr-1" />

@@ -2,6 +2,7 @@
 
 import { CommentItem } from "./CommentItem"
 import { TaskDetail } from "../../../../types/task.types"
+import { MessageSquare, AtSign, Hash, Bold, Italic, List } from 'lucide-react'
 
 interface CommentListProps {
     comments?: TaskDetail['comments']
@@ -20,9 +21,42 @@ export function CommentList({
 }: CommentListProps) {
     if (!comments || comments.length === 0) {
         return (
-            <div className="text-center py-8">
-                <div className="text-sm text-muted-foreground">
-                    No comments yet. Be the first to comment on this task!
+            <div className="text-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                    <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center">
+                        <MessageSquare className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-foreground">
+                            No comments yet
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-md">
+                            Be the first to start the conversation! Share your thoughts, ask questions, or provide updates.
+                        </p>
+                    </div>
+
+                    <div className="bg-muted/30 rounded-lg p-4 max-w-md">
+                        <h4 className="text-sm font-medium text-foreground mb-3">💡 Pro Tips:</h4>
+                        <div className="space-y-2 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                                <AtSign className="h-3 w-3" />
+                                <span>Use @mention to tag team members</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Hash className="h-3 w-3" />
+                                <span>Add #hashtags for easy searching</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Bold className="h-3 w-3" />
+                                <span>**Bold** and *italic* text supported</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <List className="h-3 w-3" />
+                                <span>Create lists with - or 1. format</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         )

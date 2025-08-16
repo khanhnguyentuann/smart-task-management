@@ -44,6 +44,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         availableMembers,
         addAssignee,
         removeAssignee,
+        reorderAssignees,
         isLoading: isAssigneesLoading
     } = useTaskAssignees(taskId, () => {
         // Refresh task detail when assignees change
@@ -83,6 +84,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const [newComment, setNewComment] = useState("")
     const [newSubtask, setNewSubtask] = useState("")
     const [activeTab, setActiveTab] = useState("details")
+    const [commentError, setCommentError] = useState<string>("")
     const fileInputRef = useRef<HTMLInputElement | null>(null)
 
     const { toast } = useToast()
@@ -172,10 +174,12 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             const { taskService } = await import('../../services/task.service')
             await taskService.archiveTask(task.id)
             toast({ title: 'Task archived' })
+            // Refresh task data to update UI state
+            refresh()
         } catch (error: any) {
             handleError(error)
         }
-    }, [task, toast, handleError])
+    }, [task, toast, handleError, refresh])
 
     const handleRestore = useCallback(async () => {
         if (!task) return
@@ -183,10 +187,12 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             const { taskService } = await import('../../services/task.service')
             await taskService.restoreTask(task.id)
             toast({ title: 'Task restored' })
+            // Refresh task data to update UI state
+            refresh()
         } catch (error: any) {
             handleError(error)
         }
-    }, [task, toast, handleError])
+    }, [task, toast, handleError, refresh])
 
     const handleCancel = useCallback(() => {
         setEditedTask(null)
@@ -217,7 +223,13 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
 
     // Comment handlers
     const handleAddComment = useCallback(() => {
-        if (!newComment.trim()) return
+        if (!newComment.trim()) {
+            setCommentError("Comment cannot be empty")
+            return
+        }
+
+        // Clear any previous errors
+        setCommentError("")
 
         const comment = {
             id: Date.now().toString(),
@@ -346,6 +358,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         completedSubtasks={completedSubtasks}
                         totalSubtasks={totalSubtasks}
                         progressPercentage={progressPercentage}
+                        task={task}
                     />
 
                     {/* Tabs */}
@@ -377,31 +390,57 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         availableMembers={availableMembers}
                         onAddAssignee={addAssignee}
                         onRemoveAssignee={removeAssignee}
+                        onReorderAssignees={reorderAssignees}
+                        // Mock counts - in real app, these would come from actual data
+                        commentsCount={12}
+                        filesCount={3}
+                        activityCount={8}
+                        commentError={commentError}
                     />
 
                     {/* Footer Actions */}
                     <Separator />
                     <div className="flex items-center justify-between">
+                        {/* Left side - Archive/Restore and Delete */}
                         <div className="flex items-center gap-2">
+                            {/* Archive/Restore Button - Only show one based on current state */}
                             {canDelete && (
                                 <>
-                                    <Button variant="outline" size="sm" onClick={handleArchive} disabled={loading}>
-                                        <Archive className="h-4 w-4 mr-2" />
-                                        Archive
-                                    </Button>
-                                    <Button variant="ghost" size="sm" onClick={handleRestore} disabled={loading}>
-                                        <RotateCcw className="h-4 w-4 mr-2" />
-                                        Restore
-                                    </Button>
+                                    {task?.isArchived ? (
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm" 
+                                            onClick={handleRestore} 
+                                            disabled={loading}
+                                            className="hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+                                        >
+                                            <RotateCcw className="h-4 w-4 mr-2" />
+                                            Restore
+                                        </Button>
+                                    ) : (
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm" 
+                                            onClick={handleArchive} 
+                                            disabled={loading}
+                                            className="hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300"
+                                        >
+                                            <Archive className="h-4 w-4 mr-2" />
+                                            Archive
+                                        </Button>
+                                    )}
+                                    
+                                    {/* Danger Zone - Separated with divider */}
+                                    <div className="h-px w-4 bg-border" />
+                                    <DeleteTaskModal
+                                        taskTitle={currentTask?.title}
+                                        onDelete={handleDelete}
+                                    />
                                 </>
                             )}
-                            {canDelete && (
-                                <DeleteTaskModal
-                                    taskTitle={currentTask?.title}
-                                    onDelete={handleDelete}
-                                />
-                            )}
                         </div>
+                        
+                        {/* Right side - Created/Updated info */}
                         <div className="text-xs text-muted-foreground">
                             Created {currentTask?.createdAt ? new Date(currentTask.createdAt).toLocaleDateString() : ''} •
                             Updated {currentTask?.updatedAt ? new Date(currentTask.updatedAt).toLocaleDateString() : ''}

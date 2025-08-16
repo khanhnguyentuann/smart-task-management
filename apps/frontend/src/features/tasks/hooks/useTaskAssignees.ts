@@ -128,6 +128,13 @@ export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void)
         removeAssigneeMutation.mutate(userId);
     }, [removeAssigneeMutation]);
 
+    const reorderAssignees = useCallback((newAssignees: TaskAssignee[]) => {
+        // Extract user IDs in the new order
+        const userIds = newAssignees.map(assignee => assignee.userId);
+        // Use replaceAssignees to update the order
+        replaceAssignees(userIds);
+    }, [replaceAssignees]);
+
         // Get available members (not already assigned) - computed from service
     const availableMembers = useMemo(() => 
         assigneeService.getAvailableMembers(projectMembers, assignees), 
@@ -158,6 +165,7 @@ export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void)
         replaceAssignees,
         addAssignee,
         removeAssignee,
+        reorderAssignees,
         refetchAssignees,
     };
 }

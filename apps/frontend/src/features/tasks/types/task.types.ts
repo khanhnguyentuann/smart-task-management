@@ -31,6 +31,7 @@ export interface Task {
   status: typeof PROJECTS_CONSTANTS.TASK_STATUS[keyof typeof PROJECTS_CONSTANTS.TASK_STATUS]
   project: string
   projectId?: string
+  isArchived?: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -194,8 +195,12 @@ export interface TaskDetail {
   priority: "LOW" | "MEDIUM" | "HIGH"
   assignees: User[]
   dueDate: Date | null
+  startDate?: Date | null
   createdAt: Date
   updatedAt: Date
+  comments?: Comment[]
+  activities?: Activity[]
+  attachments?: FileAttachment[]
 }
 
 export interface TaskDetailModalProps {
