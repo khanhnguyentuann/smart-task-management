@@ -84,11 +84,11 @@ export function DetailsForm({
                         )}
                     </div>
 
-                    {/* Status & Priority - 2 Columns */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Status & Priority - Always 2 Columns */}
+                    <div className="grid grid-cols-2 gap-2 sm:gap-4">
                         <div className="space-y-2">
-                            <Label className="text-sm font-medium flex items-center gap-2">
-                                <Flag className="h-4 w-4" />
+                            <Label className="text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">
+                                <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
                                 Status
                             </Label>
                             {isEditing ? (
@@ -106,15 +106,15 @@ export function DetailsForm({
                                     </SelectContent>
                                 </Select>
                             ) : (
-                                <Badge className={getStatusColor(currentTask?.status || "TODO")}>
+                                <Badge className={`${getStatusColor(currentTask?.status || "TODO")} text-xs sm:text-sm`}>
                                     {currentTask?.status?.replace('_', ' ') || "TODO"}
                                 </Badge>
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-sm font-medium flex items-center gap-2">
-                                <Flag className="h-4 w-4" />
+                            <Label className="text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">
+                                <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
                                 Priority
                             </Label>
                             {isEditing ? (
@@ -132,7 +132,7 @@ export function DetailsForm({
                                     </SelectContent>
                                 </Select>
                             ) : (
-                                <Badge className={getPriorityColor(currentTask?.priority || "MEDIUM")}>
+                                <Badge className={`${getPriorityColor(currentTask?.priority || "MEDIUM")} text-xs sm:text-sm`}>
                                     {currentTask?.priority || "MEDIUM"}
                                 </Badge>
                             )}
@@ -164,11 +164,11 @@ export function DetailsForm({
                         )}
                     </div>
 
-                    {/* Due Date & Start Date - 2 Columns */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Due Date & Start Date - Always 2 Columns */}
+                    <div className="grid grid-cols-2 gap-2 sm:gap-4">
                         <div className="space-y-2">
-                            <Label className="text-sm font-medium flex items-center gap-2">
-                                <CalendarIcon className="h-4 w-4" />
+                            <Label className="text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">
+                                <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                                 Due Date
                             </Label>
                             {isEditing ? (
@@ -191,35 +191,35 @@ export function DetailsForm({
                             ) : (
                                 <div className="flex items-center gap-2">
                                     {currentTask?.dueDate ? (
-                                        <Badge variant="outline" className="flex items-center gap-1">
+                                        <Badge variant="outline" className="flex items-center gap-1 text-xs sm:text-sm">
                                             <CalendarIcon className="h-3 w-3" />
                                             {format(currentTask.dueDate, "PPP")}
                                         </Badge>
                                     ) : (
-                                        <span className="text-sm text-muted-foreground">No due date set</span>
+                                        <span className="text-xs sm:text-sm text-muted-foreground">No due date set</span>
                                     )}
                                 </div>
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-sm font-medium flex items-center gap-2">
-                                <CalendarIcon className="h-4 w-4" />
+                            <Label className="text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">
+                                <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                                 Start Date
                             </Label>
                             <div className="flex items-center gap-2">
                                 {currentTask?.startDate ? (
-                                    <Badge variant="outline" className="flex items-center gap-1">
+                                    <Badge variant="outline" className="flex items-center gap-1 text-xs sm:text-sm">
                                         <CalendarIcon className="h-3 w-3" />
                                         {format(new Date(currentTask.startDate), "PPP")}
                                     </Badge>
                                 ) : currentTask?.createdAt ? (
-                                    <Badge variant="outline" className="flex items-center gap-1">
+                                    <Badge variant="outline" className="flex items-center gap-1 text-xs sm:text-sm">
                                         <CalendarIcon className="h-3 w-3" />
                                         {format(new Date(currentTask.createdAt), "PPP")}
                                     </Badge>
                                 ) : (
-                                    <span className="text-sm text-muted-foreground">No start date set</span>
+                                    <span className="text-xs sm:text-sm text-muted-foreground">No start date set</span>
                                 )}
                                 {isEditing && (
                                     <span className="text-xs text-muted-foreground italic">

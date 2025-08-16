@@ -329,21 +329,26 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         >
             {/* Header */}
             <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="flex h-14 items-center gap-4 px-6">
+                <div className="flex h-14 items-center gap-2 sm:gap-4 px-4 sm:px-6">
                     <SidebarTrigger />
-                    <Button variant="ghost" size="sm" onClick={onBack}>
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={onBack} 
+                        className="text-sm sm:text-base h-11 min-w-[44px] px-3 focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Back</span>
                     </Button>
                     <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-semibold">Task Details</h1>
+                        <h1 className="text-lg sm:text-xl font-semibold">Task Details</h1>
                     </div>
                 </div>
             </header>
 
             {/* Content */}
-            <div className="flex-1 overflow-auto p-6">
-                <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex-1 overflow-auto p-4 sm:p-6 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+                <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
                     {/* Task Header */}
                     <TaskDetailHeader
                         currentTask={currentTask}
@@ -400,9 +405,9 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
 
                     {/* Footer Actions */}
                     <Separator />
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         {/* Left side - Archive/Restore and Delete */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                             {/* Archive/Restore Button - Only show one based on current state */}
                             {canDelete && (
                                 <>
@@ -412,7 +417,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                                             size="sm" 
                                             onClick={handleRestore} 
                                             disabled={loading}
-                                            className="hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+                                            className="h-11 min-w-[44px] hover:bg-green-50 hover:text-green-700 hover:border-green-300 focus-visible:ring-2 focus-visible:ring-offset-2"
                                         >
                                             <RotateCcw className="h-4 w-4 mr-2" />
                                             Restore
@@ -423,7 +428,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                                             size="sm" 
                                             onClick={handleArchive} 
                                             disabled={loading}
-                                            className="hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300"
+                                            className="h-11 min-w-[44px] hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-offset-2"
                                         >
                                             <Archive className="h-4 w-4 mr-2" />
                                             Archive
@@ -441,7 +446,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         </div>
                         
                         {/* Right side - Created/Updated info */}
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground text-center sm:text-left">
                             Created {currentTask?.createdAt ? new Date(currentTask.createdAt).toLocaleDateString() : ''} •
                             Updated {currentTask?.updatedAt ? new Date(currentTask.updatedAt).toLocaleDateString() : ''}
                         </div>

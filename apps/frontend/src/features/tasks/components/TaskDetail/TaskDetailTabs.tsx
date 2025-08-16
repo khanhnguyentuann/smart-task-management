@@ -77,22 +77,24 @@ export function TaskDetailTabs({
 }: TaskDetailTabsProps) {
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4 bg-muted/50 border border-border shadow-sm rounded-lg p-1">
+            <div className="relative">
+                <TabsList className="flex w-full bg-muted/50 border border-border shadow-sm rounded-lg p-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
                 <TabsTrigger 
                     value="details" 
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                     Details
                 </TabsTrigger>
                 <TabsTrigger 
                     value="comments" 
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                     Comments
                     {commentsCount > 0 && (
                         <Badge 
                             variant="secondary" 
-                            className="ml-2 h-5 w-5 rounded-full p-0 text-xs font-medium bg-red-500 text-white data-[state=active]:bg-red-400 data-[state=active]:text-white flex items-center justify-center"
+                            className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
+                            aria-label={`${commentsCount} comments`}
                         >
                             {commentsCount}
                         </Badge>
@@ -100,13 +102,14 @@ export function TaskDetailTabs({
                 </TabsTrigger>
                 <TabsTrigger 
                     value="attachments" 
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                     Files
                     {filesCount > 0 && (
                         <Badge 
                             variant="secondary" 
-                            className="ml-2 h-5 w-5 rounded-full p-0 text-xs font-medium bg-red-500 text-white data-[state=active]:bg-red-400 data-[state=active]:text-white flex items-center justify-center"
+                            className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
+                            aria-label={`${filesCount} files`}
                         >
                             {filesCount}
                         </Badge>
@@ -114,19 +117,24 @@ export function TaskDetailTabs({
                 </TabsTrigger>
                 <TabsTrigger 
                     value="activity" 
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                     Activity
                     {activityCount > 0 && (
                         <Badge 
                             variant="secondary" 
-                            className="ml-2 h-5 w-5 rounded-full p-0 text-xs font-medium bg-red-500 text-white data-[state=active]:bg-red-400 data-[state=active]:text-white flex items-center justify-center"
+                            className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
+                            aria-label={`${activityCount} activities`}
                         >
                             {activityCount}
                         </Badge>
                     )}
                 </TabsTrigger>
-            </TabsList>
+                </TabsList>
+                {/* Fade indicators for scroll */}
+                <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+            </div>
 
             <TabsContent value="details">
                 <DetailsTab

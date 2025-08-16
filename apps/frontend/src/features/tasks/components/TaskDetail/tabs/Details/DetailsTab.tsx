@@ -56,7 +56,7 @@ export function DetailsTab({
 
 
     return (
-        <div className="space-y-6 mt-6">
+        <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
             <DetailsForm
                 currentTask={currentTask}
                 isEditing={isEditing}
