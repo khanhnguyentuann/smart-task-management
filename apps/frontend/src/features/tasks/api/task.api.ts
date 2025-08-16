@@ -47,9 +47,7 @@ class TaskApi {
         return apiClient.patch<Task>(API_ROUTES.TASKS.STATUS(id), { status })
     }
 
-    async assignTaskToUser(id: string, userId: string): Promise<Task> {
-        return apiClient.patch<Task>(API_ROUTES.TASKS.ASSIGN(id), { userId })
-    }
+
 
     async archiveTaskById(id: string): Promise<{ message: string }> {
         return apiClient.post<{ message: string }>(API_ROUTES.TASKS.ARCHIVE(id))

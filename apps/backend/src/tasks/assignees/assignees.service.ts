@@ -59,7 +59,6 @@ export class AssigneesService {
             orderBy: { assignedAt: 'asc' }
         });
 
-        console.log('🔍 Backend: Task assignees for taskId:', taskId, 'Assignees:', assignees);
         return assignees;
     }
 

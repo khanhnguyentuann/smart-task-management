@@ -52,10 +52,7 @@ class TaskService {
         return this.transformTask(task)
     }
 
-    async assignTask(id: string, userId: string): Promise<Task> {
-        const task = await taskApi.assignTaskToUser(id, userId)
-        return this.transformTask(task)
-    }
+
 
     async archiveTask(id: string): Promise<void> {
         await taskApi.archiveTaskById(id)

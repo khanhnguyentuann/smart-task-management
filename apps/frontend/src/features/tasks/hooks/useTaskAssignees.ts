@@ -1,7 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { assigneeApi, TaskAssignee, ProjectMember, AddAssigneeRequest, ReplaceAssigneesRequest } from '../api/assignee.api';
+import { assigneeService } from '../services/assignee.service';
+import { AddAssigneeRequest, ReplaceAssigneesRequest, TaskAssignee, ProjectMember } from '../api/assignee.api';
 import { useToast } from '@/shared/hooks';
+import { TASKS_CONSTANTS } from '@/shared/constants';
 
 export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void) {
     const { toast } = useToast();
@@ -14,12 +16,10 @@ export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void)
         error: assigneesError,
         refetch: refetchAssignees
     } = useQuery({
-        queryKey: ['task-assignees', taskId],
+        queryKey: TASKS_CONSTANTS.QUERY_KEYS.TASK_ASSIGNEES(taskId),
         queryFn: async () => {
             if (!taskId) return [];
-            console.log('🔍 useTaskAssignees: Fetching assignees for taskId:', taskId);
-            const result = await assigneeApi.getTaskAssignees(taskId);
-            console.log('🔍 useTaskAssignees: Assignees result:', result);
+            const result = await assigneeService.getTaskAssignees(taskId);
             return result;
         },
         enabled: !!taskId,
@@ -33,10 +33,10 @@ export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void)
         isLoading: isLoadingMembers,
         error: membersError
     } = useQuery({
-        queryKey: ['project-members', taskId],
+        queryKey: TASKS_CONSTANTS.QUERY_KEYS.PROJECT_MEMBERS(taskId),
         queryFn: async () => {
             if (!taskId) return [];
-            return await assigneeApi.getProjectMembers(taskId);
+            return await assigneeService.getProjectMembers(taskId);
         },
         enabled: !!taskId,
         retry: 1,
@@ -45,18 +45,23 @@ export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void)
 
     // Replace all assignees mutation
     const replaceAssigneesMutation = useMutation({
-        mutationFn: (data: ReplaceAssigneesRequest) => assigneeApi.replaceTaskAssignees(taskId, data),
+        mutationFn: (data: ReplaceAssigneesRequest) => assigneeService.replaceTaskAssignees(taskId, data),
         onSuccess: (data) => {
-            queryClient.setQueryData(['task-assignees', taskId], data);
+            // Invalidate queries to refresh data from server (safer approach)
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.TASK_ASSIGNEES(taskId) });
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.TASKS }); // Update task lists
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.PROJECTS }); // Update project task lists
+            // Call callback to refresh other hooks
+            onAssigneesChange?.();
             toast({
                 title: 'Success',
-                description: 'Assignees updated successfully',
+                description: TASKS_CONSTANTS.MESSAGES.ASSIGNEE_UPDATE_SUCCESS,
             });
         },
         onError: (error: any) => {
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to update assignees',
+                description: error.message || TASKS_CONSTANTS.MESSAGES.ASSIGNEE_UPDATE_FAILED,
                 variant: 'destructive',
             });
         },
@@ -64,23 +69,23 @@ export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void)
 
     // Add single assignee mutation
     const addAssigneeMutation = useMutation({
-        mutationFn: (data: AddAssigneeRequest) => assigneeApi.addTaskAssignee(taskId, data),
+        mutationFn: (data: AddAssigneeRequest) => assigneeService.addTaskAssignee(taskId, data),
         onSuccess: (newAssignee) => {
             // Invalidate queries to refresh data from server (safer approach)
-            queryClient.invalidateQueries({ queryKey: ['task-assignees', taskId] });
-            queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Update task lists
-            queryClient.invalidateQueries({ queryKey: ['projects'] }); // Update project task lists
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.TASK_ASSIGNEES(taskId) });
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.TASKS }); // Update task lists
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.PROJECTS }); // Update project task lists
             // Call callback to refresh other hooks
             onAssigneesChange?.();
             toast({
                 title: 'Success',
-                description: 'Assignee added successfully',
+                description: TASKS_CONSTANTS.MESSAGES.ASSIGNEE_ADD_SUCCESS,
             });
         },
         onError: (error: any) => {
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to add assignee',
+                description: error.message || TASKS_CONSTANTS.MESSAGES.ASSIGNEE_ADD_FAILED,
                 variant: 'destructive',
             });
         },
@@ -88,23 +93,23 @@ export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void)
 
     // Remove assignee mutation
     const removeAssigneeMutation = useMutation({
-        mutationFn: (userId: string) => assigneeApi.removeTaskAssignee(taskId, userId),
+        mutationFn: (userId: string) => assigneeService.removeTaskAssignee(taskId, userId),
         onSuccess: (_, userId) => {
             // Invalidate queries to refresh data from server (safer approach)
-            queryClient.invalidateQueries({ queryKey: ['task-assignees', taskId] });
-            queryClient.invalidateQueries({ queryKey: ['tasks'] }); // Update task lists
-            queryClient.invalidateQueries({ queryKey: ['projects'] }); // Update project task lists
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.TASK_ASSIGNEES(taskId) });
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.TASKS }); // Update task lists
+            queryClient.invalidateQueries({ queryKey: TASKS_CONSTANTS.QUERY_KEYS.PROJECTS }); // Update project task lists
             // Call callback to refresh other hooks
             onAssigneesChange?.();
             toast({
                 title: 'Success',
-                description: 'Assignee removed successfully',
+                description: TASKS_CONSTANTS.MESSAGES.ASSIGNEE_REMOVE_SUCCESS,
             });
         },
         onError: (error: any) => {
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to remove assignee',
+                description: error.message || TASKS_CONSTANTS.MESSAGES.ASSIGNEE_REMOVE_FAILED,
                 variant: 'destructive',
             });
         },
@@ -123,11 +128,12 @@ export function useTaskAssignees(taskId: string, onAssigneesChange?: () => void)
         removeAssigneeMutation.mutate(userId);
     }, [removeAssigneeMutation]);
 
-    // Get available members (not already assigned)
-    const availableMembers = projectMembers.filter(member => 
-        !assignees.some(assignee => assignee.userId === member.id)
+        // Get available members (not already assigned) - computed from service
+    const availableMembers = useMemo(() => 
+        assigneeService.getAvailableMembers(projectMembers, assignees), 
+        [projectMembers, assignees]
     );
-    
+
     return {
         // Data
         assignees,

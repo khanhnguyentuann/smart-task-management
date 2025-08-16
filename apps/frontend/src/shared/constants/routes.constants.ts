@@ -39,12 +39,12 @@ export const API_ROUTES = {
         UPDATE: (id: string) => `/tasks/${id}`,
         DELETE: (id: string) => `/tasks/${id}`,
         STATUS: (id: string) => `/tasks/${id}/status`,
-        ASSIGN: (id: string) => `/tasks/${id}/assign`,
         ARCHIVE: (id: string) => `/tasks/${id}/archive`,
         RESTORE: (id: string) => `/tasks/${id}/restore`,
         LABELS: (taskId: string) => `/tasks/${taskId}/labels`,
         SUBTASKS: (taskId: string) => `/tasks/${taskId}/subtasks`,
         ASSIGNEES: (taskId: string) => `/tasks/${taskId}/assignees`,
+        PROJECT_MEMBERS: (taskId: string) => `/tasks/${taskId}/project-members`,
     },
     USERS: {
         LIST: "/users",

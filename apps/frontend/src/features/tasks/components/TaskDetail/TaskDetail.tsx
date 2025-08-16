@@ -34,10 +34,11 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const { user } = useUser()
 
     // Use task detail hook
-    const { task, labels, subtasks, assignees, loading, error, updateTask, deleteTask, refresh } = useTaskDetail(taskId)
+    const { task, labels, subtasks, loading, error, updateTask, deleteTask, refresh } = useTaskDetail(taskId)
     
-    // Use task assignees hook for available members and assignee operations
+    // Use task assignees hook for assignee data and operations
     const { 
+        assignees,
         availableMembers, 
         addAssignee, 
         removeAssignee, 

@@ -42,7 +42,21 @@ export const TASKS_CONSTANTS = {
         FETCH_FAILED: 'Failed to fetch tasks',
         COMMENT_ADD_SUCCESS: 'Comment added successfully!',
         COMMENT_ADD_FAILED: 'Failed to add comment',
-    }
+        ASSIGNEE_ADD_SUCCESS: 'Assignee added successfully!',
+        ASSIGNEE_ADD_FAILED: 'Failed to add assignee',
+        ASSIGNEE_REMOVE_SUCCESS: 'Assignee removed successfully!',
+        ASSIGNEE_REMOVE_FAILED: 'Failed to remove assignee',
+        ASSIGNEE_UPDATE_SUCCESS: 'Assignees updated successfully!',
+        ASSIGNEE_UPDATE_FAILED: 'Failed to update assignees',
+    },
+
+    // Query keys for React Query
+    QUERY_KEYS: {
+        TASK_ASSIGNEES: (taskId: string) => ['task-assignees', taskId],
+        PROJECT_MEMBERS: (taskId: string) => ['project-members', taskId],
+        TASKS: ['tasks'],
+        PROJECTS: ['projects'],
+    },
 } as const
 
 export type TaskStatus = typeof TASKS_CONSTANTS.STATUS[keyof typeof TASKS_CONSTANTS.STATUS]
