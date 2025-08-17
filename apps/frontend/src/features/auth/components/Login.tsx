@@ -30,22 +30,25 @@ export function Login({ onSuccess, onClose }: LoginProps) {
         setIsLoading(true)
 
         try {
+            // Step 1: Login
             const { user } = await login({
                 email: formData.email,
                 password: formData.password,
             })
 
-            // Set user name for transition
+            // Step 2: Set user name for transition
             setUserName(user.firstName || "User")
 
-            // Show transition loading
+            // Step 3: Show transition loading (keep isLoading true)
             setShowTransition(true)
 
-            // Fetch full user profile after login
+            // Step 4: Fetch full user profile after login
             await refetchUser()
 
-            // Wait for transition to complete before closing
+            // Step 5: Wait for transition to complete before closing
+            // Use a longer timeout to ensure smooth transition
             setTimeout(() => {
+                setIsLoading(false) // Clear loading state
                 toast({
                     title: AUTH_CONSTANTS.MESSAGES.LOGIN_SUCCESS,
                     description: `Successfully logged in as ${user.firstName} ${user.lastName}`,
@@ -53,10 +56,11 @@ export function Login({ onSuccess, onClose }: LoginProps) {
                 })
                 onSuccess(user)
                 onClose()
-            }, 2000)
+            }, 3000) // Increased from 2000ms to 3000ms
 
         } catch (error: any) {
             setIsLoading(false)
+            setShowTransition(false) // Hide transition if error occurs
             handleAuthError(error)
         }
     }

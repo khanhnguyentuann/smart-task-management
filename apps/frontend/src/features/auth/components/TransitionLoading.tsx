@@ -16,21 +16,24 @@ export function TransitionLoading({ userName = "User", show, onComplete }: Trans
     const steps = [
         "Verifying credentials...",
         "Setting up your workspace...",
+        "Loading your dashboard...",
         `Welcome back, ${userName}!`
     ]
 
     useEffect(() => {
         if (show) {
-            const timer1 = setTimeout(() => setStep(1), 500)
-            const timer2 = setTimeout(() => setStep(2), 1000)
-            const timer3 = setTimeout(() => {
+            const timer1 = setTimeout(() => setStep(1), 800)  // Step 1: After login
+            const timer2 = setTimeout(() => setStep(2), 1600) // Step 2: After refetchUser
+            const timer3 = setTimeout(() => setStep(3), 2400) // Step 3: Final step
+            const timer4 = setTimeout(() => {
                 if (onComplete) onComplete()
-            }, 2000)
+            }, 3000) // Total duration: 3000ms to match Login component
 
             return () => {
                 clearTimeout(timer1)
                 clearTimeout(timer2)
                 clearTimeout(timer3)
+                clearTimeout(timer4)
             }
         } else {
             setStep(0)
