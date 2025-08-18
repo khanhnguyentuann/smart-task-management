@@ -138,7 +138,7 @@ export function ActivityTab({ currentTask }: ActivityTabProps) {
         <div className="space-y-6">
             {/* Filter */}
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium text-gray-900">Activity Timeline</h3>
+                <h3 className="text-lg font-medium text-foreground">Activity Timeline</h3>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm">
@@ -159,13 +159,13 @@ export function ActivityTab({ currentTask }: ActivityTabProps) {
             {/* Timeline */}
             <div className="relative">
                 {/* Vertical line */}
-                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border"></div>
 
                 <div className="space-y-6">
                     {filteredActivities.map((activity, index) => (
                         <div key={activity.id} className="relative flex items-start space-x-4">
                             {/* Timeline dot */}
-                            <div className="relative z-10 flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-200 rounded-full">
+                            <div className="relative z-10 flex items-center justify-center w-12 h-12 bg-background border-2 border-border rounded-full">
                                 <span className="text-lg">{getActivityIcon(activity.type)}</span>
                             </div>
 
@@ -183,14 +183,14 @@ export function ActivityTab({ currentTask }: ActivityTabProps) {
                                             </AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <p className="text-sm text-gray-900">
+                                            <p className="text-sm text-foreground">
                                                 <span className="font-medium">{activity.user.name}</span> {activity.description}
                                                 {activity.details?.fileName && (
                                                     <span className="font-medium"> {activity.details.fileName}</span>
                                                 )}
                                             </p>
                                             {activity.details && (activity.details.from || activity.details.to) && (
-                                                <p className="text-xs text-gray-500 mt-1">
+                                                <p className="text-xs text-muted-foreground mt-1">
                                                     {activity.details.from && activity.details.to && (
                                                         <>
                                                             from <span className="font-medium">{activity.details.from}</span> to{" "}
@@ -201,7 +201,7 @@ export function ActivityTab({ currentTask }: ActivityTabProps) {
                                             )}
                                         </div>
                                     </div>
-                                    <span className="text-xs text-gray-500 whitespace-nowrap">{formatTimestamp(activity.timestamp)}</span>
+                                    <span className="text-xs text-muted-foreground whitespace-nowrap">{formatTimestamp(activity.timestamp)}</span>
                                 </div>
                             </Card>
                         </div>
@@ -209,7 +209,7 @@ export function ActivityTab({ currentTask }: ActivityTabProps) {
                 </div>
 
                 {filteredActivities.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">No activities match your filter criteria</div>
+                    <div className="text-center py-8 text-muted-foreground">No activities match your filter criteria</div>
                 )}
             </div>
         </div>

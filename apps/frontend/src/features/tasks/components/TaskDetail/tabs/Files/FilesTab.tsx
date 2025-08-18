@@ -174,15 +174,15 @@ export function FilesTab({ currentTask }: FilesTabProps) {
             {/* Upload Zone */}
             <Card
                 className={`border-2 border-dashed p-8 text-center transition-colors ${
-                    isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"
+                    isDragging ? "border-primary bg-primary/5" : "border-border hover:border-border/80"
                 }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
             >
-                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-lg font-medium text-gray-900 mb-2">Drag & drop files here, or click to browse</p>
-                <p className="text-sm text-gray-500 mb-4">Maximum file size: 50MB</p>
+                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-lg font-medium text-foreground mb-2">Drag & drop files here, or click to browse</p>
+                <p className="text-sm text-muted-foreground mb-4">Maximum file size: 50MB</p>
                 <Button onClick={() => fileInputRef.current?.click()}>Choose Files</Button>
                 <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileInputChange} />
             </Card>
@@ -190,13 +190,13 @@ export function FilesTab({ currentTask }: FilesTabProps) {
             {/* Search and Filter */}
             <div className="flex gap-4">
                 <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                         type="text"
                         placeholder="Search files..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2 border border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
                     />
                 </div>
                 <DropdownMenu>
@@ -223,10 +223,10 @@ export function FilesTab({ currentTask }: FilesTabProps) {
                                 <div className="text-2xl">{getFileIcon(file.type)}</div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <h3 className="font-medium text-gray-900 truncate">{file.name}</h3>
-                                        {file.isPinned && <Pin className="h-4 w-4 text-blue-500" />}
+                                        <h3 className="font-medium text-foreground truncate">{file.name}</h3>
+                                        {file.isPinned && <Pin className="h-4 w-4 text-primary" />}
                                     </div>
-                                    <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                                    <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
                                         <div className="flex items-center space-x-2">
                                             <Avatar className="h-5 w-5">
                                                 <AvatarImage
@@ -261,7 +261,7 @@ export function FilesTab({ currentTask }: FilesTabProps) {
                                         <DropdownMenuItem onClick={() => togglePin(file.id)}>
                                             {file.isPinned ? "Unpin" : "Pin"} File
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => deleteFile(file.id)} className="text-red-600">
+                                        <DropdownMenuItem onClick={() => deleteFile(file.id)} className="text-destructive">
                                             <Trash2 className="h-4 w-4 mr-2" />
                                             Delete
                                         </DropdownMenuItem>
@@ -273,7 +273,7 @@ export function FilesTab({ currentTask }: FilesTabProps) {
                 ))}
 
                 {filteredFiles.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-muted-foreground">
                         {searchQuery || filterType !== "all" ? "No files match your search criteria" : "No files uploaded yet"}
                     </div>
                 )}
