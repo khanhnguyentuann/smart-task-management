@@ -98,7 +98,6 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     const [newSubtask, setNewSubtask] = useState("")
     const [activeTab, setActiveTab] = useState("details")
     const [commentError, setCommentError] = useState<string>("")
-    const fileInputRef = useRef<HTMLInputElement | null>(null)
 
     const { toast } = useToast()
     const { handleError } = useErrorHandler({
@@ -423,7 +422,6 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         setNewSubtask={setNewSubtask}
                         onAddSubtask={handleAddSubtask}
                         onToggleSubtask={handleToggleSubtask}
-                        fileInputRef={fileInputRef}
                         labels={labels}
                         availableColors={availableColors}
                         onCreateLabel={createLabel}

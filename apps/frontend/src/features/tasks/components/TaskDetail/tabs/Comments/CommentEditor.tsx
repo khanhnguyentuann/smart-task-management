@@ -215,7 +215,7 @@ export function CommentEditor({
     )
 
     return (
-        <Card className={cn("p-4", compact && "p-3", `transition-all duration-200 ${isFocused ? 'ring-2 ring-primary/20' : ''}`)}>
+        <Card className={cn("p-4", compact && "p-3")}>
             {quotedComment && (
                 <div className="mb-3 p-3 bg-muted rounded border-l-4 border-primary">
                     <div className="text-sm text-muted-foreground whitespace-pre-wrap">{quotedComment.content}</div>
@@ -223,164 +223,141 @@ export function CommentEditor({
             )}
 
             <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage
-                            src={user.avatar && user.avatar.startsWith('data:image')
-                                ? user.avatar
-                                : (user.avatar || '/default-avatar.svg')}
-                            alt={`${user.firstName} ${user.lastName}`}
-                        />
-                        <AvatarFallback className="text-xs">
-                            {`${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` || "U"}
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 space-y-2">
-                        <div className="relative">
-                            <Textarea
-                                ref={textareaRef}
-                                value={newComment}
-                                onChange={handleTextChange}
-                                onKeyDown={handleKeyDown}
-                                placeholder={placeholder}
-                                rows={3}
-                                className={cn("resize-none transition-all duration-200", 
-                                    error ? 'border-red-500 focus:border-red-500' : '',
-                                    compact && "min-h-[80px]"
-                                )}
-                                onFocus={() => setIsFocused(true)}
-                                onBlur={() => setIsFocused(false)}
-                                disabled={isSubmitting}
-                            />
-                            {error && (
-                                <div className="flex items-center gap-1 mt-1 text-xs text-red-600">
-                                    <AlertCircle className="h-3 w-3" />
-                                    <span>{error}</span>
-                                </div>
-                            )}
-
-                            {showMentions && filteredMembers.length > 0 && (
-                                <Card className="absolute z-10 mt-1 w-64 max-h-48 overflow-y-auto">
-                                    {filteredMembers.map((member) => (
-                                        <button
-                                            key={member.id}
-                                            onClick={() => insertMention(member)}
-                                            className="w-full px-3 py-2 text-left hover:bg-accent flex items-center gap-2"
-                                        >
-                                            <AtSign className="h-4 w-4" />
-                                            <div>
-                                                <div className="font-medium">{member.name}</div>
-                                                <div className="text-sm text-muted-foreground">@{member.username}</div>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </Card>
-                            )}
+                <div className="relative">
+                    <Textarea
+                        ref={textareaRef}
+                        value={newComment}
+                        onChange={handleTextChange}
+                        onKeyDown={handleKeyDown}
+                        placeholder={placeholder}
+                        className={cn("min-h-[100px] resize-none", compact && "min-h-[80px]")}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setIsFocused(false)}
+                        disabled={isSubmitting}
+                    />
+                    {error && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-red-600">
+                            <AlertCircle className="h-3 w-3" />
+                            <span>{error}</span>
                         </div>
+                    )}
 
-                        {selectedFiles.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {selectedFiles.map((file, index) => (
-                                    <Badge
-                                        key={index}
-                                        variant="secondary"
-                                        className="flex items-center gap-1 px-2 py-1"
-                                    >
-                                        {file.type.startsWith('image/') ? (
-                                            <ImageIcon className="h-4 w-4" aria-hidden="true" />
-                                        ) : (
-                                            <FileText className="h-4 w-4" aria-hidden="true" />
-                                        )}
-                                        <span className="text-xs truncate max-w-20">
-                                            {file.name}
-                                        </span>
-                                        <span className="text-xs text-muted-foreground">
-                                            ({formatFileSize(file.size)})
-                                        </span>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-4 w-4 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                            onClick={() => handleRemoveFile(index)}
-                                            disabled={isSubmitting}
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </Button>
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
+                    {showMentions && filteredMembers.length > 0 && (
+                        <Card className="absolute z-10 mt-1 w-64 max-h-48 overflow-y-auto">
+                            {filteredMembers.map((member) => (
+                                <button
+                                    key={member.id}
+                                    onClick={() => insertMention(member)}
+                                    className="w-full px-3 py-2 text-left hover:bg-accent flex items-center gap-2"
+                                >
+                                    <AtSign className="h-4 w-4" />
+                                    <div>
+                                        <div className="font-medium">{member.name}</div>
+                                        <div className="text-sm text-muted-foreground">@{member.username}</div>
+                                    </div>
+                                </button>
+                            ))}
+                        </Card>
+                    )}
+                </div>
 
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="sm" onClick={() => insertFormatting("bold")} className="h-8 w-8 p-0">
-                                    <Bold className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="sm" onClick={() => insertFormatting("italic")} className="h-8 w-8 p-0">
-                                    <Italic className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="sm" onClick={() => insertFormatting("code")} className="h-8 w-8 p-0">
-                                    <Code className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="sm" onClick={() => insertFormatting("list")} className="h-8 w-8 p-0">
-                                    <List className="h-4 w-4" />
-                                </Button>
+                {selectedFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {selectedFiles.map((file, index) => (
+                            <Badge key={index} variant="secondary" className="gap-1">
+                                {file.type.startsWith('image/') ? (
+                                    <ImageIcon className="h-4 w-4" aria-hidden="true" />
+                                ) : (
+                                    <FileText className="h-4 w-4" aria-hidden="true" />
+                                )}
+                                <span className="text-xs truncate max-w-20">
+                                    {file.name}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    ({formatFileSize(file.size)})
+                                </span>
                                 <Button
                                     type="button"
-                                    variant="outline"
+                                    variant="ghost"
                                     size="sm"
-                                    onClick={() => fileInputRef.current?.click()}
+                                    className="h-4 w-4 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                    onClick={() => handleRemoveFile(index)}
                                     disabled={isSubmitting}
-                                    className="h-8 px-2"
                                 >
-                                    <Paperclip className="h-4 w-4" />
+                                    <X className="h-3 w-3" />
                                 </Button>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    multiple
-                                    className="hidden"
-                                    onChange={handleFileSelect}
-                                    accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                {(replyingTo || quotedComment) && (
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={replyingTo ? onCancelReply : onCancelQuote}
-                                        className="h-6 w-6 p-0"
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </Button>
-                                )}
-                                <EnhancedButton
-                                    onClick={handleSubmit}
-                                    disabled={isDisabled}
-                                    className="px-4"
-                                >
-                                    {isSubmitting ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            Posting...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Send className="h-4 w-4 mr-2" />
-                                            {compact ? "Reply" : "Send Comment"}
-                                        </>
-                                    )}
-                                </EnhancedButton>
-                            </div>
-                        </div>
-
-                        <div className="text-xs text-muted-foreground">
-                            Press {shortcutText} to submit • Use @ to mention team members
-                        </div>
+                            </Badge>
+                        ))}
                     </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => insertFormatting("bold")} className="h-8 w-8 p-0">
+                            <Bold className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => insertFormatting("italic")} className="h-8 w-8 p-0">
+                            <Italic className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => insertFormatting("code")} className="h-8 w-8 p-0">
+                            <Code className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => insertFormatting("list")} className="h-8 w-8 p-0">
+                            <List className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isSubmitting}
+                            className="h-8 px-2"
+                        >
+                            <Paperclip className="h-4 w-4" />
+                        </Button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            className="hidden"
+                            onChange={handleFileSelect}
+                            accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        {(replyingTo || quotedComment) && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={replyingTo ? onCancelReply : onCancelQuote}
+                                className="h-6 w-6 p-0"
+                            >
+                                <X className="h-3 w-3" />
+                            </Button>
+                        )}
+                        <EnhancedButton
+                            onClick={handleSubmit}
+                            disabled={isDisabled}
+                            className="px-4"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Posting...
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="h-4 w-4 mr-2" />
+                                    {compact ? "Reply" : "Send Comment"}
+                                </>
+                            )}
+                        </EnhancedButton>
+                    </div>
+                </div>
+
+                <div className="text-xs text-muted-foreground">
+                    Press {shortcutText} to submit • Use @ to mention team members
                 </div>
             </div>
         </Card>

@@ -5,8 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { Button } from "@/shared/components/ui/button"
 import { Card } from "@/shared/components/ui/card"
 import { Badge } from "@/shared/components/ui/badge"
-import { Textarea } from "@/shared/components/ui/textarea"
-import { MoreHorizontal, Reply, Quote, Edit, Trash2, Download, FileText, ImageIcon, Save, X } from "lucide-react"
+
+import { MoreHorizontal, Reply, Quote, Trash2, Download, FileText, ImageIcon } from "lucide-react"
 import { format } from "date-fns"
 import { motion } from "framer-motion"
 import Image from "next/image"
@@ -44,8 +44,9 @@ export function CommentItem({
 }: CommentItemProps) {
     const [showReplyEditor, setShowReplyEditor] = useState(false)
     const [showQuoteEditor, setShowQuoteEditor] = useState(false)
-    const [isEditing, setIsEditing] = useState(false)
-    const [editContent, setEditContent] = useState(comment.content)
+
+    const [replyContent, setReplyContent] = useState("")
+    const [quoteContent, setQuoteContent] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
 
@@ -73,27 +74,7 @@ export function CommentItem({
         setShowQuoteEditor(false)
     }
 
-    const handleSave = async () => {
-        if (!onEdit || editContent.trim() === comment.content) {
-            setIsEditing(false)
-            return
-        }
 
-        setIsSubmitting(true)
-        try {
-            await onEdit(comment.id, editContent.trim())
-            setIsEditing(false)
-        } catch (error) {
-            console.error('Failed to update comment:', error)
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
-
-    const handleCancel = () => {
-        setIsEditing(false)
-        setEditContent(comment.content)
-    }
 
     const handleDelete = async () => {
         if (!onDelete) return
@@ -155,47 +136,9 @@ export function CommentItem({
                             )}
                         </div>
 
-                        {isEditing ? (
-                            <div className="space-y-2">
-                                <Textarea
-                                    value={editContent}
-                                    onChange={(e) => setEditContent(e.target.value)}
-                                    placeholder="Edit your comment..."
-                                    rows={3}
-                                    className="resize-none"
-                                    disabled={isSubmitting}
-                                />
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        size="sm"
-                                        onClick={handleSave}
-                                        disabled={isSubmitting || editContent.trim() === comment.content}
-                                    >
-                                        {isSubmitting ? (
-                                            <>Saving...</>
-                                        ) : (
-                                            <>
-                                                <Save className="h-3 w-3 mr-1" />
-                                                Save
-                                            </>
-                                        )}
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleCancel}
-                                        disabled={isSubmitting}
-                                    >
-                                        <X className="h-3 w-3 mr-1" />
-                                        Cancel
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="prose prose-sm max-w-none">
-                                <MarkdownRenderer content={comment.formattedContent || comment.content} />
-                            </div>
-                        )}
+                        <div className="prose prose-sm max-w-none">
+                            <MarkdownRenderer content={comment.formattedContent || comment.content} />
+                        </div>
 
                         {comment.attachments && comment.attachments.length > 0 && (
                             <div className="mt-3 space-y-2">
@@ -313,12 +256,6 @@ export function CommentItem({
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                            {isAuthor && onEdit && !isEditing && (
-                                                <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                                    <Edit className="h-4 w-4 mr-2" />
-                                                    Edit
-                                                </DropdownMenuItem>
-                                            )}
                                             {isAuthor && onDelete && (
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
@@ -366,9 +303,9 @@ export function CommentItem({
                             ...comment.user,
                             email: `${comment.user.firstName.toLowerCase()}.${comment.user.lastName.toLowerCase()}@example.com`
                         }}
-                        newComment=""
-                        setNewComment={() => { }}
-                        onAddComment={() => handleReply("", [])}
+                        newComment={replyContent}
+                        setNewComment={setReplyContent}
+                        onAddComment={() => handleReply(replyContent, [])}
                         placeholder="Write a reply..."
                         compact
                     />
@@ -382,9 +319,9 @@ export function CommentItem({
                             ...comment.user,
                             email: `${comment.user.firstName.toLowerCase()}.${comment.user.lastName.toLowerCase()}@example.com`
                         }}
-                        newComment=""
-                        setNewComment={() => { }}
-                        onAddComment={() => handleQuote("", [])}
+                        newComment={quoteContent}
+                        setNewComment={setQuoteContent}
+                        onAddComment={() => handleQuote(quoteContent, [])}
                         quotedComment={comment}
                         placeholder="Quote and reply..."
                         compact

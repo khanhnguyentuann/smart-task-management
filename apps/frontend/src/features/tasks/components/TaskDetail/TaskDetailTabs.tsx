@@ -28,7 +28,6 @@ interface TaskDetailTabsProps {
     setNewSubtask: (value: string) => void
     onAddSubtask: () => void
     onToggleSubtask: (subtaskId: string) => void
-    fileInputRef: React.RefObject<HTMLInputElement | null>
     subtasks: any[]
     onDeleteSubtask: (subtaskId: string) => void
     assignees: any[]
@@ -58,14 +57,10 @@ export function TaskDetailTabs({
     editedTask,
     canEdit,
     onFieldChange,
-    newComment,
-    setNewComment,
-    onAddComment,
     newSubtask,
     setNewSubtask,
     onAddSubtask,
     onToggleSubtask,
-    fileInputRef,
     labels,
     availableColors,
     onCreateLabel,
@@ -81,7 +76,6 @@ export function TaskDetailTabs({
     commentsCount = 0,
     filesCount = 0,
     activityCount = 0,
-    commentError,
     comments,
     commentsLoading = false,
     onEditComment,
@@ -192,7 +186,6 @@ export function TaskDetailTabs({
             <TabsContent value="attachments">
                 <FilesTab
                     currentTask={currentTask}
-                    fileInputRef={fileInputRef}
                 />
             </TabsContent>
 
