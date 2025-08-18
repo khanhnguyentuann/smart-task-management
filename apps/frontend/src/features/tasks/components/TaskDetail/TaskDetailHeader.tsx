@@ -2,7 +2,7 @@
 
 import { Card, CardHeader, CardTitle, Input, Badge, Progress, EnhancedButton } from "@/shared/components/ui"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Edit3, Save, Flag, Square, Clock, CheckSquare, Share2, ChevronRight, User, Calendar, AlertTriangle } from 'lucide-react'
+import { Edit3, Save, Flag, Square, Clock, CheckSquare, Share2, ChevronRight, User, Calendar, AlertTriangle, Home, FolderOpen, MessageSquare, Bell } from 'lucide-react'
 import { TaskDetail } from "../../types/task.types"
 import { ShareTaskModal } from "../Modals/ShareTaskModal"
 
@@ -20,6 +20,7 @@ interface TaskDetailHeaderProps {
     totalSubtasks: number
     progressPercentage: number
     task?: any // Raw task data from backend
+    onBack?: () => void
 }
 
 export function TaskDetailHeader({
@@ -35,7 +36,8 @@ export function TaskDetailHeader({
     completedSubtasks,
     totalSubtasks,
     progressPercentage,
-    task
+    task,
+    onBack
 }: TaskDetailHeaderProps) {
     const getPriorityColor = (priority: string) => {
         switch (priority) {
@@ -126,21 +128,89 @@ export function TaskDetailHeader({
         return task.assignees[0] // First assignee is considered main
     }
 
+    // Mock broadcast notifications - in real app, this would come from props or context
+    const getBroadcastNotifications = () => {
+        const notifications = []
+        
+        if (currentTask?.dueDate && isOverdue(currentTask.dueDate) && currentTask?.status !== 'DONE') {
+            notifications.push({
+                type: 'overdue',
+                message: 'Task is overdue',
+                icon: AlertTriangle,
+                color: 'text-red-600'
+            })
+        }
+        
+        if (task?.comments && task.comments.length > 0) {
+            const recentComments = task.comments.filter((comment: any) => {
+                const commentDate = new Date(comment.createdAt)
+                const now = new Date()
+                return (now.getTime() - commentDate.getTime()) < 24 * 60 * 60 * 1000 // Last 24 hours
+            })
+            
+            if (recentComments.length > 0) {
+                notifications.push({
+                    type: 'comments',
+                    message: `${recentComments.length} new comment${recentComments.length > 1 ? 's' : ''}`,
+                    icon: MessageSquare,
+                    color: 'text-blue-600'
+                })
+            }
+        }
+        
+        return notifications
+    }
+
+    const notifications = getBroadcastNotifications()
+
     return (
         <Card>
             <CardHeader>
-                {/* Breadcrumb */}
-                {task?.project && (
-                    <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground mb-2 overflow-hidden pr-16">
-                        <span className="hover:text-foreground cursor-pointer truncate min-w-0 flex-1">
-                            {typeof task.project === 'object' ? task.project.name : task.project}
-                        </span>
-                        <ChevronRight className="h-3 w-3 flex-shrink-0" />
-                        <span className="hidden sm:inline">Tasks</span>
-                        <ChevronRight className="h-3 w-3 flex-shrink-0 hidden sm:inline" />
-                        <Badge variant="outline" className="text-xs font-mono px-2 py-0.5 h-5 truncate">
-                            {getTaskId()}
-                        </Badge>
+                {/* Enhanced Breadcrumb Navigation */}
+                <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground mb-3 overflow-hidden">
+                    <button 
+                        onClick={onBack}
+                        className="flex items-center gap-1 hover:text-foreground transition-colors"
+                    >
+                        <Home className="h-3 w-3" />
+                        <span className="hidden sm:inline">Home</span>
+                    </button>
+                    <ChevronRight className="h-3 w-3 flex-shrink-0" />
+                    
+                    {task?.project && (
+                        <>
+                            <button className="flex items-center gap-1 hover:text-foreground transition-colors truncate">
+                                <FolderOpen className="h-3 w-3" />
+                                <span className="truncate">
+                                    {typeof task.project === 'object' ? task.project.name : task.project}
+                                </span>
+                            </button>
+                            <ChevronRight className="h-3 w-3 flex-shrink-0" />
+                        </>
+                    )}
+                    
+                    <span className="flex items-center gap-1 text-foreground font-medium">
+                        <Square className="h-3 w-3" />
+                        <span className="truncate">Tasks</span>
+                    </span>
+                    <ChevronRight className="h-3 w-3 flex-shrink-0" />
+                    <Badge variant="outline" className="text-xs font-mono px-2 py-0.5 h-5 truncate">
+                        {getTaskId()}
+                    </Badge>
+                </div>
+
+                {/* Broadcast/Notification Area */}
+                {notifications.length > 0 && (
+                    <div className="flex items-center gap-2 mb-3 p-2 bg-muted/50 rounded-lg border">
+                        <Bell className="h-4 w-4 text-muted-foreground" />
+                        <div className="flex items-center gap-3 text-sm">
+                            {notifications.map((notification, index) => (
+                                <div key={index} className="flex items-center gap-1">
+                                    <notification.icon className={`h-3 w-3 ${notification.color}`} />
+                                    <span className={notification.color}>{notification.message}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 

@@ -403,6 +403,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         totalSubtasks={totalSubtasks}
                         progressPercentage={progressPercentage}
                         task={task}
+                        onBack={onBack}
                     />
 
                     {/* Tabs */}
