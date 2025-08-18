@@ -5,7 +5,8 @@ import { DetailsTab } from "./tabs/Details/DetailsTab"
 import { CommentsTab } from "./tabs/Comments/CommentsTab"
 import { FilesTab } from "./tabs/Files/FilesTab"
 import { ActivityTab } from "./tabs/Activity/ActivityTab"
-import { TaskDetail } from "../../types/task.types"
+import { TaskDetail, Comment } from "../../types/task.types"
+import type { User } from "@/shared/lib/types"
 
 interface TaskDetailTabsProps {
     activeTab: string
@@ -35,11 +36,18 @@ interface TaskDetailTabsProps {
     onAddAssignee: (userId: string) => void
     onRemoveAssignee: (userId: string) => void
     onReorderAssignees?: (assignees: any[]) => void
-    // Mock data for counts - in real app, these would come from props
+    // Comments data
     commentsCount?: number
     filesCount?: number
     activityCount?: number
     commentError?: string
+    comments?: Comment[]
+    commentsLoading?: boolean
+    onEditComment?: (commentId: string, content: string) => Promise<Comment | undefined>
+    onDeleteComment?: (commentId: string) => Promise<void>
+    onReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
+    onRemoveReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
+    user?: User
 }
 
 export function TaskDetailTabs({
@@ -73,7 +81,14 @@ export function TaskDetailTabs({
     commentsCount = 0,
     filesCount = 0,
     activityCount = 0,
-    commentError
+    commentError,
+    comments,
+    commentsLoading = false,
+    onEditComment,
+    onDeleteComment,
+    onReaction,
+    onRemoveReaction,
+    user
 }: TaskDetailTabsProps) {
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -164,11 +179,13 @@ export function TaskDetailTabs({
 
             <TabsContent value="comments">
                 <CommentsTab
-                    currentTask={currentTask}
-                    newComment={newComment}
-                    setNewComment={setNewComment}
-                    onAddComment={onAddComment}
-                    commentError={commentError}
+                    comments={comments}
+                    commentsLoading={commentsLoading}
+                    onEditComment={onEditComment}
+                    onDeleteComment={onDeleteComment}
+                    onReaction={onReaction}
+                    onRemoveReaction={onRemoveReaction}
+                    user={user}
                 />
             </TabsContent>
 

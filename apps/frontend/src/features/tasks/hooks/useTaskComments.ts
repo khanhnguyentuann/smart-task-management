@@ -22,11 +22,11 @@ export function useTaskComments(taskId: string) {
         }
     }, [taskId])
 
-    const addComment = useCallback(async (content: string, mentions?: string[]) => {
+    const addComment = useCallback(async (content: string, mentions?: string[], parentId?: string, quotedCommentId?: string) => {
         if (!taskId) return
         
         try {
-            const newComment = await commentService.addComment(taskId, content, mentions)
+            const newComment = await commentService.addComment(taskId, content, mentions, parentId, quotedCommentId)
             setComments(prev => [newComment, ...prev])
             return newComment
         } catch (err: any) {
@@ -35,11 +35,11 @@ export function useTaskComments(taskId: string) {
         }
     }, [taskId])
 
-    const updateComment = useCallback(async (commentId: string, content: string) => {
+    const updateComment = useCallback(async (commentId: string, content: string, mentions?: string[]) => {
         if (!taskId) return
         
         try {
-            const updatedComment = await commentService.updateComment(taskId, commentId, content)
+            const updatedComment = await commentService.updateComment(taskId, commentId, content, mentions)
             setComments(prev => prev.map(comment => 
                 comment.id === commentId ? updatedComment : comment
             ))
@@ -62,35 +62,44 @@ export function useTaskComments(taskId: string) {
         }
     }, [taskId])
 
-    const likeComment = useCallback(async (commentId: string) => {
+    const addReaction = useCallback(async (commentId: string, emoji: string) => {
         if (!taskId) return
         
         try {
-            const updatedComment = await commentService.likeComment(taskId, commentId)
+            const updatedComment = await commentService.addReaction(taskId, commentId, emoji)
             setComments(prev => prev.map(comment => 
                 comment.id === commentId ? updatedComment : comment
             ))
             return updatedComment
         } catch (err: any) {
-            setError(err.message || 'Failed to like comment')
+            setError(err.message || 'Failed to add reaction')
             throw err
         }
     }, [taskId])
 
-    const unlikeComment = useCallback(async (commentId: string) => {
+    const removeReaction = useCallback(async (commentId: string, emoji: string) => {
         if (!taskId) return
         
         try {
-            const updatedComment = await commentService.unlikeComment(taskId, commentId)
+            const updatedComment = await commentService.removeReaction(taskId, commentId, emoji)
             setComments(prev => prev.map(comment => 
                 comment.id === commentId ? updatedComment : comment
             ))
             return updatedComment
         } catch (err: any) {
-            setError(err.message || 'Failed to unlike comment')
+            setError(err.message || 'Failed to remove reaction')
             throw err
         }
     }, [taskId])
+
+    // Legacy methods for backward compatibility
+    const likeComment = useCallback(async (commentId: string) => {
+        return addReaction(commentId, '❤️')
+    }, [addReaction])
+
+    const unlikeComment = useCallback(async (commentId: string) => {
+        return removeReaction(commentId, '❤️')
+    }, [removeReaction])
 
     // Auto-fetch on mount or taskId change
     useEffect(() => {
@@ -105,6 +114,8 @@ export function useTaskComments(taskId: string) {
         addComment,
         updateComment,
         deleteComment,
+        addReaction,
+        removeReaction,
         likeComment,
         unlikeComment,
         refresh: fetchComments

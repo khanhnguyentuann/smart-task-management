@@ -17,6 +17,7 @@ import { useTaskDetail } from "../../hooks/useTaskDetail"
 import { useTaskAssignees } from "../../hooks/useTaskAssignees"
 import { useTaskLabels } from "../../hooks/useTaskLabels"
 import { useTaskSubtasks } from "../../hooks/useTaskSubtasks"
+import { useTaskComments } from "../../hooks/useTaskComments"
 
 // Types
 import { TaskDetail as TaskDetailType } from "../../types/task.types"
@@ -77,6 +78,18 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         // Refresh task detail when subtasks change
         refresh()
     })
+
+    // Use task comments hook for comment data and operations
+    const {
+        comments,
+        loading: commentsLoading,
+        error: commentsError,
+        addComment,
+        updateComment,
+        deleteComment,
+        addReaction,
+        removeReaction
+    } = useTaskComments(taskId)
 
     // State management
     const [isEditing, setIsEditing] = useState(false)
@@ -222,7 +235,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
     }, [currentTask, deleteTask, onBack, onDelete, toast, handleError])
 
     // Comment handlers
-    const handleAddComment = useCallback(() => {
+    const handleAddComment = useCallback(async () => {
         if (!newComment.trim()) {
             setCommentError("Comment cannot be empty")
             return
@@ -231,23 +244,50 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         // Clear any previous errors
         setCommentError("")
 
-        const comment = {
-            id: Date.now().toString(),
-            content: newComment,
-            author: user,
-            createdAt: new Date(),
-            mentions: [],
-        }
+        try {
+            // Extract mentions from comment content (simple @userId pattern)
+            const mentionMatches = newComment.match(/@(\w+)/g) || []
+            const mentions = mentionMatches.map(match => match.substring(1))
 
-        if (isEditing && editedTask) {
-            setEditedTask({
-                ...editedTask,
-                comments: [...(editedTask.comments || []), comment],
+            await addComment(newComment.trim(), mentions)
+            setNewComment("")
+
+            toast({
+                title: "Comment Added",
+                description: "Your comment has been posted successfully.",
             })
+        } catch (error: any) {
+            setCommentError(error.message || "Failed to add comment")
+            handleError(error)
         }
+    }, [newComment, addComment, toast, handleError])
 
-        setNewComment("")
-    }, [newComment, user, isEditing, editedTask])
+    const handleEditComment = useCallback(async (commentId: string, content: string) => {
+        try {
+            const updatedComment = await updateComment(commentId, content)
+            toast({
+                title: "Comment Updated",
+                description: "Your comment has been updated successfully.",
+            })
+            return updatedComment
+        } catch (error: any) {
+            handleError(error)
+            throw error // Re-throw to let component handle loading state
+        }
+    }, [updateComment, toast, handleError])
+
+    const handleDeleteComment = useCallback(async (commentId: string) => {
+        try {
+            await deleteComment(commentId)
+            toast({
+                title: "Comment Deleted",
+                description: "Your comment has been deleted successfully.",
+            })
+        } catch (error: any) {
+            handleError(error)
+            throw error // Re-throw to let component handle loading state
+        }
+    }, [deleteComment, toast, handleError])
 
     // Subtask handlers
     const handleAddSubtask = useCallback(() => {
@@ -331,10 +371,10 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
             <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="flex h-14 items-center gap-2 sm:gap-4 px-4 sm:px-6">
                     <SidebarTrigger />
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={onBack} 
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onBack}
                         className="text-sm sm:text-base h-11 min-w-[44px] px-3 focus-visible:ring-2 focus-visible:ring-offset-2"
                     >
                         <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
@@ -396,11 +436,18 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         onAddAssignee={addAssignee}
                         onRemoveAssignee={removeAssignee}
                         onReorderAssignees={reorderAssignees}
-                        // Mock counts - in real app, these would come from actual data
-                        commentsCount={12}
-                        filesCount={3}
-                        activityCount={8}
+                        // Comments from hook
+                        commentsCount={comments?.length || 0}
+                        filesCount={currentTask?.attachments?.length || 0}
+                        activityCount={0}
                         commentError={commentError}
+                        comments={comments}
+                        commentsLoading={commentsLoading}
+                        onEditComment={handleEditComment}
+                        onDeleteComment={handleDeleteComment}
+                        onReaction={addReaction}
+                        onRemoveReaction={removeReaction}
+                        user={user}
                     />
 
                     {/* Footer Actions */}
@@ -412,10 +459,10 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                             {canDelete && (
                                 <>
                                     {task?.isArchived ? (
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm" 
-                                            onClick={handleRestore} 
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleRestore}
                                             disabled={loading}
                                             className="h-11 min-w-[44px] hover:bg-green-50 hover:text-green-700 hover:border-green-300 focus-visible:ring-2 focus-visible:ring-offset-2"
                                         >
@@ -423,10 +470,10 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                                             Restore
                                         </Button>
                                     ) : (
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm" 
-                                            onClick={handleArchive} 
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleArchive}
                                             disabled={loading}
                                             className="h-11 min-w-[44px] hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-offset-2"
                                         >
@@ -434,7 +481,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                                             Archive
                                         </Button>
                                     )}
-                                    
+
                                     {/* Danger Zone - Separated with divider */}
                                     <div className="h-px w-4 bg-border" />
                                     <DeleteTaskModal
@@ -444,7 +491,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                                 </>
                             )}
                         </div>
-                        
+
                         {/* Right side - Created/Updated info */}
                         <div className="text-xs text-muted-foreground text-center sm:text-left">
                             Created {currentTask?.createdAt ? new Date(currentTask.createdAt).toLocaleDateString() : ''} •

@@ -58,25 +58,90 @@ export interface UpdateTaskPayload {
 export interface Comment {
   id: string
   content: string
-  author: {
+  formattedContent?: any // Rich text format
+  taskId: string
+  userId: string
+  user: {
     id: string
-    name: string
-    avatar: string
+    firstName: string
+    lastName: string
+    avatar?: string
+  }
+
+  // Threading
+  parentId?: string
+  threadId?: string
+  replies?: Comment[]
+
+  // Quote/Reply
+  quotedCommentId?: string
+  quotedComment?: Comment
+
+  // Mentions
+  mentions: string[]
+
+  // Edit tracking
+  isEdited: boolean
+  editedAt?: Date
+
+  // Reactions
+  reactions?: CommentReaction[]
+
+  // Attachments
+  attachments?: CommentAttachment[]
+
+  // Timestamps
+  createdAt: Date
+  updatedAt: Date
+  deletedAt?: Date
+}
+
+export interface CommentReaction {
+  id: string
+  commentId: string
+  userId: string
+  emoji: string // "👍", "❤️", "😮", etc.
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    avatar?: string
   }
   createdAt: Date
-  updatedAt?: Date
-  mentions?: string[]
-  likes?: number
-  isLiked?: boolean
+}
+
+export interface CommentAttachment {
+  id: string
+  commentId: string
+  fileName: string
+  fileUrl: string
+  fileSize: number // in bytes
+  mimeType: string
+  uploadedBy: string
+  createdAt: Date
 }
 
 export interface CreateCommentPayload {
   content: string
   mentions?: string[]
+  parentId?: string
+  quotedCommentId?: string
+  attachments?: File[]
 }
 
 export interface UpdateCommentPayload {
   content: string
+  mentions?: string[]
+}
+
+export interface AddCommentReactionPayload {
+  commentId: string
+  emoji: string
+}
+
+export interface RemoveCommentReactionPayload {
+  commentId: string
+  emoji: string
 }
 
 // Subtask types
@@ -117,12 +182,13 @@ export interface UpdateLabelPayload {
 // File attachment types
 export interface FileAttachment {
   id: string
-  name: string
-  size: string
-  type?: string
-  url?: string
+  fileName: string
+  fileUrl: string
+  fileSize: number // in bytes
+  mimeType: string
+  taskId: string
   uploadedBy: string
-  uploadedAt: Date
+  createdAt: Date
 }
 
 export interface UploadFileResponse {

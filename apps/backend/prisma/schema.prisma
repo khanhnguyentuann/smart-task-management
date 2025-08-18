@@ -59,6 +59,7 @@ model User {
   projectMembers   ProjectMember[]
   createdTasks     Task[]         @relation("TaskCreator")
   comments         Comment[]
+  commentReactions CommentReaction[]
   activities       Activity[]
   notifications    Notification[]
   refreshTokens    RefreshToken[]
@@ -243,16 +244,28 @@ model TaskLabel {
 
 model Comment {
   id        String   @id @default(uuid())
-  content   String   @db.Text
+  content   String   @db.Text  // Raw markdown/text content
+  formattedContent Json?      // Rich text format (for future use)
   taskId    String
   userId    String
   
   // For threaded comments
-  parentId  String?
+  parentId  String?            // Direct parent for threading
+  threadId  String?            // Root thread ID for easier queries
+  
+  // For quote/reply
+  quotedCommentId String?      // Reference to quoted comment
+  
+  // Mentions
+  mentions  String[]  @default([])  // Array of mentioned user IDs
   
   // Edit tracking
   isEdited  Boolean  @default(false)
   editedAt  DateTime?
+  
+  // Soft delete
+  deletedAt DateTime?
+  deletedBy String?
   
   // Timestamps
   createdAt DateTime @default(now())
@@ -263,10 +276,57 @@ model Comment {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
   replies   Comment[] @relation("CommentReplies")
+  quotedComment Comment? @relation("QuotedComment", fields: [quotedCommentId], references: [id])
+  quotedBy  Comment[] @relation("QuotedComment")
+  
+  // New relations
+  reactions CommentReaction[]
+  attachments CommentAttachment[]
   
   @@index([taskId])
   @@index([userId])
+  @@index([parentId])
+  @@index([threadId])
   @@map("comments")
+}
+
+// New table for reactions
+model CommentReaction {
+  id        String   @id @default(uuid())
+  commentId String
+  userId    String
+  emoji     String   // Store emoji like "👍", "❤️", "😮"
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Unique constraint - one reaction type per user per comment
+  @@unique([commentId, userId, emoji])
+  @@index([commentId])
+  @@index([userId])
+  @@map("comment_reactions")
+}
+
+// New table for comment attachments
+model CommentAttachment {
+  id         String   @id @default(uuid())
+  commentId  String
+  fileName   String
+  fileUrl    String
+  fileSize   Int      // in bytes
+  mimeType   String
+  uploadedBy String
+  
+  createdAt  DateTime @default(now())
+  
+  // Relations
+  comment    Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  
+  @@index([commentId])
+  @@map("comment_attachments")
 }
 
 model Attachment {

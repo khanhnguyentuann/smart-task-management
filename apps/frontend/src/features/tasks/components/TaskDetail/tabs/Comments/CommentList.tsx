@@ -1,15 +1,19 @@
 "use client"
 
 import { CommentItem } from "./CommentItem"
-import { TaskDetail } from "../../../../types/task.types"
+import { TaskDetail, Comment, CommentAttachment } from "../../../../types/task.types"
 import { MessageSquare, AtSign, Hash, Bold, Italic, List } from 'lucide-react'
 
 interface CommentListProps {
     comments?: TaskDetail['comments']
     currentUserId?: string
-    onEditComment?: (commentId: string) => void
-    onDeleteComment?: (commentId: string) => void
+    onEditComment?: (commentId: string, content: string) => Promise<Comment | undefined>
+    onDeleteComment?: (commentId: string) => Promise<void>
     onReplyToComment?: (commentId: string) => void
+    onQuoteComment?: (commentId: string) => void
+    onReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
+    onRemoveReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
+    onDownloadAttachment?: (attachment: CommentAttachment) => void
 }
 
 export function CommentList({
@@ -17,7 +21,11 @@ export function CommentList({
     currentUserId,
     onEditComment,
     onDeleteComment,
-    onReplyToComment
+    onReplyToComment,
+    onQuoteComment,
+    onReaction,
+    onRemoveReaction,
+    onDownloadAttachment
 }: CommentListProps) {
     if (!comments || comments.length === 0) {
         return (
@@ -72,6 +80,10 @@ export function CommentList({
                     onEdit={onEditComment}
                     onDelete={onDeleteComment}
                     onReply={onReplyToComment}
+                    onQuote={onQuoteComment}
+                    onReaction={onReaction}
+                    onRemoveReaction={onRemoveReaction}
+                    onDownloadAttachment={onDownloadAttachment}
                 />
             ))}
         </div>
