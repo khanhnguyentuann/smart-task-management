@@ -20,7 +20,7 @@ import { useTaskSubtasks } from "../../hooks/useTaskSubtasks"
 import { useTaskComments } from "../../hooks/useTaskComments"
 
 // Types
-import { TaskDetail as TaskDetailType } from "../../types/task.types"
+import { TaskDetail as TaskDetailType, Comment } from "../../types/task.types"
 
 // Components
 import { TaskDetailHeader } from "./TaskDetailHeader"
@@ -129,6 +129,18 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
 
     // Check task permissions using helper
     const { canEdit, canDelete } = getTaskPermissions(task, user)
+
+    // Helper function to count total comments including nested replies
+    const countTotalComments = (comments: Comment[]): number => {
+        let total = 0
+        for (const comment of comments) {
+            total += 1 // Count current comment
+            if (comment.replies && comment.replies.length > 0) {
+                total += countTotalComments(comment.replies) // Recursively count replies
+            }
+        }
+        return total
+    }
 
     // Handler functions
     const handleEdit = useCallback(() => {
@@ -288,6 +300,40 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
         }
     }, [deleteComment, toast, handleError])
 
+    const handleReplyComment = useCallback(async (parentCommentId: string, content: string) => {
+        if (!content.trim()) {
+            toast({
+                title: "Reply Error",
+                description: "Reply content cannot be empty.",
+                variant: "destructive"
+            })
+            return
+        }
+
+        try {
+            // Extract mentions from reply content (simple @userId pattern)
+            // But exclude @username at the beginning (which is auto-added for UI)
+            const mentionMatches = content.match(/@(\w+)/g) || []
+            const mentions = mentionMatches
+                .map(match => match.substring(1))
+                .filter(mention => {
+                    // Don't include mentions that are just usernames (not userIds)
+                    // This filters out the auto-added @username
+                    return mention.length > 3 && /^[a-zA-Z0-9]+$/.test(mention)
+                })
+
+            await addComment(content.trim(), mentions, parentCommentId)
+
+            toast({
+                title: "Reply Added",
+                description: "Your reply has been posted successfully.",
+            })
+        } catch (error: any) {
+            handleError(error)
+            throw error // Re-throw to let component handle loading state
+        }
+    }, [addComment, toast, handleError])
+
     // Subtask handlers
     const handleAddSubtask = useCallback(() => {
         if (!newSubtask.trim()) return
@@ -436,7 +482,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         onRemoveAssignee={removeAssignee}
                         onReorderAssignees={reorderAssignees}
                         // Comments from hook
-                        commentsCount={comments?.length || 0}
+                        commentsCount={comments ? countTotalComments(comments) : 0}
                         filesCount={currentTask?.attachments?.length || 0}
                         activityCount={0}
                         commentError={commentError}
@@ -444,6 +490,7 @@ export function TaskDetail({ taskId, onBack, onDelete }: TaskDetailProps) {
                         commentsLoading={commentsLoading}
                         onEditComment={handleEditComment}
                         onDeleteComment={handleDeleteComment}
+                        onReplyComment={handleReplyComment}
                         onReaction={addReaction}
                         onRemoveReaction={removeReaction}
                         user={user}

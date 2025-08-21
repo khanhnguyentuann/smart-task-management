@@ -44,6 +44,7 @@ interface TaskDetailTabsProps {
     commentsLoading?: boolean
     onEditComment?: (commentId: string, content: string) => Promise<Comment | undefined>
     onDeleteComment?: (commentId: string) => Promise<void>
+    onReplyComment?: (parentCommentId: string, content: string) => Promise<void>
     onReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
     onRemoveReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
     user?: User
@@ -84,6 +85,7 @@ export function TaskDetailTabs({
     commentsLoading = false,
     onEditComment,
     onDeleteComment,
+    onReplyComment,
     onReaction,
     onRemoveReaction,
     user
@@ -92,57 +94,57 @@ export function TaskDetailTabs({
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <div className="relative">
                 <TabsList className="flex w-full bg-muted/50 border border-border shadow-sm rounded-lg p-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
-                <TabsTrigger 
-                    value="details" 
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
-                >
-                    Details
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="comments" 
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
-                >
-                    Comments
-                    {commentsCount > 0 && (
-                        <Badge 
-                            variant="secondary" 
-                            className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
-                            aria-label={`${commentsCount} comments`}
-                        >
-                            {commentsCount}
-                        </Badge>
-                    )}
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="attachments" 
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
-                >
-                    Files
-                    {filesCount > 0 && (
-                        <Badge 
-                            variant="secondary" 
-                            className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
-                            aria-label={`${filesCount} files`}
-                        >
-                            {filesCount}
-                        </Badge>
-                    )}
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="activity" 
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
-                >
-                    Activity
-                    {activityCount > 0 && (
-                        <Badge 
-                            variant="secondary" 
-                            className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
-                            aria-label={`${activityCount} activities`}
-                        >
-                            {activityCount}
-                        </Badge>
-                    )}
-                </TabsTrigger>
+                    <TabsTrigger
+                        value="details"
+                        className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                        Details
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="comments"
+                        className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                        Comments
+                        {commentsCount > 0 && (
+                            <Badge
+                                variant="secondary"
+                                className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
+                                aria-label={`${commentsCount} comments`}
+                            >
+                                {commentsCount}
+                            </Badge>
+                        )}
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="attachments"
+                        className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                        Files
+                        {filesCount > 0 && (
+                            <Badge
+                                variant="secondary"
+                                className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
+                                aria-label={`${filesCount} files`}
+                            >
+                                {filesCount}
+                            </Badge>
+                        )}
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="activity"
+                        className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold font-medium transition-all duration-200 hover:bg-muted/80 relative text-xs sm:text-sm flex-shrink-0 snap-start focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                        Activity
+                        {activityCount > 0 && (
+                            <Badge
+                                variant="secondary"
+                                className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs font-medium bg-white/10 text-foreground data-[state=active]:bg-foreground data-[state=active]:text-background flex items-center justify-center"
+                                aria-label={`${activityCount} activities`}
+                            >
+                                {activityCount}
+                            </Badge>
+                        )}
+                    </TabsTrigger>
                 </TabsList>
                 {/* Fade indicators for scroll */}
                 <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-background to-transparent pointer-events-none" />
@@ -181,6 +183,7 @@ export function TaskDetailTabs({
                     commentsLoading={commentsLoading}
                     onEditComment={onEditComment}
                     onDeleteComment={onDeleteComment}
+                    onReplyComment={onReplyComment}
                     onReaction={onReaction}
                     onRemoveReaction={onRemoveReaction}
                     user={user}

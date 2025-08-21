@@ -22,12 +22,14 @@ interface CommentItemProps {
     currentUserId?: string
     onEdit?: (commentId: string, content: string) => Promise<Comment | undefined>
     onDelete?: (commentId: string) => Promise<void>
-    onReply?: (commentId: string) => void
+    onReply?: (parentCommentId: string, content: string) => Promise<void>
     onQuote?: (commentId: string) => void
     onReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
     onRemoveReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
     onDownloadAttachment?: (attachment: CommentAttachment) => void
     isReply?: boolean
+    replyLevel?: number
+    allComments?: Comment[]
 }
 
 export function CommentItem({
@@ -40,7 +42,9 @@ export function CommentItem({
     onReaction,
     onRemoveReaction,
     onDownloadAttachment,
-    isReply = false
+    isReply = false,
+    replyLevel = 0,
+    allComments
 }: CommentItemProps) {
     const [showReplyEditor, setShowReplyEditor] = useState(false)
     const [showQuoteEditor, setShowQuoteEditor] = useState(false)
@@ -57,6 +61,26 @@ export function CommentItem({
     const isAuthor = comment.user.id === currentUserId
     const timeAgo = format(comment.createdAt, "MMM d, yyyy 'at' h:mm a")
     const hasReplies = comment.replies && comment.replies.length > 0
+    const canReply = replyLevel < 3 // Maximum 3 levels of replies
+    const nextReplyLevel = replyLevel + 1
+
+    // Find parent comment for reply display - search in all comments including nested replies
+    const findParentComment = (commentId: string, comments: Comment[]): Comment | null => {
+        for (const comment of comments) {
+            if (comment.id === commentId) {
+                return comment
+            }
+            if (comment.replies && comment.replies.length > 0) {
+                const found = findParentComment(commentId, comment.replies)
+                if (found) return found
+            }
+        }
+        return null
+    }
+
+    const parentComment = comment.parentId && allComments
+        ? findParentComment(comment.parentId, allComments)
+        : null
 
     const formatFileSize = (bytes: number) => {
         if (bytes === 0) return "0 Bytes"
@@ -68,9 +92,26 @@ export function CommentItem({
 
     const isImage = (type: string) => type.startsWith("image/")
 
-    const handleReply = (content: string, files?: File[]) => {
-        // TODO: Implement reply functionality
-        setShowReplyEditor(false)
+    const handleReply = async (content: string, files?: File[]) => {
+        if (!onReply) return
+
+        try {
+            // Remove @username from content before sending to backend
+            // This removes the auto-added @username at the beginning
+            const cleanContent = content.replace(/^@\w+\s*/, '').trim()
+
+            if (!cleanContent) {
+                console.error('Reply content is empty after removing @username')
+                return
+            }
+
+            // Call the parent's onReply function with the comment ID and clean content
+            await onReply(comment.id, cleanContent)
+            setShowReplyEditor(false)
+            setReplyContent("")
+        } catch (error) {
+            console.error('Failed to reply to comment:', error)
+        }
     }
 
     const handleQuote = (content: string, files?: File[]) => {
@@ -119,7 +160,7 @@ export function CommentItem({
         try {
             // Check if user already reacted to this emoji
             const hasReacted = hasUserReacted(emoji)
-            
+
             if (hasReacted && onRemoveReaction) {
                 // Remove reaction if user already reacted to this emoji
                 await onRemoveReaction(comment.id, emoji)
@@ -127,7 +168,7 @@ export function CommentItem({
                 // Add/Replace reaction - backend will handle replacing existing reaction
                 await onReaction(comment.id, emoji)
             }
-            
+
             // Close the reaction dropdown after handling the reaction
             setReactionDropdownOpen(false)
         } catch (error) {
@@ -147,8 +188,19 @@ export function CommentItem({
         return comment.reactions?.find(r => r.userId === currentUserId)?.emoji || null
     }
 
+    const getReplyIndentClass = () => {
+        if (!isReply) return ""
+        const indentLevel = Math.min(replyLevel, 3)
+        const indentClasses = {
+            1: "ml-8",
+            2: "ml-16",
+            3: "ml-24"
+        }
+        return `${indentClasses[indentLevel as keyof typeof indentClasses]} border-l-2 border-muted pl-4`
+    }
+
     return (
-        <div className={`space-y-4 ${isReply ? "ml-8 border-l-2 border-muted pl-4" : ""}`}>
+        <div className={`space-y-4 ${getReplyIndentClass()}`}>
             <Card className="p-4">
                 <div className="flex items-start gap-3">
                     <Avatar className="h-8 w-8">
@@ -196,7 +248,19 @@ export function CommentItem({
                             </div>
                         ) : (
                             <div className="prose prose-sm max-w-none">
-                                <MarkdownRenderer content={comment.formattedContent || comment.content} />
+                                {comment.parentId && (
+                                    <div className="text-sm text-muted-foreground mb-2">
+                                        <span className="font-medium">Reply {replyLevel > 1 ? `(Level ${replyLevel})` : ''}</span>
+                                    </div>
+                                )}
+                                <div className="space-y-2">
+                                    {comment.parentId && parentComment && (
+                                        <div className="text-sm text-blue-600 font-medium">
+                                            @{parentComment.user.firstName || parentComment.user.lastName || 'user'}
+                                        </div>
+                                    )}
+                                    <MarkdownRenderer content={comment.formattedContent || comment.content} />
+                                </div>
                             </div>
                         )}
 
@@ -264,9 +328,9 @@ export function CommentItem({
                                 {/* Add reaction dropdown - always show */}
                                 <DropdownMenu open={reactionDropdownOpen} onOpenChange={setReactionDropdownOpen}>
                                     <DropdownMenuTrigger asChild>
-                                        <Button 
-                                            variant="ghost" 
-                                            size="sm" 
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             className="h-7 px-2 hover:bg-accent"
                                             title="Add reaction"
                                         >
@@ -278,14 +342,13 @@ export function CommentItem({
                                             {REACTION_EMOJIS.map((emoji) => {
                                                 const count = getReactionCount(emoji)
                                                 const hasReacted = hasUserReacted(emoji)
-                                                
+
                                                 return (
                                                     <button
                                                         key={emoji}
                                                         onClick={() => handleReaction(emoji)}
-                                                        className={`p-2 hover:bg-accent rounded text-lg relative ${
-                                                            hasReacted ? 'bg-accent/50' : ''
-                                                        }`}
+                                                        className={`p-2 hover:bg-accent rounded text-lg relative ${hasReacted ? 'bg-accent/50' : ''
+                                                            }`}
                                                         title={`${emoji} ${count > 0 ? `(${count})` : ''}`}
                                                     >
                                                         <span>{emoji}</span>
@@ -303,16 +366,28 @@ export function CommentItem({
                             </div>
 
                             <div className="flex items-center gap-1 ml-auto">
-                                {onReply && (
+                                {onReply && canReply && (
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => setShowReplyEditor(!showReplyEditor)}
+                                        onClick={() => {
+                                            setShowReplyEditor(!showReplyEditor)
+                                            if (!showReplyEditor) {
+                                                // Auto-add @username when opening reply editor
+                                                const username = comment.user.firstName || comment.user.lastName || 'user'
+                                                setReplyContent(`@${username} `)
+                                            }
+                                        }}
                                         className="h-7 px-2 gap-1"
                                     >
                                         <Reply className="h-3 w-3" />
                                         Reply
                                     </Button>
+                                )}
+                                {onReply && !canReply && (
+                                    <span className="text-xs text-muted-foreground px-2">
+                                        Max reply depth reached
+                                    </span>
                                 )}
 
                                 {onQuote && (
@@ -372,8 +447,14 @@ export function CommentItem({
                         newComment={replyContent}
                         setNewComment={setReplyContent}
                         onAddComment={() => handleReply(replyContent, [])}
-                        placeholder="Write a reply..."
+                        placeholder={`Reply to ${comment.user.firstName}...`}
                         compact
+                        showCancelButton={true}
+                        onCancel={() => {
+                            setShowReplyEditor(false)
+                            setReplyContent("")
+                        }}
+                        submitButtonText="Reply"
                     />
                 </div>
             )}
@@ -411,6 +492,8 @@ export function CommentItem({
                             onRemoveReaction={onRemoveReaction}
                             onDownloadAttachment={onDownloadAttachment}
                             isReply={true}
+                            replyLevel={nextReplyLevel}
+                            allComments={allComments}
                         />
                     ))}
                 </div>

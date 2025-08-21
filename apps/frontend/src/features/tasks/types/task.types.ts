@@ -71,6 +71,7 @@ export interface Comment {
   // Threading
   parentId?: string
   threadId?: string
+  parent?: Comment
   replies?: Comment[]
 
   // Quote/Reply

@@ -5,7 +5,7 @@ import { REACTION_EMOJIS } from './constants/reactions'
 
 @Injectable()
 export class CommentsService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService) { }
 
     async getTaskComments(taskId: string): Promise<CommentResponseDto[]> {
         const comments = await this.prisma.comment.findMany({
@@ -46,7 +46,61 @@ export class CommentsService {
                                 }
                             }
                         },
-                        attachments: true
+                        attachments: true,
+                        replies: {
+                            where: { deletedAt: null },
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        avatar: true
+                                    }
+                                },
+                                reactions: {
+                                    include: {
+                                        user: {
+                                            select: {
+                                                id: true,
+                                                firstName: true,
+                                                lastName: true,
+                                                avatar: true
+                                            }
+                                        }
+                                    }
+                                },
+                                attachments: true,
+                                replies: {
+                                    where: { deletedAt: null },
+                                    include: {
+                                        user: {
+                                            select: {
+                                                id: true,
+                                                firstName: true,
+                                                lastName: true,
+                                                avatar: true
+                                            }
+                                        },
+                                        reactions: {
+                                            include: {
+                                                user: {
+                                                    select: {
+                                                        id: true,
+                                                        firstName: true,
+                                                        lastName: true,
+                                                        avatar: true
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        attachments: true
+                                    },
+                                    orderBy: { createdAt: 'asc' }
+                                }
+                            },
+                            orderBy: { createdAt: 'asc' }
+                        }
                     },
                     orderBy: { createdAt: 'asc' }
                 },
@@ -351,6 +405,87 @@ export class CommentsService {
                         lastName: true,
                         avatar: true
                     }
+                },
+                replies: {
+                    where: { deletedAt: null },
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                                avatar: true
+                            }
+                        },
+                        reactions: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        avatar: true
+                                    }
+                                }
+                            }
+                        },
+                        attachments: true,
+                        replies: {
+                            where: { deletedAt: null },
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        firstName: true,
+                                        lastName: true,
+                                        avatar: true
+                                    }
+                                },
+                                reactions: {
+                                    include: {
+                                        user: {
+                                            select: {
+                                                id: true,
+                                                firstName: true,
+                                                lastName: true,
+                                                avatar: true
+                                            }
+                                        }
+                                    }
+                                },
+                                attachments: true,
+                                replies: {
+                                    where: { deletedAt: null },
+                                    include: {
+                                        user: {
+                                            select: {
+                                                id: true,
+                                                firstName: true,
+                                                lastName: true,
+                                                avatar: true
+                                            }
+                                        },
+                                        reactions: {
+                                            include: {
+                                                user: {
+                                                    select: {
+                                                        id: true,
+                                                        firstName: true,
+                                                        lastName: true,
+                                                        avatar: true
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        attachments: true
+                                    },
+                                    orderBy: { createdAt: 'asc' }
+                                }
+                            },
+                            orderBy: { createdAt: 'asc' }
+                        }
+                    },
+                    orderBy: { createdAt: 'asc' }
                 },
                 quotedComment: {
                     include: {

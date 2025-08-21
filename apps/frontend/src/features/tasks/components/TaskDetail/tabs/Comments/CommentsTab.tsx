@@ -11,6 +11,7 @@ interface CommentsTabProps {
     commentsLoading?: boolean
     onEditComment?: (commentId: string, content: string) => Promise<Comment | undefined>
     onDeleteComment?: (commentId: string) => Promise<void>
+    onReplyComment?: (parentCommentId: string, content: string) => Promise<void>
     onReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
     onRemoveReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
     onDownloadAttachment?: (attachment: any) => void
@@ -26,6 +27,7 @@ export function CommentsTab({
     commentsLoading = false,
     onEditComment,
     onDeleteComment,
+    onReplyComment,
     onReaction,
     onRemoveReaction,
     onDownloadAttachment,
@@ -142,11 +144,13 @@ export function CommentsTab({
                             currentUserId={user?.id}
                             onEdit={onEditComment}
                             onDelete={onDeleteComment}
-                            onReply={handleReplyToComment}
+                            onReply={onReplyComment}
                             onQuote={handleQuoteComment}
                             onReaction={onReaction}
                             onRemoveReaction={onRemoveReaction}
                             onDownloadAttachment={onDownloadAttachment}
+                            replyLevel={0}
+                            allComments={comments}
                         />
                     ))
                 )}

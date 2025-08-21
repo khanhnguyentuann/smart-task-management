@@ -7,9 +7,38 @@ export function useTaskComments(taskId: string) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
+    // Helper function to update comment in nested structure
+    const updateCommentInNestedStructure = (comments: Comment[], commentId: string, updatedComment: Comment): Comment[] => {
+        return comments.map(comment => {
+            if (comment.id === commentId) {
+                return updatedComment
+            }
+            if (comment.replies && comment.replies.length > 0) {
+                return {
+                    ...comment,
+                    replies: updateCommentInNestedStructure(comment.replies, commentId, updatedComment)
+                }
+            }
+            return comment
+        })
+    }
+
+    // Helper function to delete comment in nested structure
+    const deleteCommentInNestedStructure = (comments: Comment[], commentId: string): Comment[] => {
+        return comments.map(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                return {
+                    ...comment,
+                    replies: deleteCommentInNestedStructure(comment.replies, commentId)
+                }
+            }
+            return comment
+        }).filter(comment => comment.id !== commentId)
+    }
+
     const fetchComments = useCallback(async () => {
         if (!taskId) return
-        
+
         setLoading(true)
         setError(null)
         try {
@@ -24,25 +53,26 @@ export function useTaskComments(taskId: string) {
 
     const addComment = useCallback(async (content: string, mentions?: string[], parentId?: string, quotedCommentId?: string) => {
         if (!taskId) return
-        
+
         try {
             const newComment = await commentService.addComment(taskId, content, mentions, parentId, quotedCommentId)
-            setComments(prev => [newComment, ...prev])
+
+            // Refresh comments to get the updated structure with replies
+            await fetchComments()
+
             return newComment
         } catch (err: any) {
             setError(err.message || 'Failed to add comment')
             throw err
         }
-    }, [taskId])
+    }, [taskId, fetchComments])
 
     const updateComment = useCallback(async (commentId: string, content: string, mentions?: string[]) => {
         if (!taskId) return
-        
+
         try {
             const updatedComment = await commentService.updateComment(taskId, commentId, content, mentions)
-            setComments(prev => prev.map(comment => 
-                comment.id === commentId ? updatedComment : comment
-            ))
+            setComments(prev => updateCommentInNestedStructure(prev, commentId, updatedComment))
             return updatedComment
         } catch (err: any) {
             setError(err.message || 'Failed to update comment')
@@ -52,10 +82,10 @@ export function useTaskComments(taskId: string) {
 
     const deleteComment = useCallback(async (commentId: string) => {
         if (!taskId) return
-        
+
         try {
             await commentService.deleteComment(taskId, commentId)
-            setComments(prev => prev.filter(comment => comment.id !== commentId))
+            setComments(prev => deleteCommentInNestedStructure(prev, commentId))
         } catch (err: any) {
             setError(err.message || 'Failed to delete comment')
             throw err
@@ -64,12 +94,10 @@ export function useTaskComments(taskId: string) {
 
     const addReaction = useCallback(async (commentId: string, emoji: string) => {
         if (!taskId) return
-        
+
         try {
             const updatedComment = await commentService.addReaction(taskId, commentId, emoji)
-            setComments(prev => prev.map(comment => 
-                comment.id === commentId ? updatedComment : comment
-            ))
+            setComments(prev => updateCommentInNestedStructure(prev, commentId, updatedComment))
             return updatedComment
         } catch (err: any) {
             setError(err.message || 'Failed to add reaction')
@@ -79,12 +107,10 @@ export function useTaskComments(taskId: string) {
 
     const removeReaction = useCallback(async (commentId: string, emoji: string) => {
         if (!taskId) return
-        
+
         try {
             const updatedComment = await commentService.removeReaction(taskId, commentId, emoji)
-            setComments(prev => prev.map(comment => 
-                comment.id === commentId ? updatedComment : comment
-            ))
+            setComments(prev => updateCommentInNestedStructure(prev, commentId, updatedComment))
             return updatedComment
         } catch (err: any) {
             setError(err.message || 'Failed to remove reaction')
