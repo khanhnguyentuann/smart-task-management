@@ -32,13 +32,13 @@ class CommentService {
     }
 
     async addReaction(taskId: string, commentId: string, emoji: string): Promise<Comment> {
-        const payload: AddCommentReactionPayload = { commentId, emoji }
+        const payload: AddCommentReactionPayload = { emoji }
         const comment = await commentApi.addReaction(taskId, commentId, payload)
         return this.transformComment(comment)
     }
 
     async removeReaction(taskId: string, commentId: string, emoji: string): Promise<Comment> {
-        const payload: RemoveCommentReactionPayload = { commentId, emoji }
+        const payload: RemoveCommentReactionPayload = { emoji }
         const comment = await commentApi.removeReaction(taskId, commentId, payload)
         return this.transformComment(comment)
     }

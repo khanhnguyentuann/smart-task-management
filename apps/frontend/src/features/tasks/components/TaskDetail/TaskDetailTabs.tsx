@@ -57,6 +57,9 @@ export function TaskDetailTabs({
     editedTask,
     canEdit,
     onFieldChange,
+    newComment,
+    setNewComment,
+    onAddComment,
     newSubtask,
     setNewSubtask,
     onAddSubtask,
@@ -76,6 +79,7 @@ export function TaskDetailTabs({
     commentsCount = 0,
     filesCount = 0,
     activityCount = 0,
+    commentError,
     comments,
     commentsLoading = false,
     onEditComment,
@@ -180,6 +184,10 @@ export function TaskDetailTabs({
                     onReaction={onReaction}
                     onRemoveReaction={onRemoveReaction}
                     user={user}
+                    onAddComment={onAddComment}
+                    newComment={newComment}
+                    setNewComment={setNewComment}
+                    commentError={commentError}
                 />
             </TabsContent>
 

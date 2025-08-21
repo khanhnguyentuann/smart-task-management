@@ -303,8 +303,8 @@ model CommentReaction {
   comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  // Unique constraint - one reaction type per user per comment
-  @@unique([commentId, userId, emoji])
+  // Unique constraint - one reaction per user per comment (regardless of emoji type)
+  @@unique([commentId, userId])
   @@index([commentId])
   @@index([userId])
   @@map("comment_reactions")

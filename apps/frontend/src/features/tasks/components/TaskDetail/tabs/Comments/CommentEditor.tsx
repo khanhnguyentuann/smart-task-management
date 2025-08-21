@@ -29,6 +29,10 @@ interface CommentEditorProps {
     // New props for enhanced editor
     placeholder?: string
     compact?: boolean
+    // Custom button props
+    submitButtonText?: string
+    showCancelButton?: boolean
+    onCancel?: () => void
 }
 
 // Mock team members for mentions
@@ -53,7 +57,10 @@ export function CommentEditor({
     onCancelReply,
     onCancelQuote,
     placeholder = "Write a comment...",
-    compact = false
+    compact = false,
+    submitButtonText,
+    showCancelButton = false,
+    onCancel
 }: CommentEditorProps) {
     const [isFocused, setIsFocused] = useState(false)
     const [showMentions, setShowMentions] = useState(false)
@@ -326,11 +333,11 @@ export function CommentEditor({
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {(replyingTo || quotedComment) && (
+                        {(replyingTo || quotedComment || showCancelButton) && (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={replyingTo ? onCancelReply : onCancelQuote}
+                                onClick={replyingTo ? onCancelReply : quotedComment ? onCancelQuote : onCancel}
                                 className="h-6 w-6 p-0"
                             >
                                 <X className="h-3 w-3" />
@@ -349,7 +356,7 @@ export function CommentEditor({
                             ) : (
                                 <>
                                     <Send className="h-4 w-4 mr-2" />
-                                    {compact ? "Reply" : "Send Comment"}
+                                    {submitButtonText || (compact ? "Reply" : "Send Comment")}
                                 </>
                             )}
                         </EnhancedButton>

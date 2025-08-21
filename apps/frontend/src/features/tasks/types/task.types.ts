@@ -135,12 +135,10 @@ export interface UpdateCommentPayload {
 }
 
 export interface AddCommentReactionPayload {
-  commentId: string
   emoji: string
 }
 
 export interface RemoveCommentReactionPayload {
-  commentId: string
   emoji: string
 }
 

@@ -14,6 +14,10 @@ interface CommentsTabProps {
     onReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
     onRemoveReaction?: (commentId: string, emoji: string) => Promise<Comment | undefined>
     onDownloadAttachment?: (attachment: any) => void
+    onAddComment?: () => void
+    newComment?: string
+    setNewComment?: (value: string) => void
+    commentError?: string
     user?: User
 }
 
@@ -25,24 +29,36 @@ export function CommentsTab({
     onReaction,
     onRemoveReaction,
     onDownloadAttachment,
+    onAddComment,
+    newComment: externalNewComment,
+    setNewComment: externalSetNewComment,
+    commentError: externalCommentError,
     user
 }: CommentsTabProps) {
-    const [newComment, setNewComment] = useState("")
     const [selectedFiles, setSelectedFiles] = useState<File[]>([])
     const [isSubmittingComment, setIsSubmittingComment] = useState(false)
-    const [commentError, setCommentError] = useState("")
+    const [localCommentError, setLocalCommentError] = useState("")
     const [replyingTo, setReplyingTo] = useState<string | null>(null)
     const [quotingComment, setQuotingComment] = useState<Comment | null>(null)
 
+    // Use external error if provided, otherwise use local error
+    const commentError = externalCommentError ?? localCommentError
+
+    // Use external state if provided, otherwise use local state
+    const [localNewComment, setLocalNewComment] = useState("")
+    const newComment = externalNewComment ?? localNewComment
+    const setNewComment = externalSetNewComment ?? setLocalNewComment
+
     const handleAddComment = useCallback(() => {
         if (newComment.trim() || selectedFiles.length > 0) {
-            // TODO: Implement add comment functionality
-            setNewComment("")
+            if (onAddComment) {
+                onAddComment()
+            }
             setSelectedFiles([])
             setReplyingTo(null)
             setQuotingComment(null)
         }
-    }, [newComment, selectedFiles])
+    }, [newComment, selectedFiles, onAddComment])
 
     const handleFilesChange = useCallback((files: File[]) => {
         setSelectedFiles(files)

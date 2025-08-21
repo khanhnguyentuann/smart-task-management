@@ -266,17 +266,17 @@ export class CommentsService {
             throw new NotFoundException('Comment not found')
         }
 
-        // Add or update reaction
-        await this.prisma.commentReaction.upsert({
+        // First, delete any existing reaction from this user on this comment
+        await this.prisma.commentReaction.deleteMany({
             where: {
-                commentId_userId_emoji: {
-                    commentId,
-                    userId,
-                    emoji: dto.emoji
-                }
-            },
-            update: {},
-            create: {
+                commentId,
+                userId
+            }
+        })
+
+        // Then add the new reaction
+        await this.prisma.commentReaction.create({
+            data: {
                 commentId,
                 userId,
                 emoji: dto.emoji
